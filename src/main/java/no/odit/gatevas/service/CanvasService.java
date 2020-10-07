@@ -1,5 +1,9 @@
 package no.odit.gatevas.service;
 
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
@@ -17,6 +21,7 @@ import edu.ksu.canvas.model.User;
 import edu.ksu.canvas.oauth.OauthToken;
 import edu.ksu.canvas.oauth.OauthTokenRefresher;
 import edu.ksu.canvas.oauth.RefreshableOauthToken;
+import edu.ksu.canvas.requestOptions.CreateUserOptions;
 
 @Service
 public class CanvasService {
@@ -33,11 +38,11 @@ public class CanvasService {
 	@Value("${canvas_lms.refresh_token}")
 	private String refreshToken;
 
-	//	@PostConstruct
+		@PostConstruct
 	public void test() {
 		try {
 
-			String canvasBaseUrl = "https://fagskolentelemark.instructure.com";
+			String canvasBaseUrl = "https://fagskolentelemark.beta.instructure.com";
 			OauthTokenRefresher tokenRefresher = new OauthTokenRefresher(clientId, clientSecret, canvasBaseUrl);
 			OauthToken oauthToken = new RefreshableOauthToken(tokenRefresher, refreshToken);
 			CanvasApiFactory apiFactory = new CanvasApiFactory(canvasBaseUrl);
@@ -55,18 +60,24 @@ public class CanvasService {
 			EnrollmentWriter enrollmentWriter = apiFactory.getWriter(EnrollmentWriter.class, oauthToken);
 
 			User user = new User();
-			user.setEmail("ola.nordmann@outlook.com");
-			user.setName("Ola Nordmann");
-			user.setLoginId("ola.nordmann@outlook.com");
-
+			user.setEmail("olav.nordmann@outlook.com");
+			user.setName("Olav Nordmann");
+			user.setLoginId("olav.nordmann@outlook.com");
+			user.setSisUserId("olav.nordmann@outlook.com");
+			
+			CreateUserOptions createUserOptions = new CreateUserOptions();
+			createUserOptions.forceSelfRegistration(false);
+			createUserOptions.sendConfirmation(false);
+			createUserOptions.skipConfirmation(true);
+			createUserOptions.termsOfUse(false);
 			userWriter.createUser(user);
 
-			Course course = new Course();
-
-
-			Enrollment enroll = new Enrollment();
-			enroll.setUser(user);
-			enrollmentWriter.enrollUserInCourse(enroll);
+//			Course course = new Course();
+//
+//
+//			Enrollment enroll = new Enrollment();
+//			enroll.setUser(user);
+//			enrollmentWriter.enrollUserInCourse(enroll);
 
 
 
@@ -88,10 +99,10 @@ public class CanvasService {
 
 
 
-			//			Optional<User> optUser = userReader.showUserDetails("sis_user_id:Andre.Mathisen@usn.no");
-			//			optUser.ifPresentOrElse(user -> {
-			//				System.out.println("Found user: " + user.getName());
-			//			}, () -> System.out.println("Failed to find user!"));
+//						Optional<User> optUser = userReader.showUserDetails("sis_user_id:Andre.Mathisen@usn.no");
+//						optUser.ifPresentOrElse(user -> {
+//							System.out.println("Found user: " + user.getName());
+//						}, () -> System.out.println("Failed to find user!"));
 
 			System.exit(0);
 
