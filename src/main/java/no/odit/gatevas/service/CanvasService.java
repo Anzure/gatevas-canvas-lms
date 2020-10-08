@@ -1,5 +1,7 @@
 package no.odit.gatevas.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
@@ -19,6 +21,8 @@ import edu.ksu.canvas.requestOptions.CreateUserOptions;
 
 @Service
 public class CanvasService {
+	
+	private static final Logger log = LoggerFactory.getLogger(CanvasService.class);
 
 	@Value("${canvas_lms.client_id}")
 	private String clientId;
