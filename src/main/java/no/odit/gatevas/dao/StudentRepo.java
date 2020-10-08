@@ -4,9 +4,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import no.odit.gatevas.model.Phone;
+import no.odit.gatevas.model.Student;
 
 @Repository
-public interface PhoneRepo extends JpaRepository<Phone, UUID> {
+public interface StudentRepo extends JpaRepository<Student, UUID> {
 
 }

@@ -1,9 +1,5 @@
 package no.odit.gatevas.service;
 
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
@@ -15,8 +11,6 @@ import edu.ksu.canvas.interfaces.EnrollmentWriter;
 import edu.ksu.canvas.interfaces.UserReader;
 import edu.ksu.canvas.interfaces.UserWriter;
 import edu.ksu.canvas.model.Account;
-import edu.ksu.canvas.model.Course;
-import edu.ksu.canvas.model.Enrollment;
 import edu.ksu.canvas.model.User;
 import edu.ksu.canvas.oauth.OauthToken;
 import edu.ksu.canvas.oauth.OauthTokenRefresher;
@@ -38,7 +32,6 @@ public class CanvasService {
 	@Value("${canvas_lms.refresh_token}")
 	private String refreshToken;
 
-		@PostConstruct
 	public void test() {
 		try {
 
@@ -64,7 +57,7 @@ public class CanvasService {
 			user.setName("Olav Nordmann");
 			user.setLoginId("olav.nordmann@outlook.com");
 			user.setSisUserId("olav.nordmann@outlook.com");
-			
+
 			CreateUserOptions createUserOptions = new CreateUserOptions();
 			createUserOptions.forceSelfRegistration(false);
 			createUserOptions.sendConfirmation(false);
@@ -72,12 +65,12 @@ public class CanvasService {
 			createUserOptions.termsOfUse(false);
 			userWriter.createUser(user);
 
-//			Course course = new Course();
-//
-//
-//			Enrollment enroll = new Enrollment();
-//			enroll.setUser(user);
-//			enrollmentWriter.enrollUserInCourse(enroll);
+			//			Course course = new Course();
+			//
+			//
+			//			Enrollment enroll = new Enrollment();
+			//			enroll.setUser(user);
+			//			enrollmentWriter.enrollUserInCourse(enroll);
 
 
 
@@ -99,10 +92,10 @@ public class CanvasService {
 
 
 
-//						Optional<User> optUser = userReader.showUserDetails("sis_user_id:Andre.Mathisen@usn.no");
-//						optUser.ifPresentOrElse(user -> {
-//							System.out.println("Found user: " + user.getName());
-//						}, () -> System.out.println("Failed to find user!"));
+			//						Optional<User> optUser = userReader.showUserDetails("sis_user_id:Andre.Mathisen@usn.no");
+			//						optUser.ifPresentOrElse(user -> {
+			//							System.out.println("Found user: " + user.getName());
+			//						}, () -> System.out.println("Failed to find user!"));
 
 			System.exit(0);
 
