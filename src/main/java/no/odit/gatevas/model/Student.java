@@ -18,6 +18,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
+@Deprecated
 public class Student {
 
 	@Id

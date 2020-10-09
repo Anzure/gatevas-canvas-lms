@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import no.odit.gatevas.model.Subject;
 
 @Repository
+@Deprecated
 public interface CourseRepo extends JpaRepository<Subject, UUID> {
 
 }

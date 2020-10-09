@@ -10,6 +10,7 @@ import javax.persistence.ManyToMany;
 import org.hibernate.annotations.Type;
 
 @Entity
+@Deprecated
 public class Subject {
 
 	@Id

@@ -1,6 +1,5 @@
 package no.odit.gatevas;
 
-import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -9,6 +8,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import no.odit.gatevas.command.CourseCommand;
+import no.odit.gatevas.command.ExitCommand;
+import no.odit.gatevas.command.StudentCommand;
+import no.odit.gatevas.type.CommandListener;
 
 @SpringBootApplication
 @Configurable
@@ -24,16 +28,16 @@ public class GatevasApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		log.info("Hello world!");
 
-		Scanner scanner = new Scanner(System.in);
+		log.info("Starting console application...");
 
-		System.out.print("Enter your name: ");
-		String name = scanner.next();
+		CommandListener cmdListener = new CommandListener();
+		cmdListener.registerCommand("exit", new ExitCommand());
+		cmdListener.registerCommand("course", new CourseCommand());
+		cmdListener.registerCommand("student", new StudentCommand());
+		cmdListener.start();
 
-		log.info("Hello " + name);
-
-		scanner.close();
+		log.info("Exiting console application...");
 	}
 
 }

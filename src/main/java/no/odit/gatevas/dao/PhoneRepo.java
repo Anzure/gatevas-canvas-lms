@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import no.odit.gatevas.model.Phone;
 
 @Repository
+@Deprecated
 public interface PhoneRepo extends JpaRepository<Phone, UUID> {
 
 }

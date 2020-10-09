@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ApiService {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(ApiService.class);
 
 }
