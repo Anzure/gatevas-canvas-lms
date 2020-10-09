@@ -2,12 +2,13 @@ package no.odit.gatevas.command;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
-import no.odit.gatevas.cli.CommandListener;
 
-public class StudentCommand extends CommandListener implements CommandHandler {
+@Component
+public class StudentCommand implements CommandHandler {
 	
 	private static final Logger log = LoggerFactory.getLogger(StudentCommand.class);
 

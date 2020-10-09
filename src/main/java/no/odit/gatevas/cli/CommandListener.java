@@ -1,46 +1,61 @@
 package no.odit.gatevas.cli;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Scanner;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import no.odit.gatevas.GatevasApplication;
 
+@Service
 public class CommandListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GatevasApplication.class);
 
-	private Map<String, CommandHandler> commands;
+	@Autowired
+	private List<CommandHandler> commands;
 
-	protected Scanner scanner;
+	private Scanner scanner;
 
-	public CommandListener() {
-		this.commands = new HashMap<String, CommandHandler>();
+	@PostConstruct
+	private void start() {
+
+		log.info("Starting console application...");
 		this.scanner = new Scanner(System.in);
-	}
 
-	public void registerCommand(String cmd, CommandHandler handler) {
-		commands.put(cmd, handler);
-	}
-
-	public void start() {
 		do {
 			System.out.print("=> ");
 			Command cmd = new Command(scanner.nextLine());
 			String key = cmd.getCmd().toLowerCase();
 			log.debug("Received command: " + cmd.getCmd());
-			if (commands.containsKey(key)) {
+
+			commands.stream().filter(handler -> handler.getClass().getSimpleName().replace("Command", "").equalsIgnoreCase(key))
+			.findAny().ifPresentOrElse(handler -> {
+
 				log.debug("Handling command: " + cmd.getCmd());
-				commands.get(key).handleCommand(cmd);
+				handler.handleCommand(cmd);
 				log.debug("Handled command: " + cmd.getCmd());
-			}
+
+			}, () -> {
+				log.error("Unknown command '" + key + "'.");
+			});
+
 		} while(scanner != null && scanner.hasNextLine());
+
+		log.info("Exiting console application...");
 	}
 
 	public void stop() {
 		scanner.close();
 		scanner = null;
+	}
+
+	public Scanner getScanner() {
+		return scanner;
 	}
 }
