@@ -2,14 +2,11 @@ package no.odit.gatevas.cli;
 
 import java.util.List;
 import java.util.Scanner;
-
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import no.odit.gatevas.GatevasApplication;
 
 @Service
@@ -20,6 +17,7 @@ public class CommandListener {
 	@Autowired
 	private List<CommandHandler> commands;
 
+	@Autowired
 	private Scanner scanner;
 
 	@PostConstruct
@@ -48,14 +46,5 @@ public class CommandListener {
 		} while(scanner != null && scanner.hasNextLine());
 
 		log.info("Exiting console application...");
-	}
-
-	public void stop() {
-		scanner.close();
-		scanner = null;
-	}
-
-	public Scanner getScanner() {
-		return scanner;
 	}
 }

@@ -1,14 +1,11 @@
 package no.odit.gatevas;
 
 import java.util.List;
-
+import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import no.odit.gatevas.cli.CommandHandler;
-import no.odit.gatevas.cli.CommandListener;
 import no.odit.gatevas.command.CourseCommand;
 import no.odit.gatevas.command.ExitCommand;
 import no.odit.gatevas.command.StudentCommand;
@@ -30,9 +27,8 @@ public class GatevasConfig {
 		return List.of(courseCommand, exitCommand, studentCommand);
 	}
 
-	@ConditionalOnMissingBean
 	@Bean
-	public CommandListener commandListener() {
-		return new CommandListener();
+	public Scanner getCommandScanner() {
+		return new Scanner(System.in);
 	}
 }
