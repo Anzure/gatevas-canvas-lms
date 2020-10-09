@@ -10,7 +10,6 @@ import javax.persistence.ManyToMany;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Deprecated
 public class Subject {
 
 	@Id
@@ -90,5 +89,12 @@ public class Subject {
 
 	public void setCommunicationLink(String communicationLink) {
 		this.communicationLink = communicationLink;
+	}
+
+	@Override
+	public String toString() {
+		return "Subject [id=" + id + ", shortName=" + shortName + ", longName=" + longName + ", socialGroup="
+				+ socialGroup + ", communicationLink=" + communicationLink + ", googleSheetId=" + googleSheetId
+				+ ", students=" + students + "]";
 	}
 }

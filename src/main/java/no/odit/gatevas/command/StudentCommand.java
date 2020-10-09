@@ -14,7 +14,7 @@ public class StudentCommand extends CommandListener implements CommandHandler {
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
 		
-		if (args.length <= 0) {
+		if (args.length != 1) {
 			cmd.printError(log);
 			return;
 		}

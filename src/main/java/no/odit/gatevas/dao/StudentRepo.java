@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import no.odit.gatevas.model.Student;
 
 @Repository
-@Deprecated
 public interface StudentRepo extends JpaRepository<Student, UUID> {
 
 }
