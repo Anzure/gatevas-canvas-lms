@@ -1,4 +1,4 @@
-package no.odit.gatevas.type;
+package no.odit.gatevas.cli;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class CommandListener {
 
 	private Map<String, CommandHandler> commands;
 
-	private Scanner scanner;
+	protected Scanner scanner;
 
 	public CommandListener() {
 		this.commands = new HashMap<String, CommandHandler>();
@@ -39,7 +39,7 @@ public class CommandListener {
 		} while(scanner != null && scanner.hasNextLine());
 	}
 
-	protected void stop() {
+	public void stop() {
 		scanner.close();
 		scanner = null;
 	}

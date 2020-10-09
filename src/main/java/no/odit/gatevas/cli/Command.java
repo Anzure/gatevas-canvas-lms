@@ -1,4 +1,6 @@
-package no.odit.gatevas.type;
+package no.odit.gatevas.cli;
+
+import org.slf4j.Logger;
 
 public class Command {
 
@@ -9,7 +11,6 @@ public class Command {
 	private boolean hasArgs;
 
 	public Command(String input) {
-		super();
 
 		// Command with multiple arguments
 		if (input.contains(" ")) {
@@ -20,7 +21,7 @@ public class Command {
 
 			// Load arguments
 			this.args = new String[split.length-1];
-			for (int i = 0; i < this.args.length-1;) {
+			for (int i = 0; i < this.args.length;) {
 				this.args[i] = split[++i];
 			}
 			hasArgs = true;
@@ -44,6 +45,10 @@ public class Command {
 
 	public void setHasArgs(boolean hasArgs) {
 		this.hasArgs = hasArgs;
+	}
+
+	public void printError(Logger log) {
+		log.error("Command input validation failed!");
 	}
 
 	public String getCmd() {

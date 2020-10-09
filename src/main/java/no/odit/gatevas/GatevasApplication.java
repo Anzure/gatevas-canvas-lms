@@ -9,10 +9,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import no.odit.gatevas.cli.CommandListener;
 import no.odit.gatevas.command.CourseCommand;
 import no.odit.gatevas.command.ExitCommand;
 import no.odit.gatevas.command.StudentCommand;
-import no.odit.gatevas.type.CommandListener;
 
 @SpringBootApplication
 @Configurable

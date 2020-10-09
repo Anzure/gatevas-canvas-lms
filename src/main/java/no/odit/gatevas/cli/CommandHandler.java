@@ -1,4 +1,4 @@
-package no.odit.gatevas.type;
+package no.odit.gatevas.cli;
 
 public interface CommandHandler {
 
