@@ -1,14 +1,13 @@
 package no.odit.gatevas;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.command.CourseCommand;
 import no.odit.gatevas.command.ExitCommand;
@@ -16,39 +15,16 @@ import no.odit.gatevas.command.StudentCommand;
 import no.odit.gatevas.command.TestCommand;
 
 @Configuration
-public class GatevasConfig {
-
-	@Value("${mail.smtp.port}")
-	private int port;
-
-	@Value("${mail.smtp.host}")
-	private String host;
-
-	@Value("${mail.smtp.username}")
-	private String username;
-
-	@Value("${mail.smtp.password}")
-	private String password;
-
-	@Value("${mail.smtp.name}")
-	private String name;
+@EnableAsync
+public class GatevasConfig implements AsyncConfigurer {
 
 	@Bean
-	public JavaMailSender getJavaMailSender() {
-		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		mailSender.setHost(host);
-		mailSender.setPort(port);
-
-		mailSender.setUsername(username);
-		mailSender.setPassword(password);
-
-		Properties props = mailSender.getJavaMailProperties();
-		props.put("mail.transport.protocol", "smtp");
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.debug", "true");
-
-		return mailSender;
+	public ThreadPoolTaskExecutor taskExecutor() {
+		ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
+		pool.setCorePoolSize(5);
+		pool.setMaxPoolSize(10);
+		pool.setWaitForTasksToCompleteOnShutdown(false);
+		return pool;
 	}
 
 	@Autowired

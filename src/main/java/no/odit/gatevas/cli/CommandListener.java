@@ -6,10 +6,12 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import io.netty.util.concurrent.Future;
 import no.odit.gatevas.GatevasApplication;
 
-@Service
+@Component
 public class CommandListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GatevasApplication.class);
@@ -21,7 +23,8 @@ public class CommandListener {
 	private Scanner scanner;
 
 	@PostConstruct
-	private void start() {
+	@Async
+	private Future<Void> start() {
 
 		log.info("Starting console application...");
 		this.scanner = new Scanner(System.in);
@@ -46,5 +49,6 @@ public class CommandListener {
 		} while(scanner != null && scanner.hasNextLine());
 
 		log.info("Exiting console application...");
+		return null;
 	}
 }
