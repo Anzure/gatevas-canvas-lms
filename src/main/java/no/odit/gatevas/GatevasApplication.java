@@ -31,7 +31,7 @@ public class GatevasApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		// TODO
 		log.error("DEBUG 1");
-//		sheetIntegration.processSheet("Vedlikehold-BP5-H20", "10efYpyYXj5oX3UO4eEEux4zmjY1udM-vEe07ESL_cPE");
+		sheetIntegration.processSheet("Vedlikehold-BP5-H20", "10efYpyYXj5oX3UO4eEEux4zmjY1udM-vEe07ESL_cPE");
 		log.error("DEBUG 2");
 	}
 

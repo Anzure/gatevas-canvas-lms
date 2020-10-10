@@ -17,6 +17,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -36,25 +37,17 @@ public class GoogleSheetIntegration {
 	@Autowired
 	private StudentService studentService;
 
-	private final String APPLICATION_NAME = "Fagskolen Ekom";
-	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	private final String CREDENTIALS_FOLDER = "credentials"; // Directory to store user credentials.
-	private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
-	private final String CLIENT_SECRET_DIR = "client_secret.json";
+//	private final String APPLICATION_NAME = "Fagskolen Ekom";
+//	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+//	private final String CREDENTIALS_FOLDER = "credentials"; // Directory to store user credentials.
+//	private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+//	private final String CLIENT_SECRET_DIR = "client_secret.json";
 
-	private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-		// Load client secrets.
-		InputStream in = GoogleSheetIntegration.class.getResourceAsStream(CLIENT_SECRET_DIR);
-		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-		// Build flow and trigger user authorization request.
-		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-				HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-				.setDataStoreFactory(new FileDataStoreFactory(new java.io.File(CREDENTIALS_FOLDER)))
-				.setAccessType("offline")
-				.build();
-		return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
-	}
+	@Autowired
+	private GoogleCredential googleCredential;
+	
+	@Autowired
+	private JacksonFactory jacksonFactory;
 
 	public List<Student> processSheet(String courseId, String spreadSheetId) throws Exception {
 
@@ -63,8 +56,8 @@ public class GoogleSheetIntegration {
 		// Build a new authorized API client service.
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 		final String range = "A:Z";
-		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-				.setApplicationName(APPLICATION_NAME)
+		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, jacksonFactory, googleCredential)
+				.setApplicationName("Fagskolen Ekom")
 				.build();
 		ValueRange response = service.spreadsheets().values()
 				.get(spreadSheetId, range)
