@@ -3,6 +3,9 @@ package no.odit.gatevas.misc;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.google.api.services.sheets.v4.Sheets;
@@ -15,6 +18,8 @@ import no.odit.gatevas.service.StudentService;
 @Component
 public class GoogleSheetIntegration {
 
+	private static final Logger log = LoggerFactory.getLogger(GoogleSheetIntegration.class);
+
 	@Autowired
 	private StudentService studentService;
 
@@ -22,10 +27,10 @@ public class GoogleSheetIntegration {
 	private Sheets sheetService;
 
 	public List<Student> processSheet(String courseId, String spreadSheetId) throws Exception {
-		
+
 		ValueRange response = sheetService.spreadsheets().values()
-                .get(spreadSheetId, "A:Z")
-                .execute();
+				.get(spreadSheetId, "A:Z")
+				.execute();
 
 		// Output list
 		List<Student> students = new ArrayList<Student>();
@@ -62,7 +67,7 @@ public class GoogleSheetIntegration {
 					int phoneNum = Integer.parseInt((row.get(header.get("Tlf nr"))).replace("+47", "").replace(" ", ""));
 
 					Student student = studentService.createStudent(email, firstName, lastName, phoneNum);
-					System.out.println(student.toString()); //TODO
+					log.debug(student.toString());
 					students.add(student);
 				}
 			}

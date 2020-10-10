@@ -1,5 +1,6 @@
 package no.odit.gatevas.model;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -7,7 +8,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 public class Subject {
@@ -32,8 +37,16 @@ public class Subject {
 	@Column(nullable = false)
 	private String googleSheetId;
 
-	@ManyToMany
-	private Set<Student> students;
+	@Column(nullable = false)
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
+
+	@Column(nullable = false, updatable = false)
+	@CreationTimestamp
+	private LocalDateTime createdAt;
+
+	@OneToMany(mappedBy = "course")
+	private Set<Enrollment> enrollments;
 
 	public UUID getId() {
 		return id;
@@ -75,14 +88,6 @@ public class Subject {
 		this.googleSheetId = googleSheetId;
 	}
 
-	public Set<Student> getStudents() {
-		return students;
-	}
-
-	public void setStudents(Set<Student> students) {
-		this.students = students;
-	}
-
 	public String getCommunicationLink() {
 		return communicationLink;
 	}
@@ -91,10 +96,18 @@ public class Subject {
 		this.communicationLink = communicationLink;
 	}
 
+	public Set<Enrollment> getEnrollments() {
+		return enrollments;
+	}
+
+	public void setEnrollments(Set<Enrollment> enrollments) {
+		this.enrollments = enrollments;
+	}
+
 	@Override
 	public String toString() {
 		return "Subject [id=" + id + ", shortName=" + shortName + ", longName=" + longName + ", socialGroup="
 				+ socialGroup + ", communicationLink=" + communicationLink + ", googleSheetId=" + googleSheetId
-				+ ", students=" + students + "]";
+				+ ", enrollments=" + enrollments + "]";
 	}
 }

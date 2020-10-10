@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,8 +50,8 @@ public class Student {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
-	@ManyToMany
-	private Set<Subject> courses;
+	@OneToMany(mappedBy = "student")
+	private Set<Enrollment> enrollments;
 
 	public UUID getId() {
 		return id;
@@ -112,13 +113,6 @@ public class Student {
 		this.createdAt = createdAt;
 	}
 
-	public Set<Subject> getCourses() {
-		return courses;
-	}
-
-	public void setCourses(Set<Subject> courses) {
-		this.courses = courses;
-	}
 
 	public void setTmpPassword(String tmpPassword) {
 		this.tmpPassword = tmpPassword;
@@ -128,10 +122,18 @@ public class Student {
 		return firstName.substring(0, 1) + lastName.substring(0, 1) + "-" + id.toString().split("-")[3];
 	}
 
+	public Set<Enrollment> getEnrollments() {
+		return enrollments;
+	}
+
+	public void setEnrollments(Set<Enrollment> enrollments) {
+		this.enrollments = enrollments;
+	}
+
 	@Override
 	public String toString() {
 		return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone
 				+ ", email=" + email + ", tmpPassword=" + tmpPassword + ", updatedAt=" + updatedAt + ", createdAt="
-				+ createdAt + ", courses=" + courses + "]";
+				+ createdAt + ", enrollments=" + enrollments + "]";
 	}
 }
