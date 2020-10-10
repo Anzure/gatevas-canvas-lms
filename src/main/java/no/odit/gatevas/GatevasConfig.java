@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.command.CourseCommand;
 import no.odit.gatevas.command.ExitCommand;
@@ -60,7 +59,7 @@ public class GatevasConfig {
 
 	@Autowired
 	private StudentCommand studentCommand;
-	
+
 	@Autowired
 	private TestCommand testCommand;
 

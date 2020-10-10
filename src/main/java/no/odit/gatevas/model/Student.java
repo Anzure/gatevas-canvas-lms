@@ -127,4 +127,11 @@ public class Student {
 	public String getUserId() {
 		return firstName.substring(0, 1) + lastName.substring(0, 1) + "-" + id.toString().split("-")[3];
 	}
+
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone
+				+ ", email=" + email + ", tmpPassword=" + tmpPassword + ", updatedAt=" + updatedAt + ", createdAt="
+				+ createdAt + ", courses=" + courses + "]";
+	}
 }

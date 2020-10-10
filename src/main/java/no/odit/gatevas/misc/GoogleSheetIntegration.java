@@ -1,30 +1,11 @@
 package no.odit.gatevas.misc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
@@ -37,31 +18,14 @@ public class GoogleSheetIntegration {
 	@Autowired
 	private StudentService studentService;
 
-//	private final String APPLICATION_NAME = "Fagskolen Ekom";
-//	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-//	private final String CREDENTIALS_FOLDER = "credentials"; // Directory to store user credentials.
-//	private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
-//	private final String CLIENT_SECRET_DIR = "client_secret.json";
-
 	@Autowired
-	private GoogleCredential googleCredential;
-	
-	@Autowired
-	private JacksonFactory jacksonFactory;
+	private Sheets sheetService;
 
 	public List<Student> processSheet(String courseId, String spreadSheetId) throws Exception {
-
-		System.out.println("DEBUG...");
-
-		// Build a new authorized API client service.
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-		final String range = "A:Z";
-		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, jacksonFactory, googleCredential)
-				.setApplicationName("Fagskolen Ekom")
-				.build();
-		ValueRange response = service.spreadsheets().values()
-				.get(spreadSheetId, range)
-				.execute();
+		
+		ValueRange response = sheetService.spreadsheets().values()
+                .get(spreadSheetId, "A:Z")
+                .execute();
 
 		// Output list
 		List<Student> students = new ArrayList<Student>();
