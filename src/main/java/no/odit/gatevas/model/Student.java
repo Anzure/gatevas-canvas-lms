@@ -96,10 +96,6 @@ public class Student {
 		return tmpPassword;
 	}
 
-	public void setPassword(String tmpPassword) {
-		this.tmpPassword = tmpPassword;
-	}
-
 	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
@@ -126,5 +122,9 @@ public class Student {
 
 	public void setTmpPassword(String tmpPassword) {
 		this.tmpPassword = tmpPassword;
+	}
+
+	public String getUserId() {
+		return firstName.substring(0, 1) + lastName.substring(0, 1) + "-" + id.toString().split("-")[3];
 	}
 }

@@ -1,5 +1,7 @@
 .project
 .classpath
+client_secret.json
+credentials/
 application.properties
 target/
 pom.xml.tag

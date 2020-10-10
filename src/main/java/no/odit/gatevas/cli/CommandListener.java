@@ -20,7 +20,7 @@ public class CommandListener {
 	@Autowired
 	private Scanner scanner;
 
-	@PostConstruct
+//	@PostConstruct //TODO
 	private void start() {
 
 		log.info("Starting console application...");
