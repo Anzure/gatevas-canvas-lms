@@ -7,15 +7,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-
+import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-@Entity
-public class Subject {
+@Entity(name = "Classroom")
+@Table(name = "course")
+public class Classroom {
 
 	@Id
 	@GeneratedValue
@@ -46,7 +46,7 @@ public class Subject {
 	private LocalDateTime createdAt;
 
 	@OneToMany(mappedBy = "course")
-	private Set<Enrollment> enrollments;
+	private Set<RoomLink> enrollments;
 
 	public UUID getId() {
 		return id;
@@ -96,18 +96,18 @@ public class Subject {
 		this.communicationLink = communicationLink;
 	}
 
-	public Set<Enrollment> getEnrollments() {
+	public Set<RoomLink> getEnrollments() {
 		return enrollments;
 	}
 
-	public void setEnrollments(Set<Enrollment> enrollments) {
+	public void setEnrollments(Set<RoomLink> enrollments) {
 		this.enrollments = enrollments;
 	}
 
 	@Override
 	public String toString() {
-		return "Subject [id=" + id + ", shortName=" + shortName + ", longName=" + longName + ", socialGroup="
+		return "Classroom [id=" + id + ", shortName=" + shortName + ", longName=" + longName + ", socialGroup="
 				+ socialGroup + ", communicationLink=" + communicationLink + ", googleSheetId=" + googleSheetId
-				+ ", enrollments=" + enrollments + "]";
+				+ ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
 	}
 }

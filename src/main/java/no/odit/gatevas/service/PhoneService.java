@@ -33,10 +33,17 @@ public class PhoneService {
 	private PhoneRepo phoneRepo;
 
 	public Phone createPhone(int phoneNumber) {
+
+		// TODO: Return existing phone
+		
+
+		// Create new phone
 		Phone phone = new Phone();
 		phone.setPhoneNumber(phoneNumber);
 		phone.setCountryCode(country);
-		return phoneRepo.saveAndFlush(phone);
+		phone = phoneRepo.saveAndFlush(phone);
+		log.debug("CREATE PHONE -> " + phone.toString());
+		return phone;
 	}
 
 	public boolean sendSMS(String msg, int phoneNumber) {
@@ -57,7 +64,7 @@ public class PhoneService {
 			wr.close();
 
 			int responseCode = con.getResponseCode();
-			log.debug("SMS response code: " + responseCode);
+			log.debug("SMS sent to " + phoneNumber + ", response code:" + responseCode);
 			return responseCode == 200 ? true : false;
 
 		} catch (Exception ex) {

@@ -18,11 +18,27 @@ public class StudentService {
 
 	@Autowired
 	private StudentRepo studentRepo;
-	
+
 	@Autowired
 	private PhoneService phoneService;
 
 	public Student createStudent(String email, String firstName, String lastName, int phoneNum) {
+
+		// Return existing student (email)
+		Optional<Student> existingEmail = getUserByEmail(email);
+		if (existingEmail.isPresent()) {
+			log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get().toString());
+			return existingEmail.get();
+		}
+
+		// Return existing student (name)
+		Optional<Student> existingName = getUserByName(firstName, lastName);
+		if (existingName.isPresent()) {
+			log.debug("NAME ALREADY EXIST -> " + existingName.get().toString());
+			return existingName.get();
+		}
+
+		// Create new student
 		Phone phone = phoneService.createPhone(phoneNum);
 		Student student = new Student();
 		student.setEmail(email);
@@ -30,7 +46,9 @@ public class StudentService {
 		student.setLastName(lastName);
 		student.setTmpPassword(GeneralUtil.generatePassword());		
 		student.setPhone(phone);
-		return studentRepo.saveAndFlush(student);
+		student = studentRepo.saveAndFlush(student);
+		log.debug("CREATED STUDENT -> " + student.toString());
+		return student;
 	}
 
 	public Optional<Student> getUserByName(String firstName, String lastName) {

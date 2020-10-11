@@ -6,13 +6,13 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import no.odit.gatevas.model.Subject;
+import no.odit.gatevas.model.Classroom;
 
 @Repository
-public interface CourseRepo extends JpaRepository<Subject, UUID> {
+public interface CourseRepo extends JpaRepository<Classroom, UUID> {
 
-	Optional<Subject> findByShortName(String name);
+	Optional<Classroom> findByShortName(String name);
 
-	Optional<Subject> findByLongName(String name);
+	Optional<Classroom> findByLongName(String name);
 
 }

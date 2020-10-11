@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import no.odit.gatevas.dao.CourseRepo;
-import no.odit.gatevas.model.Subject;
+import no.odit.gatevas.misc.GoogleSheetIntegration;
+import no.odit.gatevas.model.RoomLink;
+import no.odit.gatevas.model.Student;
+import no.odit.gatevas.model.Classroom;
 
 @Service
 public class CourseService {
@@ -18,19 +21,41 @@ public class CourseService {
 	@Autowired
 	private CourseRepo courseRepo;
 
-	public Subject addCourse(Subject subject) {
-		return courseRepo.saveAndFlush(subject);
+	@Autowired
+	private GoogleSheetIntegration googleSheetIntegration;
+
+	@Autowired
+	private EnrollmentService enrollmentService;
+
+	public Optional<List<Student>> importStudents(Classroom course) {
+		try {
+			List<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId());
+
+			List<RoomLink> enrollments = enrollmentService.enrollStudent(students, course); //TODO
+
+			return Optional.of(students);
+		} catch (Exception ex) {
+			log.error("Failed to import students.", ex);
+			return Optional.empty();
+		}
 	}
 
-	public void removeCourse(Subject subject) {
-		courseRepo.delete(subject);
+	public Classroom addCourse(Classroom course) {
+		course = courseRepo.saveAndFlush(course);
+		log.info("CREATE COURSE -> " + course.toString());
+		return course;
 	}
 
-	public List<Subject> getAllCourses() {
+	public void removeCourse(Classroom course) {
+		log.info("DELETE COURSE -> " + course.toString());
+		courseRepo.delete(course);
+	}
+
+	public List<Classroom> getAllCourses() {
 		return courseRepo.findAll();
 	}
 
-	public Optional<Subject> getCourse(String name){
+	public Optional<Classroom> getCourse(String name){
 		return Optional.of(courseRepo.findByShortName(name)
 				.orElse(courseRepo.findByLongName(name).orElse(null)));
 	}

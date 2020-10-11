@@ -10,10 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -32,15 +30,18 @@ public class Student {
 	@Column(nullable = false)
 	private String lastName;
 
+	@Column(nullable = false, unique = true)
+	private String email;
+
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="phone_id", nullable=false)
 	private Phone phone;
 
 	@Column(nullable = false)
-	private String email;
+	private String tmpPassword;
 
 	@Column(nullable = false)
-	private String tmpPassword;
+	private boolean loginInfoSent;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -51,7 +52,7 @@ public class Student {
 	private LocalDateTime createdAt;
 
 	@OneToMany(mappedBy = "student")
-	private Set<Enrollment> enrollments;
+	private Set<RoomLink> enrollments;
 
 	public UUID getId() {
 		return id;
@@ -122,18 +123,26 @@ public class Student {
 		return firstName.substring(0, 1) + lastName.substring(0, 1) + "-" + id.toString().split("-")[3];
 	}
 
-	public Set<Enrollment> getEnrollments() {
+	public Set<RoomLink> getEnrollments() {
 		return enrollments;
 	}
 
-	public void setEnrollments(Set<Enrollment> enrollments) {
+	public void setEnrollments(Set<RoomLink> enrollments) {
 		this.enrollments = enrollments;
+	}
+
+	public boolean isLoginInfoSent() {
+		return loginInfoSent;
+	}
+
+	public void setLoginInfoSent(boolean loginInfoSent) {
+		this.loginInfoSent = loginInfoSent;
 	}
 
 	@Override
 	public String toString() {
-		return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone
-				+ ", email=" + email + ", tmpPassword=" + tmpPassword + ", updatedAt=" + updatedAt + ", createdAt="
-				+ createdAt + ", enrollments=" + enrollments + "]";
+		return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ", phone=" + phone + ", tmpPassword=" + tmpPassword + ", loginInfoSent=" + loginInfoSent
+				+ ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
 	}
 }

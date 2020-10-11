@@ -1,19 +1,16 @@
 package no.odit.gatevas.command;
 
+import java.util.List;
 import java.util.Scanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
-import no.odit.gatevas.model.Subject;
+import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.service.CourseService;
 
 @Component
 public class CourseCommand implements CommandHandler {
-
-	private static final Logger log = LoggerFactory.getLogger(CourseCommand.class);
 
 	@Autowired
 	private CourseService courseService;
@@ -25,18 +22,28 @@ public class CourseCommand implements CommandHandler {
 		String[] args = cmd.getArgs();
 
 		if (args.length != 1) {
-			cmd.printError(log);
+			System.out.println("Available commands:");
+			System.out.println("- course list");
+			System.out.println("- course add");
+			System.out.println("- course remove");
+			System.out.println("- course info");
+			System.out.println("- course import");
 			return;
 		}
 
-
+		// View list of courses
 		if (args[0].equalsIgnoreCase("list")) {
 
+			List<Classroom> courses = courseService.getAllCourses();
+			System.out.println("Course list (" + courses.size() + "):");
+			courses.forEach(course -> System.out.println(course.toString()));
 
 		}
+		// Add a new course
 		else if (args[0].equalsIgnoreCase("add")) {
 
-			Subject course = new Subject();
+			System.out.println("Create a new course.");
+			Classroom course = new Classroom();
 
 			System.out.print("Enter course short name: ");
 			course.setShortName(commandScanner.nextLine());
@@ -56,39 +63,62 @@ public class CourseCommand implements CommandHandler {
 				course.setSocialGroup(commandScanner.nextLine());
 			}
 
-			log.info("Creating course...");
-			log.debug(course.toString());
+			System.out.println("Creating course '" + course.getShortName() + "'...");
 			course = courseService.addCourse(course);
-			log.info("Course created with ID " + course.getId().toString() + ".");
+			System.out.println("Course created with ID " + course.getId().toString() + ".");
 
 		}
+		// Remove a course
 		else if (args[0].equalsIgnoreCase("remove")) {
-			
+
+			System.out.println("Remove an existing course.");
 			System.out.print("Enter course name: ");
 			String courseName = commandScanner.nextLine();
 
 			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
-				log.debug("Deleting " + courseName + "...");
+				System.out.println("Deleting '" + course.getShortName() + "'...");
 				courseService.removeCourse(course);
-				log.info("Deleted " + courseName + ".");
+				System.out.println("Deleted '" + courseName + "'.");
 			}, () -> {
-				log.error("Could not find course '" + courseName + "'!");
+				System.out.println("Could not find course '" + courseName + "'!");
 			});
 
 		}
+		// Get information about course
 		else if (args[0].equalsIgnoreCase("info")) {
 
+			System.out.println("Retrieve course details.");
 			System.out.print("Enter course name: ");
 			String courseName = commandScanner.nextLine();
 
 			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
-				log.info("Course search result");
-				log.info(course.toString());
+				System.out.println("Details about course '" + course.getShortName() + "':");
+				System.out.println(course.toString());
 			}, () -> {
-				log.error("Could not find course '" + courseName + "'!");
+				System.out.println("Could not find course '" + courseName + "'!");
 			});
 
 		}
+		// Import students from Google Sheets
+		else if (args[0].equalsIgnoreCase("import")) {
 
-	}
+			System.out.println("Import students to course.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				System.out.println("Importing students from Google Spreadsheets...");
+				courseService.importStudents(course).ifPresentOrElse(students -> {
+					System.out.println("Imported " + students.size() + " students to '" + course.getShortName() + "'.");
+				}, () -> {
+					System.out.println("Failed to import students to '" + course.getShortName() + "'.");
+				});
+
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
+
+		}
+	}	
 }

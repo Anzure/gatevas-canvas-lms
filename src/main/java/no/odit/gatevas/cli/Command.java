@@ -1,7 +1,5 @@
 package no.odit.gatevas.cli;
 
-import org.slf4j.Logger;
-
 public class Command {
 
 	private String cmd;
@@ -45,10 +43,6 @@ public class Command {
 
 	public void setHasArgs(boolean hasArgs) {
 		this.hasArgs = hasArgs;
-	}
-
-	public void printError(Logger log) {
-		log.error("Command input validation failed!");
 	}
 
 	public String getCmd() {

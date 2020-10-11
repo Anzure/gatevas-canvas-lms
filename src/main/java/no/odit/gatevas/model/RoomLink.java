@@ -2,21 +2,21 @@ package no.odit.gatevas.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-@Entity
-public class Enrollment {
+@Entity(name = "Enrollment")
+@Table(name = "enrollment")
+public class RoomLink {
 
 	@Id
 	@GeneratedValue
@@ -35,7 +35,7 @@ public class Enrollment {
 
 	@ManyToOne
 	@JoinColumn(name="course_id", nullable=false)
-	private Subject course;
+	private Classroom course;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -77,11 +77,11 @@ public class Enrollment {
 		this.student = student;
 	}
 
-	public Subject getCourse() {
+	public Classroom getCourse() {
 		return course;
 	}
 
-	public void setCourse(Subject course) {
+	public void setCourse(Classroom course) {
 		this.course = course;
 	}
 
@@ -99,5 +99,11 @@ public class Enrollment {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	@Override
+	public String toString() {
+		return "RoomLink [id=" + id + ", emailSent=" + emailSent + ", textSent=" + textSent + ", student=" + student
+				+ ", course=" + course + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
 	}
 }
