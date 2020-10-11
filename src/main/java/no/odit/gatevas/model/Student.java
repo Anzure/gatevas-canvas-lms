@@ -120,7 +120,9 @@ public class Student {
 	}
 
 	public String getUserId() {
-		return firstName.substring(0, 1) + lastName.substring(0, 1) + "-" + id.toString().split("-")[3];
+		return firstName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
+				+ lastName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
+				+ "-" + id.toString().split("-")[3];
 	}
 
 	public Set<RoomLink> getEnrollments() {

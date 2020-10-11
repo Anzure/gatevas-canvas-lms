@@ -8,8 +8,11 @@ import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
+import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.service.EnrollmentService;
+import no.odit.gatevas.service.LegacyService;
+import no.odit.gatevas.service.StudentService;
 
 @Component
 public class CourseCommand implements CommandHandler {
@@ -21,7 +24,13 @@ public class CourseCommand implements CommandHandler {
 	private EnrollmentService enrollmentService;
 
 	@Autowired
+	private LegacyService legacyService;
+
+	@Autowired
 	private Scanner commandScanner;
+
+	@Autowired
+	private StudentService studentService;
 
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
@@ -128,6 +137,57 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
+
+		}
+
+		else if (args[0].equalsIgnoreCase("legacy-import")) {
+
+			System.out.println("Add legacy course to new system.");
+
+			System.out.print("Enter file path: ");
+			String configPath = commandScanner.nextLine();
+
+			legacyService.importLegacyFile(configPath).ifPresentOrElse(course -> {
+				System.out.println("Added course '" + course.getShortName() + "'.");
+			}, () -> {
+				System.out.println("Failed to add course.");
+			});
+
+		}
+
+		// Export missing students to CSV file
+		else if (args[0].equalsIgnoreCase("export")) {
+
+			System.out.println("Export students in course.");
+
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				List<Student> students = course.getStudents();
+
+				System.out.print("Enter file path: ");
+				String configPath = commandScanner.nextLine();
+
+				if (studentService.exportStudentsToCSV(students, configPath))
+					System.out.println("User CSV file created.");
+				else 
+					System.out.println("Failed to create CSV file.");
+
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
+
+		}
+
+		// Synchronize course with student enrollments
+		else if (args[0].equalsIgnoreCase("sync")) {
+
+
+
+
+
 
 		}
 	}	

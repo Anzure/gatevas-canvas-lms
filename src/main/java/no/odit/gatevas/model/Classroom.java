@@ -1,8 +1,11 @@
 package no.odit.gatevas.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -98,6 +101,10 @@ public class Classroom {
 
 	public Set<RoomLink> getEnrollments() {
 		return enrollments;
+	}
+
+	public List<Student> getStudents() {
+		return enrollments.stream().map(RoomLink::getStudent).collect(Collectors.toList());
 	}
 
 	public void setEnrollments(Set<RoomLink> enrollments) {
