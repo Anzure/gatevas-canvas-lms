@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
-import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.model.Classroom;
 
@@ -24,15 +23,9 @@ public class CourseService {
 	@Autowired
 	private GoogleSheetIntegration googleSheetIntegration;
 
-	@Autowired
-	private EnrollmentService enrollmentService;
-
 	public Optional<List<Student>> importStudents(Classroom course) {
 		try {
 			List<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId());
-
-			List<RoomLink> enrollments = enrollmentService.enrollStudent(students, course); //TODO
-
 			return Optional.of(students);
 		} catch (Exception ex) {
 			log.error("Failed to import students.", ex);
@@ -59,5 +52,4 @@ public class CourseService {
 		return Optional.of(courseRepo.findByShortName(name)
 				.orElse(courseRepo.findByLongName(name).orElse(null)));
 	}
-
 }

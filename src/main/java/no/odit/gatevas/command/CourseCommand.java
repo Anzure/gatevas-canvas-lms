@@ -7,13 +7,18 @@ import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.service.CourseService;
+import no.odit.gatevas.service.EnrollmentService;
 
 @Component
 public class CourseCommand implements CommandHandler {
 
 	@Autowired
 	private CourseService courseService;
+
+	@Autowired
+	private EnrollmentService enrollmentService;
 
 	@Autowired
 	private Scanner commandScanner;
@@ -110,7 +115,12 @@ public class CourseCommand implements CommandHandler {
 
 				System.out.println("Importing students from Google Spreadsheets...");
 				courseService.importStudents(course).ifPresentOrElse(students -> {
+
 					System.out.println("Imported " + students.size() + " students to '" + course.getShortName() + "'.");
+					System.out.println("Enrolling " + students.size() + " students to " + course.getShortName() + "...");
+					List<RoomLink> enrollments = enrollmentService.enrollStudent(students, course);
+					System.out.println("Enrolled " + enrollments.size() + " students to '" + course.getShortName() + "'.");
+
 				}, () -> {
 					System.out.println("Failed to import students to '" + course.getShortName() + "'.");
 				});
