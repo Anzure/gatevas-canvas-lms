@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -13,6 +15,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import no.odit.gatevas.type.CanvasStatus;
 
 @Entity(name = "Enrollment")
 @Table(name = "enrollment")
@@ -36,6 +40,10 @@ public class RoomLink {
 	@ManyToOne
 	@JoinColumn(name="course_id", nullable=false)
 	private Classroom course;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private CanvasStatus canvasStatus;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -101,9 +109,18 @@ public class RoomLink {
 		this.createdAt = createdAt;
 	}
 
+	public CanvasStatus getCanvasStatus() {
+		return canvasStatus;
+	}
+
+	public void setCanvasStatus(CanvasStatus canvasStatus) {
+		this.canvasStatus = canvasStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "RoomLink [id=" + id + ", emailSent=" + emailSent + ", textSent=" + textSent + ", student=" + student
-				+ ", course=" + course + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
+				+ ", course=" + course + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt="
+				+ createdAt + "]";
 	}
 }

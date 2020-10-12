@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,6 +17,8 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import no.odit.gatevas.type.CanvasStatus;
 
 @Entity
 public class Student {
@@ -42,6 +46,13 @@ public class Student {
 
 	@Column(nullable = false)
 	private boolean loginInfoSent;
+	
+	@Column(nullable = false, name = "exported_to_csv")
+	private boolean exportedToCSV;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private CanvasStatus canvasStatus;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -141,10 +152,27 @@ public class Student {
 		this.loginInfoSent = loginInfoSent;
 	}
 
+	public boolean isExportedToCSV() {
+		return exportedToCSV;
+	}
+
+	public void setExportedToCSV(boolean exportedToCSV) {
+		this.exportedToCSV = exportedToCSV;
+	}
+
+	public CanvasStatus getCanvasStatus() {
+		return canvasStatus;
+	}
+
+	public void setCanvasStatus(CanvasStatus canvasStatus) {
+		this.canvasStatus = canvasStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
 				+ ", phone=" + phone + ", tmpPassword=" + tmpPassword + ", loginInfoSent=" + loginInfoSent
-				+ ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
+				+ ", exportedToCSV=" + exportedToCSV + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt
+				+ ", createdAt=" + createdAt + "]";
 	}
 }

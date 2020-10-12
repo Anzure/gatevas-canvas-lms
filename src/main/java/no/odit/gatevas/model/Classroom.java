@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -15,6 +17,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import no.odit.gatevas.type.CanvasStatus;
 
 @Entity(name = "Course")
 @Table(name = "course")
@@ -39,6 +43,10 @@ public class Classroom {
 
 	@Column(nullable = false)
 	private String googleSheetId;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private CanvasStatus canvasStatus;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -111,10 +119,34 @@ public class Classroom {
 		this.enrollments = enrollments;
 	}
 
+	public CanvasStatus getCanvasStatus() {
+		return canvasStatus;
+	}
+
+	public void setCanvasStatus(CanvasStatus canvasStatus) {
+		this.canvasStatus = canvasStatus;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
 	@Override
 	public String toString() {
 		return "Classroom [id=" + id + ", shortName=" + shortName + ", longName=" + longName + ", socialGroup="
 				+ socialGroup + ", communicationLink=" + communicationLink + ", googleSheetId=" + googleSheetId
-				+ ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
+				+ ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
 	}
 }

@@ -9,6 +9,7 @@ import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.service.CanvasService;
 import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.service.EnrollmentService;
 import no.odit.gatevas.service.LegacyService;
@@ -31,6 +32,9 @@ public class CourseCommand implements CommandHandler {
 
 	@Autowired
 	private StudentService studentService;
+
+	@Autowired
+	private CanvasService canvasService;
 
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
@@ -140,7 +144,8 @@ public class CourseCommand implements CommandHandler {
 
 		}
 
-		else if (args[0].equalsIgnoreCase("legacy-import")) {
+		// Create a course by importing configuration file for a legacy course
+		else if (args[0].equalsIgnoreCase("legacy")) {
 
 			System.out.println("Add legacy course to new system.");
 
@@ -184,10 +189,20 @@ public class CourseCommand implements CommandHandler {
 		// Synchronize course with student enrollments
 		else if (args[0].equalsIgnoreCase("sync")) {
 
+			System.out.println("Synchronize Canvas LMS course with local data.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
 
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
+				if (canvasService.syncCourseReadOnly(course))
+					System.out.println("Canvas LMS course synchronized with local data.");
+				else
+					System.out.println("Failed to synchronize course.");
 
-
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
 
 		}
 	}	

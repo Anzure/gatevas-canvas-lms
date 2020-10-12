@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.model.Classroom;
 
 @Service
@@ -32,8 +33,13 @@ public class CourseService {
 			return Optional.empty();
 		}
 	}
+	
+	public void saveChanges(Classroom course) {
+		courseRepo.saveAndFlush(course);
+	}
 
 	public Classroom addCourse(Classroom course) {
+		course.setCanvasStatus(CanvasStatus.UNKNOWN);
 		course = courseRepo.saveAndFlush(course);
 		log.info("CREATE COURSE -> " + course.toString());
 		return course;

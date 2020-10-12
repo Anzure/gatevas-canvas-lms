@@ -1,8 +1,10 @@
 package no.odit.gatevas.service;
 
+import java.io.IOException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
 import edu.ksu.canvas.interfaces.AccountReader;
@@ -15,37 +17,37 @@ import edu.ksu.canvas.interfaces.UserWriter;
 import edu.ksu.canvas.model.Account;
 import edu.ksu.canvas.model.User;
 import edu.ksu.canvas.oauth.OauthToken;
-import edu.ksu.canvas.oauth.OauthTokenRefresher;
-import edu.ksu.canvas.oauth.RefreshableOauthToken;
-import edu.ksu.canvas.requestOptions.CreateUserOptions;
+import edu.ksu.canvas.requestOptions.GetSingleCourseOptions;
+import edu.ksu.canvas.requestOptions.GetUsersInCourseOptions;
+import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.type.CanvasStatus;
 
 @Service
 public class CanvasService {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(CanvasService.class);
 
-	@Value("${canvas_lms.client_id}")
-	private String clientId;
+	@Autowired
+	private ApiService apiService;
 
-	@Value("${canvas_lms.client_secret}")
-	private String clientSecret;
+	@Autowired
+	private CourseService courseService;
 
-	@Value("${canvas_lms.redirect_uri}")
-	private String redirectUri;
+	@Autowired
+	private StudentService studentService;
 
-	@Value("${canvas_lms.refresh_token}")
-	private String refreshToken;
+	@Autowired
+	private EnrollmentService enrollmentService;
 
-	public void test() {
+	public boolean syncCourseReadOnly(Classroom classRoom) {
 		try {
 
-			String canvasBaseUrl = "https://fagskolentelemark.beta.instructure.com";
-			OauthTokenRefresher tokenRefresher = new OauthTokenRefresher(clientId, clientSecret, canvasBaseUrl);
-			OauthToken oauthToken = new RefreshableOauthToken(tokenRefresher, refreshToken);
-			CanvasApiFactory apiFactory = new CanvasApiFactory(canvasBaseUrl);
+			OauthToken oauthToken = apiService.getOauthToken();
+			CanvasApiFactory apiFactory = apiService.getApiFactory();
+
 			AccountReader acctReader = apiFactory.getReader(AccountReader.class, oauthToken);
 			Account rootAccount = acctReader.getSingleAccount("1").get();
-			System.out.println(rootAccount.getName());
+			log.debug("Connected to Canvas LMS API at '" + rootAccount.getName() + "'.");
 
 			UserReader userReader = apiFactory.getReader(UserReader.class, oauthToken, 100);
 			UserWriter userWriter = apiFactory.getWriter(UserWriter.class, oauthToken);
@@ -56,56 +58,44 @@ public class CanvasService {
 			EnrollmentReader enrollmentReader = apiFactory.getReader(EnrollmentReader.class, oauthToken, 100);
 			EnrollmentWriter enrollmentWriter = apiFactory.getWriter(EnrollmentWriter.class, oauthToken);
 
-			User user = new User();
-			user.setEmail("olav.nordmann@outlook.com");
-			user.setName("Olav Nordmann");
-			user.setLoginId("olav.nordmann@outlook.com");
-			user.setSisUserId("olav.nordmann@outlook.com");
 
-			CreateUserOptions createUserOptions = new CreateUserOptions();
-			createUserOptions.forceSelfRegistration(false);
-			createUserOptions.sendConfirmation(false);
-			createUserOptions.skipConfirmation(true);
-			createUserOptions.termsOfUse(false);
-			userWriter.createUser(user);
+			String courseId = "sis_course_id:" + classRoom.getShortName();
+			GetSingleCourseOptions courseOptions = new GetSingleCourseOptions(courseId);
 
-			//			Course course = new Course();
-			//
-			//
-			//			Enrollment enroll = new Enrollment();
-			//			enroll.setUser(user);
-			//			enrollmentWriter.enrollUserInCourse(enroll);
+			GetUsersInCourseOptions usersOptions = new GetUsersInCourseOptions(courseId);
+			List<User> users = userReader.getUsersInCourse(usersOptions);
 
+			courseReader.getSingleCourse(courseOptions).ifPresentOrElse(course -> {
 
+				classRoom.setCanvasStatus(CanvasStatus.EXISTS);
+				courseService.saveChanges(classRoom);
+				log.debug("Found '" + classRoom.getShortName() + "' in Canvas. Local status updated to EXISTS.");
 
+				users.forEach(user -> {
+					studentService.getUserByEmail(user.getEmail()).ifPresent(student -> {
+						student.setCanvasStatus(CanvasStatus.EXISTS);
+						enrollmentService.getEnrollment(student, classRoom).ifPresent(enrollment -> {
+							enrollment.setCanvasStatus(CanvasStatus.EXISTS);
+							enrollmentService.saveChanges(enrollment);
+						});
+						studentService.saveChanges(student);
+					});
+				});
+				log.debug("Found " + users.size() + " users in Canvas course. Local status updated to EXISTS.");
 
-			//			GetUsersInAccountOptions options = new GetUsersInAccountOptions("1");
-			//			options.searchTerm("Andre Mathisen");
-			//			List<User> users = userReader.getUsersInAccount(options);
-			//			System.out.println("Found " + users.size() + " users.");
-			//
-			//			users.stream()
-			//			.filter(user -> user.getName().equalsIgnoreCase("Andre Mathisen"))
-			//			.findFirst().ifPresent(user -> {
-			//				System.out.println("Found user: " + user.getName());
-			//			});
-			//			
-			//			System.out.println(users.get(0).toJsonObject(false).toString());
-			//			System.out.println(users.get(0).getName());
+			}, () -> {
+
+				classRoom.setCanvasStatus(CanvasStatus.EXISTS);
+				courseService.saveChanges(classRoom);
+				log.warn("Could not find '" + classRoom.getShortName() + "' in Canvas. Local status updated to MISSING.");
+
+			});
+			return true;
 
 
-
-
-			//						Optional<User> optUser = userReader.showUserDetails("sis_user_id:Andre.Mathisen@usn.no");
-			//						optUser.ifPresentOrElse(user -> {
-			//							System.out.println("Found user: " + user.getName());
-			//						}, () -> System.out.println("Failed to find user!"));
-
-			System.exit(0);
-
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} catch (IOException ex) {
+			log.error("Failed to connect to Canvas LMS API.", ex);
+			return false;
 		}
 	}
 

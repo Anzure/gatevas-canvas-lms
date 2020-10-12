@@ -19,7 +19,7 @@ public class Phone {
 	@GeneratedValue
 	@Type(type="uuid-char")
 	private UUID id;
-	
+
 	@OneToOne(mappedBy="phone", fetch = FetchType.EAGER)
 	private Student student;
 

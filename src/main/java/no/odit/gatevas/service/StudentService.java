@@ -14,6 +14,7 @@ import no.odit.gatevas.misc.GeneralUtil;
 import no.odit.gatevas.misc.SheetGeneratorCSV;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.type.CanvasStatus;
 
 @Service
 public class StudentService {
@@ -53,6 +54,7 @@ public class StudentService {
 		student.setLastName(lastName);
 		student.setTmpPassword(GeneralUtil.generatePassword());		
 		student.setPhone(phone);
+		student.setCanvasStatus(CanvasStatus.UNKNOWN);
 		student = studentRepo.saveAndFlush(student);
 		log.debug("CREATED STUDENT -> " + student.toString());
 		return student;
@@ -67,6 +69,10 @@ public class StudentService {
 			log.error("Failed to create CSV file.", e);
 			return false;
 		}
+	}
+
+	public void saveChanges(Student student) {
+		studentRepo.saveAndFlush(student);
 	}
 
 	public Optional<Student> getUserByName(String firstName, String lastName) {

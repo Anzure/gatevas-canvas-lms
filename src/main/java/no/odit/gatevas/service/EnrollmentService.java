@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import no.odit.gatevas.dao.EnrollmentRepo;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.model.Classroom;
 
 @Service
@@ -33,6 +34,10 @@ public class EnrollmentService {
 		return enrollments;		
 	}
 
+	public void saveChanges(RoomLink roomLink) {
+		enrollmentRepo.saveAndFlush(roomLink);
+	}
+
 	public RoomLink createEnrollment(Student student, Classroom course) {
 
 		// Existing enrollment
@@ -45,6 +50,7 @@ public class EnrollmentService {
 		// Create new enrollment
 		RoomLink enrollment = new RoomLink();
 		enrollment.setStudent(student);
+		enrollment.setCanvasStatus(CanvasStatus.UNKNOWN);
 		enrollment.setCourse(course);
 		enrollment.setTextSent(false);
 		enrollment.setEmailSent(false);
