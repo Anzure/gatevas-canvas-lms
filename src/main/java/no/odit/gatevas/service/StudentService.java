@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import no.odit.gatevas.dao.StudentRepo;
 import no.odit.gatevas.misc.GeneralUtil;
 import no.odit.gatevas.misc.SheetGeneratorCSV;
+import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
@@ -29,6 +31,9 @@ public class StudentService {
 
 	@Autowired
 	private SheetGeneratorCSV sheetGeneratorCSV;
+
+	@Autowired
+	private CanvasService canvasService;
 
 	public Student createStudent(String email, String firstName, String lastName, int phoneNum) {
 
@@ -60,7 +65,27 @@ public class StudentService {
 		return student;
 	}
 
-	public boolean exportStudentsToCSV(List<Student> students, String path) {
+	public boolean exportStudentsToCSV(Classroom course, String path) {
+
+		// Sync students
+		canvasService.syncUsersReadOnly(course);
+
+		// Filter out existing students
+		List<Student> students = course.getStudents().stream()
+				.filter(student -> !student.isExportedToCSV() && student.getCanvasStatus() == CanvasStatus.MISSING)
+				.collect(Collectors.toList());
+		if (students.size() <= 0) {
+			log.debug("All students in '" + course.getShortName() + "' already exists in Canvas LMS.");
+			return true;
+		}
+
+		// Update status
+		students.forEach(student -> {
+			student.setExportedToCSV(true);
+			saveChanges(student);
+		});
+
+		// Create CSV file
 		File file = new File(path);
 		try {
 			sheetGeneratorCSV.createCSVFile(file, students);

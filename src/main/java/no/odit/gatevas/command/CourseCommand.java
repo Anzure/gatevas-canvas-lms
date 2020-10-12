@@ -11,6 +11,7 @@ import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CanvasService;
 import no.odit.gatevas.service.CourseService;
+import no.odit.gatevas.service.EmailService;
 import no.odit.gatevas.service.EnrollmentService;
 import no.odit.gatevas.service.LegacyService;
 import no.odit.gatevas.service.StudentService;
@@ -35,6 +36,9 @@ public class CourseCommand implements CommandHandler {
 
 	@Autowired
 	private CanvasService canvasService;
+
+	@Autowired
+	private EmailService emailService;
 
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
@@ -77,7 +81,7 @@ public class CourseCommand implements CommandHandler {
 
 			System.out.print("Shall social group be used? (Y/N): ");
 			if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
-				System.out.println("Enter social group link: ");
+				System.out.print("Enter social group link: ");
 				course.setSocialGroup(commandScanner.nextLine());
 			}
 
@@ -170,12 +174,10 @@ public class CourseCommand implements CommandHandler {
 
 			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
-				List<Student> students = course.getStudents();
-
 				System.out.print("Enter file path: ");
 				String configPath = commandScanner.nextLine();
 
-				if (studentService.exportStudentsToCSV(students, configPath))
+				if (studentService.exportStudentsToCSV(course, configPath))
 					System.out.println("User CSV file created.");
 				else 
 					System.out.println("Failed to create CSV file.");
@@ -203,6 +205,39 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
+
+		}
+
+		else if (args[0].equalsIgnoreCase("enroll")) {
+
+			
+
+		}
+
+		else if (args[0].equalsIgnoreCase("email")) {
+
+			System.out.println("Send email to students.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				if (!course.getStudents().isEmpty()) {
+					System.out.println("Test email sent.");
+					Student testStudent = course.getStudents().get(0);
+					emailService.sendEmail(course, testStudent, true);
+
+					System.out.print("Want to continue? (Y/N): ");
+					if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
+						emailService.sendEmail(course);
+					}
+
+				}
+
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
+
 
 		}
 	}	

@@ -38,7 +38,7 @@ public class Student {
 	private String email;
 
 	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name="phone_id", nullable=false)
+	@JoinColumn(name="phone_id", nullable=true)
 	private Phone phone;
 
 	@Column(nullable = false)

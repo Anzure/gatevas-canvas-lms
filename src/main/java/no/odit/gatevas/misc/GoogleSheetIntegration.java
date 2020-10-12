@@ -76,7 +76,10 @@ public class GoogleSheetIntegration {
 					String lastName = row.get(header.get("last_name"));
 					String email = row.get(header.get("email"));
 					String phoneInput = row.get(header.get("phone"));
-					int phoneNum = Integer.parseInt(phoneInput.replace("+47", "").replace(" ", ""));
+					int phoneNum = 0;
+					try {
+						phoneNum = Integer.parseInt(phoneInput.replace("+47", "").replace(" ", ""));
+					} catch (Exception ex) {}
 
 					Student student = studentService.createStudent(email, firstName, lastName, phoneNum);
 					students.add(student);

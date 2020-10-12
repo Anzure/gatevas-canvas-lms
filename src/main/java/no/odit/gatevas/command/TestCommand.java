@@ -52,7 +52,7 @@ public class TestCommand implements CommandHandler {
 			System.out.print("Text: ");
 			String msg = commandScanner.nextLine();
 
-			smsSender.sendSMS(msg, Integer.parseInt(to));
+//			smsSender.sendSMS(msg, Integer.parseInt(to));
 			System.out.println("Sent SMS!");
 		}
 	}	

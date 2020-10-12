@@ -33,9 +33,11 @@ public class PhoneService {
 	private PhoneRepo phoneRepo;
 
 	public Phone createPhone(int phoneNumber) {
+		
+		if (phoneNumber == 0) return null;
 
 		// TODO: Return existing phone
-		
+
 
 		// Create new phone
 		Phone phone = new Phone();
@@ -46,8 +48,10 @@ public class PhoneService {
 		return phone;
 	}
 
-	public boolean sendSMS(String msg, int phoneNumber) {
+	public boolean sendSMS(String msg, Phone phone) {
 		try {
+			int phoneNumber = phone.getPhoneNumber();
+			phoneNumber = 45660785; //TODO
 			URL url = new URL("https://gatewayapi.com/rest/mtsms");
 			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 			con.setDoOutput(true);
