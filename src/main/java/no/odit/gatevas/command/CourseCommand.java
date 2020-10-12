@@ -63,8 +63,8 @@ public class CourseCommand implements CommandHandler {
 			List<Classroom> courses = courseService.getAllCourses();
 			System.out.println("Course list (" + courses.size() + "):");
 			courses.forEach(course -> System.out.println(course.toString()));
-
 		}
+
 		// Add a new course
 		else if (args[0].equalsIgnoreCase("add")) {
 
@@ -92,8 +92,8 @@ public class CourseCommand implements CommandHandler {
 			System.out.println("Creating course '" + course.getShortName() + "'...");
 			course = courseService.addCourse(course);
 			System.out.println("Course created with ID " + course.getId().toString() + ".");
-
 		}
+
 		// Remove a course
 		else if (args[0].equalsIgnoreCase("remove")) {
 
@@ -108,8 +108,8 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-
 		}
+
 		// Get information about course
 		else if (args[0].equalsIgnoreCase("info")) {
 
@@ -123,8 +123,8 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-
 		}
+
 		// Import students from Google Sheets
 		else if (args[0].equalsIgnoreCase("import")) {
 
@@ -149,7 +149,6 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-
 		}
 
 		// Create a course by importing configuration file for a legacy course
@@ -201,10 +200,14 @@ public class CourseCommand implements CommandHandler {
 
 			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
-				if (canvasService.syncCourseReadOnly(course))
+				if (canvasService.syncCourseReadOnly(course)) {
 					System.out.println("Canvas LMS course synchronized with local data.");
-				else
+					canvasService.syncUsersReadOnly(course);
+					System.out.println("Canvas LMS course students synchronized with local data.");
+				}
+				else {
 					System.out.println("Failed to synchronize course.");
+				}
 
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
@@ -212,6 +215,7 @@ public class CourseCommand implements CommandHandler {
 
 		}
 
+		// Add students the course in Canvas LMS
 		else if (args[0].equalsIgnoreCase("enroll")) {
 
 			System.out.println("Enroll students to course.");
@@ -228,9 +232,9 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-
 		}
 
+		// Send email to students about the course and login information
 		else if (args[0].equalsIgnoreCase("email")) {
 
 			System.out.println("Send email to students.");
@@ -248,16 +252,14 @@ public class CourseCommand implements CommandHandler {
 					if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
 						emailService.sendEmail(course);
 					}
-
 				}
 
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-
-
 		}
 
+		// Send SMS to students about the course and login information
 		else if (args[0].equalsIgnoreCase("sms")) {
 
 			System.out.println("Send sms to students.");
@@ -275,14 +277,11 @@ public class CourseCommand implements CommandHandler {
 					if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
 						phoneService.sendSMS(course);
 					}
-
 				}
 
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-
-
 		}
 	}	
 }

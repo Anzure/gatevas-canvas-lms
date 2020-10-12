@@ -20,6 +20,12 @@ public class EmailSender {
 	@Value("${mail.smtp.email}")
 	private String email;
 
+	/**
+	 * Send HTML formatted email.
+	 * @param to Receiving email address
+	 * @param subject Title of email
+	 * @param text HTML formatted message
+	 */
 	public void sendSimpleMessage(String to, String subject, String text) {
 		try {
 

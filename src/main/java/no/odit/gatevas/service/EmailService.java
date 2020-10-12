@@ -1,14 +1,10 @@
 package no.odit.gatevas.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import no.odit.gatevas.misc.EmailSender;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
@@ -35,6 +31,10 @@ public class EmailService {
 	@Autowired
 	private CanvasService canvasService;
 
+	/**
+	 * Sends email to students in course with login and information.
+	 * @param classRoom Course that members shall be informed
+	 */
 	public void sendEmail(Classroom classRoom) {
 
 		canvasService.syncUsersReadOnly(classRoom);
@@ -62,6 +62,12 @@ public class EmailService {
 		}
 	}
 
+	/**
+	 * Send email with login and information to student.
+	 * @param classRoom Course that is relevant for email
+	 * @param student Student that will receive email
+	 * @param isTest If it shall be a test.
+	 */
 	public void sendEmail(Classroom classRoom, Student student, boolean isTest) {
 
 		String email = isTest ? testEmail : student.getEmail();
