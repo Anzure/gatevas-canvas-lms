@@ -39,10 +39,6 @@ public class EmailService {
 
 		canvasService.syncUsersReadOnly(classRoom);
 
-		List<Student> students = classRoom.getEnrollments().stream()
-				.filter(enrollment -> !enrollment.isEmailSent() && enrollment.getStudent().getCanvasStatus() == CanvasStatus.EXISTS)
-				.map(RoomLink::getStudent).collect(Collectors.toList());
-
 		for (RoomLink enrollment : classRoom.getEnrollments()) {
 
 			if (enrollment.isEmailSent()) {
@@ -51,6 +47,10 @@ public class EmailService {
 
 			Student student = enrollment.getStudent();
 			if (student.getCanvasStatus() != CanvasStatus.EXISTS) {
+				continue;
+			}
+
+			if (enrollment.getCanvasStatus() != CanvasStatus.EXISTS) {
 				continue;
 			}
 
@@ -64,8 +64,7 @@ public class EmailService {
 
 	public void sendEmail(Classroom classRoom, Student student, boolean isTest) {
 
-		String email = isTest ? testEmail : "waremanu@gmail.com"; //TODO
-
+		String email = isTest ? testEmail : student.getEmail();
 
 		StringBuilder sb = new StringBuilder("Hei<br/><br/>");
 

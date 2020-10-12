@@ -14,6 +14,7 @@ import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.service.EmailService;
 import no.odit.gatevas.service.EnrollmentService;
 import no.odit.gatevas.service.LegacyService;
+import no.odit.gatevas.service.PhoneService;
 import no.odit.gatevas.service.StudentService;
 
 @Component
@@ -39,6 +40,9 @@ public class CourseCommand implements CommandHandler {
 
 	@Autowired
 	private EmailService emailService;
+
+	@Autowired
+	private PhoneService phoneService;
 
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
@@ -243,6 +247,33 @@ public class CourseCommand implements CommandHandler {
 					System.out.print("Want to continue? (Y/N): ");
 					if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
 						emailService.sendEmail(course);
+					}
+
+				}
+
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
+
+
+		}
+
+		else if (args[0].equalsIgnoreCase("sms")) {
+
+			System.out.println("Send sms to students.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				if (!course.getStudents().isEmpty()) {
+					System.out.println("Test sms sent.");
+					Student testStudent = course.getStudents().get(0);
+					phoneService.sendSMS(course, testStudent, true);
+
+					System.out.print("Want to continue? (Y/N): ");
+					if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
+						phoneService.sendSMS(course);
 					}
 
 				}
