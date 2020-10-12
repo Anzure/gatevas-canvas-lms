@@ -2,6 +2,7 @@ package no.odit.gatevas.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +14,19 @@ import edu.ksu.canvas.interfaces.CourseReader;
 import edu.ksu.canvas.interfaces.CourseWriter;
 import edu.ksu.canvas.interfaces.EnrollmentReader;
 import edu.ksu.canvas.interfaces.EnrollmentWriter;
+import edu.ksu.canvas.interfaces.RoleReader;
 import edu.ksu.canvas.interfaces.UserReader;
 import edu.ksu.canvas.interfaces.UserWriter;
 import edu.ksu.canvas.model.Account;
 import edu.ksu.canvas.model.Enrollment;
+import edu.ksu.canvas.model.Role;
 import edu.ksu.canvas.model.User;
 import edu.ksu.canvas.oauth.OauthToken;
 import edu.ksu.canvas.requestOptions.GetSingleCourseOptions;
 import edu.ksu.canvas.requestOptions.GetUsersInAccountOptions;
+import edu.ksu.canvas.requestOptions.ListRolesOptions;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
 
@@ -41,6 +46,83 @@ public class CanvasService {
 
 	@Autowired
 	private EnrollmentService enrollmentService;
+
+	public boolean enrollStudents(Classroom classRoom) {
+		try {
+
+			OauthToken oauthToken = apiService.getOauthToken();
+			CanvasApiFactory apiFactory = apiService.getApiFactory();
+
+			AccountReader acctReader = apiFactory.getReader(AccountReader.class, oauthToken);
+			Account rootAccount = acctReader.getSingleAccount("1").get();
+			log.debug("Connected to Canvas LMS API at '" + rootAccount.getName() + "'.");
+
+			UserReader userReader = apiFactory.getReader(UserReader.class, oauthToken, 100);
+			EnrollmentWriter enrollmentWriter = apiFactory.getWriter(EnrollmentWriter.class, oauthToken);
+
+			RoleReader roleReader = apiFactory.getReader(RoleReader.class, oauthToken, 100);
+
+			ListRolesOptions roleOptions = new ListRolesOptions("1");
+			Role studentRole = roleReader.listRoles(roleOptions).stream().filter(role -> role.getBaseRoleType().equalsIgnoreCase("student")
+					|| role.getLabel().equalsIgnoreCase("student")).findFirst().orElse(null);
+
+
+			for (RoomLink roomLink : classRoom.getEnrollments()) {
+
+				Student student = roomLink.getStudent();
+
+				String name = student.getFirstName() + " " + student.getLastName();
+				GetUsersInAccountOptions options = new GetUsersInAccountOptions("1");
+				options.searchTerm(name);
+				List<User> users = userReader.getUsersInAccount(options);
+
+				users.stream()
+				.filter(user -> user.getName().equalsIgnoreCase(name))
+				.findFirst().ifPresentOrElse(user -> {
+
+					try {
+						Enrollment enroll = new Enrollment();
+						enroll.setUserId(String.valueOf(user.getId()));
+						enroll.setRoleId(studentRole.getId());
+						enroll.setSisCourseId(classRoom.getShortName());
+						enroll.setCourseId(roomLink.getCourse().getCanvasIs());
+						enroll.setRole("student");
+						enrollmentWriter.enrollUserInCourse(enroll).ifPresentOrElse(result -> {
+
+							roomLink.setCanvasIs(result.getId());
+							roomLink.setCanvasStatus(CanvasStatus.EXISTS);
+							enrollmentService.saveChanges(roomLink);
+
+						}, () -> {
+
+							roomLink.setCanvasStatus(CanvasStatus.MISSING);
+							enrollmentService.saveChanges(roomLink);
+
+						});
+
+
+
+					} catch (Exception ex) {
+						roomLink.setCanvasStatus(CanvasStatus.MISSING);
+						enrollmentService.saveChanges(roomLink);
+						log.error("Failed to enroll " + name + ".", ex);
+					}
+
+				}, () -> {
+					// Update user status
+					roomLink.setCanvasStatus(CanvasStatus.MISSING);
+					enrollmentService.saveChanges(roomLink);
+				});
+
+			}
+
+			return true;
+
+		} catch (IOException ex) {
+			log.error("Failed to connect to Canvas LMS API.", ex);
+			return false;
+		}
+	}
 
 	public boolean syncUsersReadOnly(Classroom classRoom) {
 
@@ -72,20 +154,8 @@ public class CanvasService {
 
 					// Update user status
 					student.setCanvasStatus(CanvasStatus.EXISTS);
+					student.setCanvasIs(user.getId());
 					studentService.saveChanges(student);
-
-					// Update enrollments status
-					List<Enrollment> enrollments = user.getEnrollments();
-					student.getEnrollments().forEach(roomLink -> {
-						enrollments.stream().filter(enrollment -> enrollment.getSisCourseId() != null && roomLink.getCourse().getShortName().equalsIgnoreCase(enrollment.getSisCourseId()))
-						.findFirst().ifPresentOrElse(enrollment -> {
-							roomLink.setCanvasStatus(CanvasStatus.EXISTS);
-							enrollmentService.saveChanges(roomLink);
-						}, () -> {
-							roomLink.setCanvasStatus(CanvasStatus.MISSING);
-							enrollmentService.saveChanges(roomLink);
-						});
-					});
 
 
 				}, () -> {
@@ -132,6 +202,7 @@ public class CanvasService {
 			courseReader.getSingleCourse(courseOptions).ifPresentOrElse(course -> {
 
 				classRoom.setCanvasStatus(CanvasStatus.EXISTS);
+				classRoom.setCanvasIs(course.getId());
 				courseService.saveChanges(classRoom);
 				log.debug("Found '" + classRoom.getShortName() + "' in Canvas. Local status updated to EXISTS.");
 

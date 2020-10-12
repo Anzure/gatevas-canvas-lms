@@ -48,6 +48,9 @@ public class Classroom {
 	@Column(nullable = false)
 	private CanvasStatus canvasStatus;
 
+	@Column(nullable = true)
+	private int canvasIs;
+
 	@Column(nullable = false)
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
@@ -141,6 +144,14 @@ public class Classroom {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public int getCanvasIs() {
+		return canvasIs;
+	}
+
+	public void setCanvasIs(int canvasIs) {
+		this.canvasIs = canvasIs;
 	}
 
 	@Override

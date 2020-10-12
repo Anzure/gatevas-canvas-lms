@@ -210,7 +210,20 @@ public class CourseCommand implements CommandHandler {
 
 		else if (args[0].equalsIgnoreCase("enroll")) {
 
-			
+			System.out.println("Enroll students to course.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				if (canvasService.enrollStudents(course))
+					System.out.println("Enrolled students in '" + course.getShortName() + "'.");
+				else
+					System.out.println("Failed to enroll students to '" + course.getShortName() + "'.");
+
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
 
 		}
 

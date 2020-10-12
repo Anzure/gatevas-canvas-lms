@@ -46,13 +46,16 @@ public class Student {
 
 	@Column(nullable = false)
 	private boolean loginInfoSent;
-	
+
 	@Column(nullable = false, name = "exported_to_csv")
 	private boolean exportedToCSV;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CanvasStatus canvasStatus;
+
+	@Column(nullable = true)
+	private int canvasIs;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -166,6 +169,14 @@ public class Student {
 
 	public void setCanvasStatus(CanvasStatus canvasStatus) {
 		this.canvasStatus = canvasStatus;
+	}
+
+	public int getCanvasIs() {
+		return canvasIs;
+	}
+
+	public void setCanvasIs(int canvasIs) {
+		this.canvasIs = canvasIs;
 	}
 
 	@Override
