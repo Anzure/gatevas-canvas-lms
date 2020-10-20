@@ -96,12 +96,12 @@ public class CanvasService {
 						enroll.setUserId(String.valueOf(user.getId()));
 						enroll.setRoleId(studentRole.getId());
 						enroll.setSisCourseId(classRoom.getShortName());
-						enroll.setCourseId(roomLink.getCourse().getCanvasIs());
+						enroll.setCourseId(roomLink.getCourse().getCanvasId());
 						enroll.setRole("student");
 						enrollmentWriter.enrollUserInCourse(enroll).ifPresentOrElse(result -> {
 
 							// Successful enrollment
-							roomLink.setCanvasIs(result.getId());
+							roomLink.setCanvasId(result.getId());
 							roomLink.setCanvasStatus(CanvasStatus.EXISTS);
 							enrollmentService.saveChanges(roomLink);
 							log.debug("Enrolled '" + name + "' to '" + classRoom.getShortName() + "'.");
@@ -175,7 +175,7 @@ public class CanvasService {
 
 					// Update user status
 					student.setCanvasStatus(CanvasStatus.EXISTS);
-					student.setCanvasIs(user.getId());
+					student.setCanvasId(user.getId());
 					studentService.saveChanges(student);
 
 				}, () -> {
@@ -224,7 +224,7 @@ public class CanvasService {
 
 				// Update locally stored course data
 				classRoom.setCanvasStatus(CanvasStatus.EXISTS);
-				classRoom.setCanvasIs(course.getId());
+				classRoom.setCanvasId(course.getId());
 				courseService.saveChanges(classRoom);
 				log.debug("Found '" + classRoom.getShortName() + "' in Canvas. Local status updated to EXISTS.");
 

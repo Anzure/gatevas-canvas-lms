@@ -35,6 +35,14 @@ public class StudentService {
 	@Autowired
 	private CanvasService canvasService;
 
+	/**
+	 * Creates a new student or get existing
+	 * @param email Email address
+	 * @param firstName First name
+	 * @param lastName Last name
+	 * @param phoneNum Phone number
+	 * @return New or existing student
+	 */
 	public Student createStudent(String email, String firstName, String lastName, int phoneNum) {
 
 		// Return existing student (email)
@@ -65,6 +73,12 @@ public class StudentService {
 		return student;
 	}
 
+	/**
+	 * Exports students in course to a CSV file
+	 * @param course Course to export students from
+	 * @param path File path in OS
+	 * @return Returns true if operation was successful
+	 */
 	public boolean exportStudentsToCSV(Classroom course, String path) {
 
 		// Sync students
@@ -96,14 +110,29 @@ public class StudentService {
 		}
 	}
 
+	/**
+	 * Saves a Student to storage
+	 * @param student Student to save
+	 */
 	public void saveChanges(Student student) {
 		studentRepo.saveAndFlush(student);
 	}
 
+	/**
+	 * Gets Student from storage by full name
+	 * @param firstName First name
+	 * @param lastName Last name
+	 * @return Empty Optional or populated with existing Student
+	 */
 	public Optional<Student> getUserByName(String firstName, String lastName) {
 		return studentRepo.findByFirstNameAndLastName(firstName, lastName);
 	}
 
+	/**
+	 * Gets a Student from storage by email
+	 * @param email Email address
+	 * @return Empty Optional or populated with existing Student
+	 */
 	public Optional<Student> getUserByEmail(String email) {
 		return studentRepo.findByEmail(email);
 	}

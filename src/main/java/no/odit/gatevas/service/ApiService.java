@@ -25,12 +25,20 @@ public class ApiService {
 	@Value("${canvas_lms.base_url}")
 	private String canvasBaseUrl;
 
+	/**
+	 * Gets active oauth token
+	 * @return Refreshed oauth token
+	 */
 	public OauthToken getOauthToken() {
 		OauthTokenRefresher tokenRefresher = new OauthTokenRefresher(clientId, clientSecret, canvasBaseUrl);
 		OauthToken oauthToken = new RefreshableOauthToken(tokenRefresher, refreshToken);
 		return oauthToken;
 	}
 
+	/**
+	 * Gets current Canvas API factory
+	 * @return Connected Canvas API factory
+	 */
 	public CanvasApiFactory getApiFactory() {
 		CanvasApiFactory apiFactory = new CanvasApiFactory(canvasBaseUrl);
 		return apiFactory;

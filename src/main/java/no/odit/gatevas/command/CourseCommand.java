@@ -54,6 +54,12 @@ public class CourseCommand implements CommandHandler {
 			System.out.println("- course remove");
 			System.out.println("- course info");
 			System.out.println("- course import");
+			System.out.println("- course export");
+			System.out.println("- course enroll");
+			System.out.println("- course sync");
+			System.out.println("- course legacy");
+			System.out.println("- course email");
+			System.out.println("- course sms");
 			return;
 		}
 

@@ -11,8 +11,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.command.CourseCommand;
 import no.odit.gatevas.command.ExitCommand;
-import no.odit.gatevas.command.StudentCommand;
-import no.odit.gatevas.command.TestCommand;
 
 @Configuration
 @EnableAsync
@@ -33,15 +31,9 @@ public class GatevasConfig implements AsyncConfigurer {
 	@Autowired
 	private ExitCommand exitCommand;
 
-	@Autowired
-	private StudentCommand studentCommand;
-
-	@Autowired
-	private TestCommand testCommand;
-
 	@Bean
 	public List<CommandHandler> getCommands() {
-		return List.of(courseCommand, exitCommand, studentCommand, testCommand);
+		return List.of(courseCommand, exitCommand);
 	}
 
 	@Bean

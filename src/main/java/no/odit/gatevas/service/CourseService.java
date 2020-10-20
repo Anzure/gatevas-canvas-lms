@@ -24,6 +24,11 @@ public class CourseService {
 	@Autowired
 	private GoogleSheetIntegration googleSheetIntegration;
 
+	/**
+	 * Imports students from online Google Sheets
+	 * @param course Course to import for
+	 * @return May be populated with a list of imported students
+	 */
 	public Optional<List<Student>> importStudents(Classroom course) {
 		try {
 			List<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId());
@@ -33,11 +38,20 @@ public class CourseService {
 			return Optional.empty();
 		}
 	}
-	
+
+	/**
+	 * Saves changes for course to storage
+	 * @param course Course to save
+	 */
 	public void saveChanges(Classroom course) {
 		courseRepo.saveAndFlush(course);
 	}
 
+	/**
+	 * Creates a new course in storage
+	 * @param course Course to create
+	 * @return Newly created course
+	 */
 	public Classroom addCourse(Classroom course) {
 		course.setCanvasStatus(CanvasStatus.UNKNOWN);
 		course = courseRepo.saveAndFlush(course);
@@ -45,15 +59,28 @@ public class CourseService {
 		return course;
 	}
 
+	/**
+	 * Deletes a course from storage
+	 * @param course Course to remove
+	 */
 	public void removeCourse(Classroom course) {
 		log.info("DELETE COURSE -> " + course.toString());
 		courseRepo.delete(course);
 	}
 
+	/**
+	 * Find all courses
+	 * @return A list of all courses
+	 */
 	public List<Classroom> getAllCourses() {
 		return courseRepo.findAll();
 	}
 
+	/**
+	 * Gets course from storage
+	 * @param name Search by course name
+	 * @return May be populated with an existing course
+	 */
 	public Optional<Classroom> getCourse(String name){
 		return Optional.of(courseRepo.findByShortName(name)
 				.orElse(courseRepo.findByLongName(name).orElse(null)));

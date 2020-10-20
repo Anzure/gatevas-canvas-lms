@@ -49,7 +49,7 @@ public class Classroom {
 	private CanvasStatus canvasStatus;
 
 	@Column(nullable = true)
-	private int canvasIs;
+	private int canvasId;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -146,12 +146,12 @@ public class Classroom {
 		this.createdAt = createdAt;
 	}
 
-	public int getCanvasIs() {
-		return canvasIs;
+	public int getCanvasId() {
+		return canvasId;
 	}
 
-	public void setCanvasIs(int canvasIs) {
-		this.canvasIs = canvasIs;
+	public void setCanvasId(int canvasId) {
+		this.canvasId = canvasId;
 	}
 
 	@Override

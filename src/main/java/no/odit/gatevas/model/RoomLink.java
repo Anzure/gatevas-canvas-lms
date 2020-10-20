@@ -44,9 +44,9 @@ public class RoomLink {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CanvasStatus canvasStatus;
-	
+
 	@Column(nullable = true)
-	private long canvasIs;
+	private long canvasId;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -120,12 +120,12 @@ public class RoomLink {
 		this.canvasStatus = canvasStatus;
 	}
 
-	public long getCanvasIs() {
-		return canvasIs;
+	public long getCanvasId() {
+		return canvasId;
 	}
 
-	public void setCanvasIs(long canvasIs) {
-		this.canvasIs = canvasIs;
+	public void setCanvasId(long canvasId) {
+		this.canvasId = canvasId;
 	}
 
 	@Override
