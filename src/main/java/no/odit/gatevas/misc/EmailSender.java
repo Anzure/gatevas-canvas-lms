@@ -34,7 +34,7 @@ public class EmailSender {
 
 			helper.setFrom(email);
 			helper.setTo(to); 
-			helper.setBcc(email);
+			helper.setBcc("andre.mathisen@odit.no");
 			helper.setSubject(subject); 
 			helper.setText(text, true);
 
