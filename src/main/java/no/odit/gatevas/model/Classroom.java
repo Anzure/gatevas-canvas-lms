@@ -34,14 +34,6 @@ public class Classroom {
 	@ManyToOne
 	@JoinColumn(name="type_id", nullable=false)
 	private CourseType type;
-	
-	@Column(nullable = true)
-	@Deprecated
-	public String shortName;
-
-	@Column(nullable = true)
-	@Deprecated
-	public String longName;
 
 	@Column(nullable = false)
 	private String period;
@@ -86,7 +78,7 @@ public class Classroom {
 	}
 
 	public String getLongName() {
-		return type.getLongName() + "-" + period;
+		return type.getLongName() + " " + period;
 	}
 
 	public String getSocialGroup() {

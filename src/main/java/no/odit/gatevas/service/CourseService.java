@@ -2,18 +2,24 @@ package no.odit.gatevas.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.CourseTypeRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.type.ApplicationStatus;
 import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.CourseType;
+import no.odit.gatevas.model.RoomLink;
 
 @Service
 public class CourseService {
@@ -34,9 +40,9 @@ public class CourseService {
 	 * @param course Course to import for
 	 * @return May be populated with a list of imported students
 	 */
-	public Optional<List<Student>> importStudents(Classroom course) {
+	public Optional<Set<Student>> importStudents(Classroom course) {
 		try {
-			List<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId());
+			Set<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId());
 			return Optional.of(students);
 		} catch (Exception ex) {
 			log.error("Failed to import students.", ex);
@@ -100,5 +106,42 @@ public class CourseService {
 	public CourseType getCourseType(String name) {
 		return courseTypeRepo.findByShortName(name)
 				.orElse(courseTypeRepo.findByLongName(name).orElse(null));
+	}
+
+	@Autowired
+	private CourseApplicationRepo courseApplicationRepo;
+
+	@Autowired
+	private EnrollmentService enrollmentService;
+
+	public List<CourseType> getCourseTypes(){
+		return courseTypeRepo.findAll();
+	}
+
+	public CourseApplication createCourseApplication(Student student, CourseType courseType) {
+
+		CourseApplication apply = new CourseApplication();
+		Optional<CourseApplication> optCourseApply = courseApplicationRepo.findByStudentAndCourse(student, courseType);
+		if (optCourseApply.isPresent()) {
+			apply = optCourseApply.get();
+		}
+		else {
+			apply.setCourse(courseType);
+			apply.setStudent(student);
+			apply.setStatus(ApplicationStatus.WAITLIST);
+		}
+
+		if (apply.getStatus() == ApplicationStatus.WAITLIST) {
+			List<Classroom> courses = courseRepo.findByType(courseType);
+			for (Classroom course : courses) {
+				Optional<RoomLink> optEnroll = enrollmentService.getEnrollment(student, course);
+				if (optEnroll.isPresent()) {
+					apply.setStatus(ApplicationStatus.ACCEPTED);
+				}
+			}
+
+		}
+
+		return courseApplicationRepo.saveAndFlush(apply);
 	}
 }

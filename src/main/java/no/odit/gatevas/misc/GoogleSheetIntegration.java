@@ -3,7 +3,10 @@ package no.odit.gatevas.misc;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,10 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
+
+import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.service.StudentService;
 
 @Component
@@ -26,20 +32,23 @@ public class GoogleSheetIntegration {
 	@Autowired
 	private Sheets sheetService;
 
+	@Autowired
+	private CourseService courseService;
+
 	/**
 	 * Import students from online Google Spreadsheet
 	 * @param spreadSheetId Google Spreadsheets document identifier
 	 * @return List of created and existing students
 	 * @throws IOException Failed to connect to Google API
 	 */
-	public List<Student> processSheet(String spreadSheetId) throws IOException {
+	public Set<Student> processSheet(String spreadSheetId) throws IOException {
 
 		ValueRange response = sheetService.spreadsheets().values()
 				.get(spreadSheetId, "A:Z")
 				.execute();
 
 		// Output list
-		List<Student> students = new ArrayList<Student>();
+		Set<Student> students = new HashSet<Student>();
 
 		// Online sheet data
 		List<List<Object>> values = response.getValues();
@@ -65,6 +74,8 @@ public class GoogleSheetIntegration {
 							raw = "first_name";
 						else if (raw.startsWith("etternavn")) 
 							raw = "last_name";
+						else if (raw.startsWith("jeg melder meg p"))
+							raw = "course_type";
 						header.put(raw, i);
 						i++;
 					}
@@ -83,6 +94,17 @@ public class GoogleSheetIntegration {
 
 					Student student = studentService.createStudent(email, firstName, lastName, phoneNum);
 					students.add(student);
+
+					if (header.containsKey("course_type")) {
+						String typeName = row.get(header.get("course_type"));
+						if (typeName.contains(",")) {
+							typeName = typeName.split(",")[0];
+							CourseType courseType = courseService.getCourseType(typeName);
+							if (courseType == null) log.warn("Failed to find course type '" + typeName + "'.");
+							courseService.createCourseApplication(student, courseType);
+						} else
+							log.warn("Failed to split '" + typeName + "' while importing spreadsheets.");
+					}
 				}
 			}
 		}

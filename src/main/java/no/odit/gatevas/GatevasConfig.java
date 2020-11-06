@@ -12,6 +12,7 @@ import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.command.CourseCommand;
 import no.odit.gatevas.command.CustomCommand;
 import no.odit.gatevas.command.ExitCommand;
+import no.odit.gatevas.command.GlobalCommand;
 
 @Configuration
 @EnableAsync
@@ -34,10 +35,13 @@ public class GatevasConfig implements AsyncConfigurer {
 
 	@Autowired
 	private CustomCommand customCommand;
+	
+	@Autowired
+	private GlobalCommand globalCommand;
 
 	@Bean
 	public List<CommandHandler> getCommands() {
-		return List.of(courseCommand, exitCommand, customCommand);
+		return List.of(courseCommand, exitCommand, customCommand, globalCommand);
 	}
 
 	@Bean

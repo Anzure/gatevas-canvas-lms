@@ -1,11 +1,16 @@
 package no.odit.gatevas.command;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
+import no.odit.gatevas.misc.GoogleSheetIntegration;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.RoomLink;
@@ -41,6 +46,9 @@ public class CourseCommand implements CommandHandler {
 	@Autowired
 	private PhoneService phoneService;
 
+	@Autowired
+	private GoogleSheetIntegration googleSheetIntegration;
+
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
 
@@ -64,7 +72,7 @@ public class CourseCommand implements CommandHandler {
 
 			List<Classroom> courses = courseService.getAllCourses();
 			System.out.println("Course list (" + courses.size() + "):");
-			courses.forEach(course -> System.out.println(course.toString()));
+			courses.forEach(course -> System.out.println("- " + course.getShortName() + " | " + course.getLongName()));
 		}
 
 		// Add a new course

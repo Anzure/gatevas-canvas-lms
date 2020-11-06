@@ -3,6 +3,7 @@ package no.odit.gatevas.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class EnrollmentService {
 	 * @param course Course to enroll students in
 	 * @return A list of created enrollments
 	 */
-	public List<RoomLink> enrollStudent(List<Student> students, Classroom course) {
+	public List<RoomLink> enrollStudent(Set<Student> students, Classroom course) {
 
 		List<RoomLink> enrollments = new ArrayList<RoomLink>();
 		for (Student student : students) {

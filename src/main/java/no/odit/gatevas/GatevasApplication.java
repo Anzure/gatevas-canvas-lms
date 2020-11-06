@@ -1,9 +1,6 @@
 package no.odit.gatevas;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.SpringApplication;
@@ -11,11 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
-
 import no.odit.gatevas.dao.CourseTypeRepo;
-import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.CourseType;
-import no.odit.gatevas.service.CourseService;
 
 @SpringBootApplication
 @Configurable
@@ -30,33 +24,10 @@ public class GatevasApplication {
 
 	@Autowired
 	private CourseTypeRepo courseTypeRepo;
-	
-	@Autowired
-	private CourseService courseService;
 
 	@PostConstruct
 	private void loadDefaults() {
 
-		courseService.getAllCourses().forEach(course -> {
-		
-			String name = course.shortName.toLowerCase();
-			name = name.replace(" ", "");
-			name = name.replace("-h20", "");
-			name = name.replace("-v20", "");
-			name = name.replace("-s20", "");
-			System.out.println("Matching " + name + "...");
-			courseTypeRepo.findByShortName(name).ifPresent(type -> {
-				course.setType(type);
-				course.setPeriod(course.shortName.split("-")[2]);
-				course.shortName = null;
-				course.longName = null;
-				courseService.saveChanges(course);
-				System.out.println("Matched");
-			});
-			
-		});
-		
-		
 		{
 			CourseType entryOne = new CourseType();
 			entryOne.setShortName("IOT-BP1");

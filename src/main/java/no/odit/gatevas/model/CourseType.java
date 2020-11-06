@@ -29,6 +29,9 @@ public class CourseType {
 	private String longName;
 	
 	@Column(nullable = false)
+	private String googleSheetId;
+	
+	@Column(nullable = false)
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
@@ -85,5 +88,13 @@ public class CourseType {
 
 	public void setCourses(Set<Classroom> courses) {
 		this.courses = courses;
+	}
+
+	public String getGoogleSheetId() {
+		return googleSheetId;
+	}
+
+	public void setGoogleSheetId(String googleSheetId) {
+		this.googleSheetId = googleSheetId;
 	}
 }
