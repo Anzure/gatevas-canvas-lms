@@ -34,8 +34,16 @@ public class Classroom {
 	@ManyToOne
 	@JoinColumn(name="type_id", nullable=false)
 	private CourseType type;
+	
+	@Column(nullable = true)
+	@Deprecated
+	public String shortName;
 
 	@Column(nullable = true)
+	@Deprecated
+	public String longName;
+
+	@Column(nullable = false)
 	private String period;
 
 	@Column(nullable = true)
@@ -169,7 +177,6 @@ public class Classroom {
 	public String toString() {
 		return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup + ", communicationLink="
 				+ communicationLink + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
-				+ ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + ", enrollments="
-				+ enrollments + "]";
+				+ ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
 	}
 }

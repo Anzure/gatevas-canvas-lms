@@ -87,8 +87,9 @@ public class CourseService {
 	 * @return May be populated with an existing course
 	 */
 	public Optional<Classroom> getCourse(String name){
-		return Optional.of(courseRepo.findByShortName(name)
-				.orElse(courseRepo.findByLongName(name).orElse(null)));
+		return getAllCourses().stream()
+				.filter(course -> course.getShortName().equalsIgnoreCase(name) || course.getLongName().equalsIgnoreCase(name))
+				.findFirst();
 	}
 
 	/**

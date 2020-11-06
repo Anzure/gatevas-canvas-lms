@@ -131,7 +131,7 @@ public class RoomLink {
 	@Override
 	public String toString() {
 		return "RoomLink [id=" + id + ", emailSent=" + emailSent + ", textSent=" + textSent + ", student=" + student
-				+ ", course=" + course + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt="
+				+ ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt="
 				+ createdAt + "]";
 	}
 }
