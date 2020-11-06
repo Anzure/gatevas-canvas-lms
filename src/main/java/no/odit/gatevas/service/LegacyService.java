@@ -21,6 +21,7 @@ public class LegacyService {
 	@Autowired
 	private CourseService courseService;
 
+	@Deprecated
 	public Optional<Classroom> importLegacyFile(String path) {
 
 		try (Reader fileReader = new FileReader(path)){
@@ -31,8 +32,8 @@ public class LegacyService {
 			}
 
 			Classroom course = new Classroom();
-			course.setShortName(json.get("id").getAsString());
-			course.setLongName(json.get("name").getAsString());
+//			course.setShortName(json.get("id").getAsString());
+//			course.setLongName(json.get("name").getAsString());
 			course.setCommunicationLink(json.get("roomLink").getAsString());
 			course.setGoogleSheetId(json.get("googleSheetId").getAsString());
 			course = courseService.addCourse(course);

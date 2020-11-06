@@ -12,6 +12,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,11 +31,12 @@ public class Classroom {
 	@Type(type="uuid-char")
 	private UUID id;
 
-	@Column(nullable = false)
-	private String shortName;
+	@ManyToOne
+	@JoinColumn(name="type_id", nullable=false)
+	private CourseType type;
 
-	@Column(nullable = false)
-	private String longName;
+	@Column(nullable = true)
+	private String period;
 
 	@Column(nullable = true)
 	private String socialGroup;
@@ -71,19 +74,11 @@ public class Classroom {
 	}
 
 	public String getShortName() {
-		return shortName;
-	}
-
-	public void setShortName(String shortName) {
-		this.shortName = shortName;
+		return type.getShortName() + "-" + period;
 	}
 
 	public String getLongName() {
-		return longName;
-	}
-
-	public void setLongName(String longName) {
-		this.longName = longName;
+		return type.getLongName() + "-" + period;
 	}
 
 	public String getSocialGroup() {
@@ -154,10 +149,27 @@ public class Classroom {
 		this.canvasId = canvasId;
 	}
 
+	public CourseType getType() {
+		return type;
+	}
+
+	public void setType(CourseType type) {
+		this.type = type;
+	}
+
+	public String getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(String period) {
+		this.period = period;
+	}
+
 	@Override
 	public String toString() {
-		return "Classroom [id=" + id + ", shortName=" + shortName + ", longName=" + longName + ", socialGroup="
-				+ socialGroup + ", communicationLink=" + communicationLink + ", googleSheetId=" + googleSheetId
-				+ ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
+		return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup + ", communicationLink="
+				+ communicationLink + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
+				+ ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + ", enrollments="
+				+ enrollments + "]";
 	}
 }

@@ -8,10 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import no.odit.gatevas.dao.CourseRepo;
+import no.odit.gatevas.dao.CourseTypeRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.CourseType;
 
 @Service
 public class CourseService {
@@ -20,6 +22,9 @@ public class CourseService {
 
 	@Autowired
 	private CourseRepo courseRepo;
+
+	@Autowired
+	private CourseTypeRepo courseTypeRepo;
 
 	@Autowired
 	private GoogleSheetIntegration googleSheetIntegration;
@@ -84,5 +89,15 @@ public class CourseService {
 	public Optional<Classroom> getCourse(String name){
 		return Optional.of(courseRepo.findByShortName(name)
 				.orElse(courseRepo.findByLongName(name).orElse(null)));
+	}
+
+	/**
+	 * Gets course type from storage
+	 * @param name Search by course type name
+	 * @return Is null if no result was found
+	 */
+	public CourseType getCourseType(String name) {
+		return courseTypeRepo.findByShortName(name)
+				.orElse(courseTypeRepo.findByLongName(name).orElse(null));
 	}
 }

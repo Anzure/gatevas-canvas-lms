@@ -1,23 +1,16 @@
 package no.odit.gatevas.command;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Scanner;
 import java.util.Set;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import edu.ksu.canvas.model.Enrollment;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.model.RoomLink;

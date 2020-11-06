@@ -19,6 +19,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import no.odit.gatevas.type.CanvasStatus;
+import no.odit.gatevas.type.StudentStatus;
 
 @Entity
 public class Student {
@@ -53,6 +54,10 @@ public class Student {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CanvasStatus canvasStatus;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = true)
+	private StudentStatus studentStatus;
 
 	@Column(nullable = true)
 	private int canvasId;
@@ -177,6 +182,14 @@ public class Student {
 
 	public void setCanvasId(int canvasId) {
 		this.canvasId = canvasId;
+	}
+
+	public StudentStatus getStudentStatus() {
+		return studentStatus;
+	}
+
+	public void setStudentStatus(StudentStatus studentStatus) {
+		this.studentStatus = studentStatus;
 	}
 
 	@Override

@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CanvasService;
 import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.service.EmailService;
 import no.odit.gatevas.service.EnrollmentService;
-import no.odit.gatevas.service.LegacyService;
 import no.odit.gatevas.service.PhoneService;
 import no.odit.gatevas.service.StudentService;
 
@@ -25,9 +25,6 @@ public class CourseCommand implements CommandHandler {
 
 	@Autowired
 	private EnrollmentService enrollmentService;
-
-	@Autowired
-	private LegacyService legacyService;
 
 	@Autowired
 	private Scanner commandScanner;
@@ -57,7 +54,6 @@ public class CourseCommand implements CommandHandler {
 			System.out.println("- course export");
 			System.out.println("- course enroll");
 			System.out.println("- course sync");
-			System.out.println("- course legacy");
 			System.out.println("- course email");
 			System.out.println("- course sms");
 			return;
@@ -77,11 +73,12 @@ public class CourseCommand implements CommandHandler {
 			System.out.println("Create a new course.");
 			Classroom course = new Classroom();
 
-			System.out.print("Enter course short name: ");
-			course.setShortName(commandScanner.nextLine());
+			System.out.print("Enter course type: ");
+			CourseType type = courseService.getCourseType(commandScanner.nextLine());
+			course.setType(type);
 
-			System.out.print("Enter course long name: ");
-			course.setLongName(commandScanner.nextLine());
+			System.out.print("Enter course period: ");
+			course.setPeriod(commandScanner.nextLine());
 
 			System.out.print("Enter google sheet id: ");
 			course.setGoogleSheetId(commandScanner.nextLine());
@@ -155,22 +152,6 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
-		}
-
-		// Create a course by importing configuration file for a legacy course
-		else if (args[0].equalsIgnoreCase("legacy")) {
-
-			System.out.println("Add legacy course to new system.");
-
-			System.out.print("Enter file path: ");
-			String configPath = commandScanner.nextLine();
-
-			legacyService.importLegacyFile(configPath).ifPresentOrElse(course -> {
-				System.out.println("Added course '" + course.getShortName() + "'.");
-			}, () -> {
-				System.out.println("Failed to add course.");
-			});
-
 		}
 
 		// Export missing students to CSV file

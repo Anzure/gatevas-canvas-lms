@@ -17,6 +17,7 @@ import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
+import no.odit.gatevas.type.StudentStatus;
 
 @Service
 public class StudentService {
@@ -68,6 +69,7 @@ public class StudentService {
 		student.setTmpPassword(GeneralUtil.generatePassword());		
 		student.setPhone(phone);
 		student.setCanvasStatus(CanvasStatus.UNKNOWN);
+		student.setStudentStatus(StudentStatus.ALLOWED);
 		student = studentRepo.saveAndFlush(student);
 		log.debug("CREATED STUDENT -> " + student.toString());
 		return student;
