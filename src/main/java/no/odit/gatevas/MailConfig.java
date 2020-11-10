@@ -23,9 +23,6 @@ public class MailConfig {
 	@Value("${mail.smtp.password}")
 	private String password;
 
-	@Value("${mail.smtp.name}")
-	private String name;
-
 	@Bean
 	public JavaMailSender getJavaMailSender() {
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

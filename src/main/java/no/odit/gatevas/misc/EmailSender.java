@@ -20,6 +20,15 @@ public class EmailSender {
 	@Value("${mail.smtp.email}")
 	private String email;
 
+	@Value("${mail.smtp.name}")
+	private String name;
+
+	@Value("${mail.smtp.contact.email}")
+	private String contactEmail;
+
+	@Value("${mail.smtp.contact.name}")
+	private String contactName;
+
 	/**
 	 * Send HTML formatted email.
 	 * @param to Receiving email address
@@ -32,10 +41,11 @@ public class EmailSender {
 			MimeMessage mimeMessage = emailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-			helper.setFrom(email);
-			helper.setTo(to); 
-			helper.setBcc("andre.mathisen@odit.no");
-			helper.setSubject(subject); 
+			helper.setFrom(email, name);
+			helper.setTo(to);
+			helper.setBcc(contactEmail);
+			helper.setReplyTo(contactEmail, contactName);
+			helper.setSubject(subject);
 			helper.setText(text, true);
 
 			emailSender.send(mimeMessage);
