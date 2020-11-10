@@ -17,6 +17,7 @@ import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
 import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.CourseType;
+import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CanvasService;
 import no.odit.gatevas.service.CourseService;
@@ -109,13 +110,14 @@ public class GlobalCommand implements CommandHandler {
 			try (FileWriter out = new FileWriter(new File(commandScanner.nextLine()))){
 				out.write('\ufeff');
 				
-				String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Status"};
+				String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Tlf nr", "Status"};
 				CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
 
 				for (CourseApplication apply : applications) {
 					Student student = apply.getStudent();
+					Phone phone = student.getPhone();
 					printer.printRecord(student.getEmail(), apply.getCourse().getLongName(),
-							student.getFirstName(), student.getLastName(), apply.getStatus().toString());
+							student.getFirstName(), student.getLastName(), phone.getPhoneNumber(), apply.getStatus().toString());
 				}
 				
 				printer.close();
