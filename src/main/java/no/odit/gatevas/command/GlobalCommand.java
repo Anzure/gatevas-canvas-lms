@@ -116,13 +116,18 @@ public class GlobalCommand implements CommandHandler {
 				for (CourseApplication apply : applications) {
 					Student student = apply.getStudent();
 					Phone phone = student.getPhone();
-					printer.printRecord(student.getEmail(), apply.getCourse().getLongName(),
-							student.getFirstName(), student.getLastName(), phone.getPhoneNumber(), apply.getStatus().toString());
+					printer.printRecord(student.getEmail(),
+							apply.getCourse().getLongName(),
+							student.getFirstName(),
+							student.getLastName(),
+							phone != null ? phone.getPhoneNumber() : 0,
+							apply.getStatus().toString());
 				}
 				
 				printer.close();
 
 			} catch (Exception ex) {
+				ex.printStackTrace();
 				System.out.println("Failed to export global list.");
 			}
 		}
