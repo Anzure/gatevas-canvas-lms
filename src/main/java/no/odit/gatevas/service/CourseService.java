@@ -103,9 +103,9 @@ public class CourseService {
 	 * @param name Search by course type name
 	 * @return Is null if no result was found
 	 */
-	public CourseType getCourseType(String name) {
-		return courseTypeRepo.findByShortName(name)
-				.orElse(courseTypeRepo.findByLongName(name).orElse(null));
+	public Optional<CourseType> getCourseType(String name) {
+		return Optional.ofNullable(courseTypeRepo.findByShortName(name)
+				.orElse(courseTypeRepo.findByLongName(name).orElse(null)));
 	}
 
 	@Autowired

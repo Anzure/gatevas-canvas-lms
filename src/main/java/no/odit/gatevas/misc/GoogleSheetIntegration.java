@@ -1,12 +1,10 @@
 package no.odit.gatevas.misc;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-
 import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CourseService;
@@ -66,7 +63,8 @@ public class GoogleSheetIntegration {
 					int i = 0;
 					for (String raw : row) {
 						raw = raw.toLowerCase();
-						if (raw.startsWith("e-postadresse") || raw.startsWith("mail") || raw.startsWith("e-post") || raw.startsWith("epost"))
+						if ((raw.startsWith("e-postadresse") || raw.startsWith("mail") || raw.startsWith("e-post") || raw.startsWith("epost"))
+								&& !raw.contains("faktura"))
 							raw = "email";
 						else if (raw.startsWith("tlf") || raw.startsWith("telefon") || raw.startsWith("mobil"))
 							raw = "phone";
@@ -99,7 +97,7 @@ public class GoogleSheetIntegration {
 						String typeName = row.get(header.get("course_type"));
 						if (typeName.contains(",")) {
 							typeName = typeName.split(",")[0];
-							CourseType courseType = courseService.getCourseType(typeName);
+							CourseType courseType = courseService.getCourseType(typeName).orElse(null);
 							if (courseType == null) log.warn("Failed to find course type '" + typeName + "'.");
 							courseService.createCourseApplication(student, courseType);
 						} else

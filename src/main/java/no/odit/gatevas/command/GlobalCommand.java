@@ -19,12 +19,7 @@ import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
-import no.odit.gatevas.service.CanvasService;
 import no.odit.gatevas.service.CourseService;
-import no.odit.gatevas.service.EmailService;
-import no.odit.gatevas.service.EnrollmentService;
-import no.odit.gatevas.service.PhoneService;
-import no.odit.gatevas.service.StudentService;
 import no.odit.gatevas.type.ApplicationStatus;
 
 @Component
@@ -34,22 +29,7 @@ public class GlobalCommand implements CommandHandler {
 	private CourseService courseService;
 
 	@Autowired
-	private EnrollmentService enrollmentService;
-
-	@Autowired
 	private Scanner commandScanner;
-
-	@Autowired
-	private StudentService studentService;
-
-	@Autowired
-	private CanvasService canvasService;
-
-	@Autowired
-	private EmailService emailService;
-
-	@Autowired
-	private PhoneService phoneService;
 
 	@Autowired
 	private GoogleSheetIntegration googleSheetIntegration;
