@@ -57,9 +57,7 @@ public class StudentService {
 		Optional<Student> existingName = getUserByName(firstName, lastName);
 		if (existingName.isPresent()) {
 			log.debug("NAME ALREADY EXIST -> " + existingName.get().toString());
-			Student student = existingName.get();
-			student.setEmail(email); //TODO
-			return studentRepo.saveAndFlush(student);
+			return existingName.get();
 		}
 
 		// Create new student
