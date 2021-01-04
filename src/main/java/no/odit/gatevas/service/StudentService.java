@@ -81,7 +81,7 @@ public class StudentService {
 	 * @param path File path in OS
 	 * @return Returns true if operation was successful
 	 */
-	public boolean exportStudentsToCSV(Classroom course, String path) {
+	public boolean exportStudentsToCSV(Classroom course, File file) {
 
 		// Sync students
 		canvasService.syncUsersReadOnly(course);
@@ -102,7 +102,6 @@ public class StudentService {
 		});
 
 		// Create CSV file
-		File file = new File(path);
 		try {
 			sheetGeneratorCSV.createCSVFile(file, students);
 			return true;

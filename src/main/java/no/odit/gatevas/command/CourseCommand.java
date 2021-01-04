@@ -1,8 +1,12 @@
 package no.odit.gatevas.command;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
@@ -19,6 +23,9 @@ import no.odit.gatevas.service.StudentService;
 
 @Component
 public class CourseCommand implements CommandHandler {
+
+	@Value("${gatevas.course.export_path}")
+	private String courseExportPath;
 
 	@Autowired
 	private CourseService courseService;
@@ -164,10 +171,11 @@ public class CourseCommand implements CommandHandler {
 
 			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
-				System.out.print("Enter file path: ");
-				String configPath = commandScanner.nextLine();
+				SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
+				String date = dateFormat.format(new Date());
+				File file = new File(courseExportPath + File.separator + course.getShortName() + "_" + date + ".csv");
 
-				if (studentService.exportStudentsToCSV(course, configPath))
+				if (studentService.exportStudentsToCSV(course, file))
 					System.out.println("User CSV file created.");
 				else 
 					System.out.println("Failed to create CSV file.");

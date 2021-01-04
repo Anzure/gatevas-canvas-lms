@@ -2,6 +2,8 @@ package no.odit.gatevas.command;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -10,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
@@ -24,6 +27,9 @@ import no.odit.gatevas.type.ApplicationStatus;
 
 @Component
 public class GlobalCommand implements CommandHandler {
+
+	@Value("${gatevas.global.export_path}")
+	private String globalExportPath;
 
 	@Autowired
 	private CourseService courseService;
@@ -86,10 +92,14 @@ public class GlobalCommand implements CommandHandler {
 			if (status == null) applications = courseApplicationRepo.findAll();
 			else applications = courseApplicationRepo.findByStatus(status);
 
-			System.out.print("Output file path: ");
-			try (FileWriter out = new FileWriter(new File(commandScanner.nextLine()))){
+			String typeName = status != null ? status.toString().toLowerCase() : "all";
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
+			String date = dateFormat.format(new Date());
+			File file = new File(globalExportPath + File.separator + typeName + "-" + date + ".csv");
+
+			try (FileWriter out = new FileWriter(file)){
 				out.write('\ufeff');
-				
+
 				String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Tlf nr", "Status"};
 				CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
 
@@ -101,9 +111,9 @@ public class GlobalCommand implements CommandHandler {
 							student.getFirstName(),
 							student.getLastName(),
 							phone != null ? phone.getPhoneNumber() : 0,
-							apply.getStatus().toString());
+									apply.getStatus().toString());
 				}
-				
+
 				printer.close();
 
 			} catch (Exception ex) {
