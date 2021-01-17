@@ -76,9 +76,12 @@ public class EmailService {
 
 		if (student.isExportedToCSV() && !student.isLoginInfoSent()) {
 			sb.append("Passord: " + student.getTmpPassword() + "<br/>");
-
 			student.setLoginInfoSent(true);
 			studentSerivce.saveChanges(student);
+		}
+		else {
+			sb.append("Passord: " + student.getTmpPassword() + "<br/>");
+			sb.append("<i>Om du har bruker fra før, må du kanskje benytte det forrige passordet istedet.</i><br/>");
 		}
 		sb.append("<br/>");
 
