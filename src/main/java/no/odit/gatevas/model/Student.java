@@ -77,6 +77,9 @@ public class Student {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
+	@OneToOne(mappedBy = "student")
+	private HomeAddress homeAddress;
+
 	@OneToMany(mappedBy = "student")
 	private Set<RoomLink> enrollments;
 

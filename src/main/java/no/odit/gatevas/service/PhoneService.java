@@ -3,15 +3,11 @@ package no.odit.gatevas.service;
 import java.io.DataOutputStream;
 import java.net.URL;
 import java.net.URLEncoder;
-
 import javax.net.ssl.HttpsURLConnection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.PhoneRepo;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.Phone;
@@ -20,9 +16,8 @@ import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
 
 @Component
+@Slf4j
 public class PhoneService {
-
-	private static final Logger log = LoggerFactory.getLogger(PhoneService.class);
 
 	@Value("${gatevas.sms.sender}")
 	private String sender;
@@ -47,9 +42,9 @@ public class PhoneService {
 	 * @param phoneNumber Phone number
 	 * @return Newly created Phone
 	 */
-	public Phone createPhone(int phoneNumber) {
+	public Phone createPhone(Integer phoneNumber) {
 
-		if (phoneNumber == 0) return null;
+		if (phoneNumber == null || phoneNumber == 0) return null;
 
 		// Create new phone
 		Phone phone = new Phone();

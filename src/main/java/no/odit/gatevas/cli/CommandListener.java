@@ -3,18 +3,15 @@ package no.odit.gatevas.cli;
 import java.util.List;
 import java.util.Scanner;
 import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import io.netty.util.concurrent.Future;
-import no.odit.gatevas.GatevasApplication;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class CommandListener {
-
-	private static final Logger log = LoggerFactory.getLogger(GatevasApplication.class);
 
 	@Autowired
 	private List<CommandHandler> commands;

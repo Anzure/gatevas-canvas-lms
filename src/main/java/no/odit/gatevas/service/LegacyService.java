@@ -4,19 +4,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.model.Classroom;
 
 @Service
+@Slf4j
 public class LegacyService {
-
-	private static final Logger log = LoggerFactory.getLogger(LegacyService.class);
 
 	@Autowired
 	private CourseService courseService;
@@ -32,8 +29,8 @@ public class LegacyService {
 			}
 
 			Classroom course = new Classroom();
-//			course.setShortName(json.get("id").getAsString());
-//			course.setLongName(json.get("name").getAsString());
+			//			course.setShortName(json.get("id").getAsString());
+			//			course.setLongName(json.get("name").getAsString());
 			course.setCommunicationLink(json.get("roomLink").getAsString());
 			course.setGoogleSheetId(json.get("googleSheetId").getAsString());
 			course = courseService.addCourse(course);

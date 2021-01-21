@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
@@ -22,15 +20,15 @@ import edu.ksu.canvas.oauth.OauthToken;
 import edu.ksu.canvas.requestOptions.GetSingleCourseOptions;
 import edu.ksu.canvas.requestOptions.GetUsersInAccountOptions;
 import edu.ksu.canvas.requestOptions.ListRolesOptions;
+import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
 
 @Service
+@Slf4j
 public class CanvasService {
-
-	private static final Logger log = LoggerFactory.getLogger(CanvasService.class);
 
 	@Autowired
 	private ApiService apiService;

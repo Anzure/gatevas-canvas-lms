@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.StudentRepo;
 import no.odit.gatevas.misc.GeneralUtil;
 import no.odit.gatevas.misc.SheetGeneratorCSV;
@@ -20,9 +18,8 @@ import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.type.StudentStatus;
 
 @Service
+@Slf4j
 public class StudentService {
-
-	private static final Logger log = LoggerFactory.getLogger(StudentService.class);
 
 	@Autowired
 	private StudentRepo studentRepo;
@@ -44,7 +41,7 @@ public class StudentService {
 	 * @param phoneNum Phone number
 	 * @return New or existing student
 	 */
-	public Student createStudent(String email, String firstName, String lastName, int phoneNum) {
+	public Student createStudent(String email, String firstName, String lastName, Integer phoneNum) {
 
 		// Return existing student (email)
 		Optional<Student> existingEmail = getUserByEmail(email);
