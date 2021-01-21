@@ -1,5 +1,6 @@
 package no.odit.gatevas.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -18,10 +19,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import lombok.Getter;
+import lombok.Setter;
 import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.type.StudentStatus;
 
 @Entity
+@Getter @Setter
 public class Student {
 
 	@Id
@@ -42,25 +46,28 @@ public class Student {
 	@JoinColumn(name="phone_id", nullable=true)
 	private Phone phone;
 
+	@Column(nullable = true)
+	private LocalDate birthDate;
+
 	@Column(nullable = false)
 	private String tmpPassword;
 
 	@Column(nullable = false)
-	private boolean loginInfoSent;
+	private Boolean loginInfoSent;
 
 	@Column(nullable = false, name = "exported_to_csv")
-	private boolean exportedToCSV;
+	private Boolean exportedToCSV;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CanvasStatus canvasStatus;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = true)
 	private StudentStatus studentStatus;
 
 	@Column(nullable = true)
-	private int canvasId;
+	private Integer canvasId;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -73,123 +80,20 @@ public class Student {
 	@OneToMany(mappedBy = "student")
 	private Set<RoomLink> enrollments;
 
-	public UUID getId() {
-		return id;
+	@Deprecated
+	public Boolean isLoginInfoSent() {
+		return loginInfoSent;
 	}
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public Phone getPhone() {
-		return phone;
-	}
-
-	public void setPhone(Phone phone) {
-		this.phone = phone;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getTmpPassword() {
-		return tmpPassword;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-
-	public void setTmpPassword(String tmpPassword) {
-		this.tmpPassword = tmpPassword;
+	@Deprecated
+	public Boolean isExportedToCSV() {
+		return exportedToCSV;
 	}
 
 	public String getUserId() {
 		return firstName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
 				+ lastName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
 				+ "-" + id.toString().split("-")[3];
-	}
-
-	public Set<RoomLink> getEnrollments() {
-		return enrollments;
-	}
-
-	public void setEnrollments(Set<RoomLink> enrollments) {
-		this.enrollments = enrollments;
-	}
-
-	public boolean isLoginInfoSent() {
-		return loginInfoSent;
-	}
-
-	public void setLoginInfoSent(boolean loginInfoSent) {
-		this.loginInfoSent = loginInfoSent;
-	}
-
-	public boolean isExportedToCSV() {
-		return exportedToCSV;
-	}
-
-	public void setExportedToCSV(boolean exportedToCSV) {
-		this.exportedToCSV = exportedToCSV;
-	}
-
-	public CanvasStatus getCanvasStatus() {
-		return canvasStatus;
-	}
-
-	public void setCanvasStatus(CanvasStatus canvasStatus) {
-		this.canvasStatus = canvasStatus;
-	}
-
-	public int getCanvasId() {
-		return canvasId;
-	}
-
-	public void setCanvasId(int canvasId) {
-		this.canvasId = canvasId;
-	}
-
-	public StudentStatus getStudentStatus() {
-		return studentStatus;
-	}
-
-	public void setStudentStatus(StudentStatus studentStatus) {
-		this.studentStatus = studentStatus;
 	}
 
 	@Override
@@ -199,4 +103,5 @@ public class Student {
 				+ ", exportedToCSV=" + exportedToCSV + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt
 				+ ", createdAt=" + createdAt + "]";
 	}
+
 }

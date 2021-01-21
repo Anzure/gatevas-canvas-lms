@@ -13,10 +13,12 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import lombok.Getter;
+import lombok.Setter;
 import no.odit.gatevas.type.ApplicationStatus;
 
 @Entity
+@Getter @Setter
 public class CourseApplication {
 
 	@Id
@@ -44,51 +46,4 @@ public class CourseApplication {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public Student getStudent() {
-		return student;
-	}
-
-	public void setStudent(Student student) {
-		this.student = student;
-	}
-
-	public CourseType getCourse() {
-		return course;
-	}
-
-	public void setCourse(CourseType course) {
-		this.course = course;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public ApplicationStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(ApplicationStatus status) {
-		this.status = status;
-	}
 }

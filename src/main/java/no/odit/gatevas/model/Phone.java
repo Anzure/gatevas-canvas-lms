@@ -11,8 +11,11 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter @Setter
 public class Phone {
 
 	@Id
@@ -24,10 +27,10 @@ public class Phone {
 	private Student student;
 
 	@Column(nullable = false)
-	private int countryCode;
+	private Integer countryCode;
 
 	@Column(nullable = false)
-	private int phoneNumber;
+	private Integer phoneNumber;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -36,54 +39,6 @@ public class Phone {
 	@Column(nullable = false, updatable = false)
 	@CreationTimestamp
 	private LocalDateTime createdAt;
-
-	public Student getStudent() {
-		return student;
-	}
-
-	public void setStudent(Student student) {
-		this.student = student;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public int getCountryCode() {
-		return countryCode;
-	}
-
-	public void setCountryCode(int countryCode) {
-		this.countryCode = countryCode;
-	}
-
-	public int getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public void setPhoneNumber(int phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
 
 	@Override
 	public String toString() {

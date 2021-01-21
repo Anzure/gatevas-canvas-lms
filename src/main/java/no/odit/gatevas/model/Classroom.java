@@ -19,11 +19,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import lombok.Getter;
+import lombok.Setter;
 import no.odit.gatevas.type.CanvasStatus;
 
 @Entity(name = "Course")
 @Table(name = "course")
+@Getter @Setter
 public class Classroom {
 
 	@Id
@@ -52,7 +54,7 @@ public class Classroom {
 	private CanvasStatus canvasStatus;
 
 	@Column(nullable = true)
-	private int canvasId;
+	private Integer canvasId;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -65,14 +67,6 @@ public class Classroom {
 	@OneToMany(mappedBy = "course")
 	private Set<RoomLink> enrollments;
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
 	public String getShortName() {
 		return type.getShortName() + "-" + period;
 	}
@@ -81,88 +75,8 @@ public class Classroom {
 		return type.getLongName() + " " + period;
 	}
 
-	public String getSocialGroup() {
-		return socialGroup;
-	}
-
-	public void setSocialGroup(String socialGroup) {
-		this.socialGroup = socialGroup;
-	}
-
-	public String getGoogleSheetId() {
-		return googleSheetId;
-	}
-
-	public void setGoogleSheetId(String googleSheetId) {
-		this.googleSheetId = googleSheetId;
-	}
-
-	public String getCommunicationLink() {
-		return communicationLink;
-	}
-
-	public void setCommunicationLink(String communicationLink) {
-		this.communicationLink = communicationLink;
-	}
-
-	public Set<RoomLink> getEnrollments() {
-		return enrollments;
-	}
-
 	public List<Student> getStudents() {
 		return enrollments.stream().map(RoomLink::getStudent).collect(Collectors.toList());
-	}
-
-	public void setEnrollments(Set<RoomLink> enrollments) {
-		this.enrollments = enrollments;
-	}
-
-	public CanvasStatus getCanvasStatus() {
-		return canvasStatus;
-	}
-
-	public void setCanvasStatus(CanvasStatus canvasStatus) {
-		this.canvasStatus = canvasStatus;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public int getCanvasId() {
-		return canvasId;
-	}
-
-	public void setCanvasId(int canvasId) {
-		this.canvasId = canvasId;
-	}
-
-	public CourseType getType() {
-		return type;
-	}
-
-	public void setType(CourseType type) {
-		this.type = type;
-	}
-
-	public String getPeriod() {
-		return period;
-	}
-
-	public void setPeriod(String period) {
-		this.period = period;
 	}
 
 	@Override
@@ -171,4 +85,5 @@ public class Classroom {
 				+ communicationLink + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
 				+ ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
 	}
+
 }

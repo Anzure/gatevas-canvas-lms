@@ -11,15 +11,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import lombok.Getter;
+import lombok.Setter;
 import no.odit.gatevas.type.CanvasStatus;
 
 @Entity(name = "Enrollment")
 @Table(name = "enrollment")
+@Getter @Setter
 public class RoomLink {
 
 	@Id
@@ -28,10 +29,10 @@ public class RoomLink {
 	private UUID id;
 
 	@Column(nullable = false)
-	private boolean emailSent;
+	private Boolean emailSent;
 
 	@Column(nullable = false)
-	private boolean textSent;
+	private Boolean textSent;
 
 	@ManyToOne
 	@JoinColumn(name="student_id", nullable=false)
@@ -46,7 +47,7 @@ public class RoomLink {
 	private CanvasStatus canvasStatus;
 
 	@Column(nullable = true)
-	private long canvasId;
+	private Long canvasId;
 
 	@Column(nullable = false)
 	@UpdateTimestamp
@@ -56,76 +57,14 @@ public class RoomLink {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public boolean isEmailSent() {
+	@Deprecated
+	public Boolean isEmailSent() {
 		return emailSent;
 	}
 
-	public void setEmailSent(boolean emailSent) {
-		this.emailSent = emailSent;
-	}
-
-	public boolean isTextSent() {
+	@Deprecated
+	public Boolean isTextSent() {
 		return textSent;
-	}
-
-	public void setTextSent(boolean textSent) {
-		this.textSent = textSent;
-	}
-
-	public Student getStudent() {
-		return student;
-	}
-
-	public void setStudent(Student student) {
-		this.student = student;
-	}
-
-	public Classroom getCourse() {
-		return course;
-	}
-
-	public void setCourse(Classroom course) {
-		this.course = course;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public CanvasStatus getCanvasStatus() {
-		return canvasStatus;
-	}
-
-	public void setCanvasStatus(CanvasStatus canvasStatus) {
-		this.canvasStatus = canvasStatus;
-	}
-
-	public long getCanvasId() {
-		return canvasId;
-	}
-
-	public void setCanvasId(long canvasId) {
-		this.canvasId = canvasId;
 	}
 
 	@Override
@@ -134,4 +73,5 @@ public class RoomLink {
 				+ ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt="
 				+ createdAt + "]";
 	}
+
 }
