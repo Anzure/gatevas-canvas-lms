@@ -66,7 +66,7 @@ public class PhoneService {
 
 		for (RoomLink enrollment : classRoom.getEnrollments()) {
 
-			if (enrollment.isTextSent()) {
+			if (enrollment.getTextSent()) {
 				continue;
 			}
 
@@ -100,7 +100,7 @@ public class PhoneService {
 
 			StringBuilder msg = new StringBuilder();
 			msg.append(classRoom.getLongName() + "\nBrukernavn: " + student.getEmail());
-			if (student.isExportedToCSV()) msg.append("\nPassord: " + student.getTmpPassword());
+			if (student.getExportedToCSV()) msg.append("\nPassord: " + student.getTmpPassword());
 			msg.append("\nSe epost for mer info.\n(sjekk eventuelt spam-mappen)");
 
 			String txt = msg.toString();

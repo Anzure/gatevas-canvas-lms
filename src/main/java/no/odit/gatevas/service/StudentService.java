@@ -65,6 +65,8 @@ public class StudentService {
 		student.setLastName(lastName);
 		student.setTmpPassword(GeneralUtil.generatePassword());		
 		student.setPhone(phone);
+		student.setLoginInfoSent(false);
+		student.setExportedToCSV(false);
 		student.setCanvasStatus(CanvasStatus.UNKNOWN);
 		student.setStudentStatus(StudentStatus.ALLOWED);
 		student = studentRepo.saveAndFlush(student);
@@ -85,7 +87,7 @@ public class StudentService {
 
 		// Filter out existing students
 		List<Student> students = course.getStudents().stream()
-				.filter(student -> !student.isExportedToCSV() && student.getCanvasStatus() == CanvasStatus.MISSING)
+				.filter(student -> !student.getExportedToCSV() && student.getCanvasStatus() == CanvasStatus.MISSING)
 				.collect(Collectors.toList());
 		if (students.size() <= 0) {
 			log.debug("All students in '" + course.getShortName() + "' already exists in Canvas LMS.");
