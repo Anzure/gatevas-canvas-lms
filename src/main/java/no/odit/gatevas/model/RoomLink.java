@@ -57,16 +57,6 @@ public class RoomLink {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
-	@Deprecated
-	public Boolean isEmailSent() {
-		return emailSent;
-	}
-
-	@Deprecated
-	public Boolean isTextSent() {
-		return textSent;
-	}
-
 	@Override
 	public String toString() {
 		return "RoomLink [id=" + id + ", emailSent=" + emailSent + ", textSent=" + textSent + ", student=" + student

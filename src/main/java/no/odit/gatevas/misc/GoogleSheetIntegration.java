@@ -42,8 +42,11 @@ public class GoogleSheetIntegration {
 	 * @return List of created and existing students
 	 * @throws IOException Failed to connect to Google API
 	 */
-	public Set<Student> processSheet(String spreadSheetId) throws IOException {
+	public Set<Student> processSheet(String spreadSheetId, CourseType courseType) throws IOException {
 
+		long spreadSheetCount = courseService.getCourseTypes().stream()
+				.filter(type -> type.getGoogleSheetId() != null && type.getGoogleSheetId().equalsIgnoreCase(courseType.getGoogleSheetId()))
+				.count();
 		ValueRange response = sheetService.spreadsheets().values()
 				.get(spreadSheetId, "A:Z")
 				.execute();
@@ -134,15 +137,13 @@ public class GoogleSheetIntegration {
 					}
 
 					// Update course applications
-					if (header.containsKey("course_type")) {
-						String typeName = row.get(header.get("course_type"));
-						if (typeName.contains(",")) {
-							typeName = typeName.split(",")[0];
-							CourseType courseType = courseService.getCourseType(typeName).orElse(null);
-							if (courseType == null) log.warn("Failed to find course type '" + typeName + "'.");
+					if (courseType != null) {
+						if (spreadSheetCount == 1) {
 							courseService.createCourseApplication(student, courseType);
-						} else
-							log.warn("Failed to split '" + typeName + "' while importing spreadsheets.");
+						}
+						else {
+							log.warn("Duplicate check for spreadsheet in '" + courseType.getShortName() + "' failed.");
+						}
 					}
 
 					// Add student to output

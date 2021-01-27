@@ -83,16 +83,6 @@ public class Student {
 	@OneToMany(mappedBy = "student")
 	private Set<RoomLink> enrollments;
 
-	@Deprecated
-	public Boolean isLoginInfoSent() {
-		return loginInfoSent;
-	}
-
-	@Deprecated
-	public Boolean isExportedToCSV() {
-		return exportedToCSV;
-	}
-
 	public String getUserId() {
 		return firstName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
 				+ lastName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)

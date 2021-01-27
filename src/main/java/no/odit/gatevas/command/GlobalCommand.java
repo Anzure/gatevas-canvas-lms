@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,17 +57,21 @@ public class GlobalCommand implements CommandHandler {
 
 			System.out.println("Import students to system.");
 
-			Set<String> globalSheets = new HashSet<String>();
+			Map<String, CourseType> globalSheets = new HashMap<>();
 			for (CourseType type : courseService.getCourseTypes()) {
-				globalSheets.add(type.getGoogleSheetId());
+				if (type.getGoogleSheetId() != null && !type.getGoogleSheetId().equalsIgnoreCase("null")) {
+					globalSheets.put(type.getGoogleSheetId(), type);
+				}
 			}
 
 			System.out.println("Found " + globalSheets.size() + " sheets to process.");
 			System.out.print("Want to continue? (Y/N): ");
 			if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
-				globalSheets.forEach(googleSpreadSheetId -> {
+				globalSheets.entrySet().forEach(entry -> {
+					CourseType courseType = entry.getValue();
+					String googleSpreadSheetId = entry.getKey();
 					try {
-						Set<Student> students = googleSheetIntegration.processSheet(googleSpreadSheetId);
+						Set<Student> students = googleSheetIntegration.processSheet(googleSpreadSheetId, courseType);
 						System.out.println("Successfully processed " + students.size() + " students.");
 
 					} catch (Exception ex) {

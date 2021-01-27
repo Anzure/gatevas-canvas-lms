@@ -39,7 +39,7 @@ public class CourseService {
 	 */
 	public Optional<Set<Student>> importStudents(Classroom course) {
 		try {
-			Set<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId());
+			Set<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId(), course.getType());
 			return Optional.of(students);
 		} catch (Exception ex) {
 			log.error("Failed to import students.", ex);

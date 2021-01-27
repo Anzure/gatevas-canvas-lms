@@ -11,11 +11,13 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter @Setter @EqualsAndHashCode(of = {"id", "shortName", "longName"})
 public class CourseType {
 
 	@Id
@@ -29,7 +31,7 @@ public class CourseType {
 	@Column(nullable = false)
 	private String longName;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String googleSheetId;
 
 	@Column(nullable = false)
@@ -42,30 +44,5 @@ public class CourseType {
 
 	@OneToMany(mappedBy = "type")
 	private Set<Classroom> courses;
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((shortName == null) ? 0 : shortName.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CourseType other = (CourseType) obj;
-		if (shortName == null) {
-			if (other.shortName != null)
-				return false;
-		} else if (!shortName.equals(other.shortName))
-			return false;
-		return true;
-	}
 
 }
