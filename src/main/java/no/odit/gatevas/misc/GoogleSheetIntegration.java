@@ -99,9 +99,6 @@ public class GoogleSheetIntegration {
 					String firstName = row.get(header.get("first_name"));
 					String lastName = row.get(header.get("last_name"));
 					String email = row.get(header.get("email"));
-					String birthDay = row.get(header.get("birth_date"));
-					String streetAddress = row.get(header.get("street_address"));
-					String cityZipCode = row.get(header.get("city_zipcode"));
 					String phoneInput = row.get(header.get("phone"));
 					Integer phoneNum = null;
 					try {
@@ -112,7 +109,9 @@ public class GoogleSheetIntegration {
 					Student student = studentService.createStudent(email, firstName, lastName, phoneNum);
 
 					// Update birth date
+					String birthDay = null;
 					try {
+						birthDay = row.get(header.get("birth_date"));
 						birthDay = birthDay.replaceAll("[^A-Za-z0-9]", ".").replace("..", ".");
 						if (birthDay.endsWith(".")) birthDay = birthDay.substring(0, birthDay.length()-2);
 						if (birthDay.length() <= 8) {
@@ -123,12 +122,15 @@ public class GoogleSheetIntegration {
 						student.setBirthDate(birthDate);
 						studentService.saveChanges(student);
 					} catch (Exception ex) {
-						ex.printStackTrace();
 						log.warn("Invalid birth date '" + birthDay + "' for " + firstName + " " + lastName + ".");
 					}
 
 					// Update home address
+					String streetAddress = null;
+					String cityZipCode = null;
 					try {
+						streetAddress = row.get(header.get("street_address"));
+						cityZipCode = row.get(header.get("city_zipcode"));
 						String cityName = cityZipCode.replaceAll("[^A-Za-z]", "");
 						Integer zipCode = Integer.parseInt(cityZipCode.replaceAll("[^\\d.]", ""));
 						homeAddressService.updateHomeAddress(student, streetAddress, zipCode, cityName);
