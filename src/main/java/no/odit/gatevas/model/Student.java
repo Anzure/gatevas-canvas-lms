@@ -97,4 +97,8 @@ public class Student {
 				+ ", createdAt=" + createdAt + "]";
 	}
 
+	public String getFullName() {
+		return firstName + " " + lastName;
+	}
+
 }

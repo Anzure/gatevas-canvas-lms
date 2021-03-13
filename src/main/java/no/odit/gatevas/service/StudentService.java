@@ -111,7 +111,7 @@ public class StudentService {
 	}
 
 	/**
-	 * Saves a Student to storage
+	 * Save student to storage
 	 * @param student Student to save
 	 */
 	public void saveChanges(Student student) {
@@ -119,7 +119,7 @@ public class StudentService {
 	}
 
 	/**
-	 * Gets Student from storage by full name
+	 * Get student from storage by names
 	 * @param firstName First name
 	 * @param lastName Last name
 	 * @return Empty Optional or populated with existing Student
@@ -129,11 +129,22 @@ public class StudentService {
 	}
 
 	/**
-	 * Gets a Student from storage by email
+	 * Get student from storage by email
 	 * @param email Email address
 	 * @return Empty Optional or populated with existing Student
 	 */
 	public Optional<Student> getUserByEmail(String email) {
 		return studentRepo.findByEmail(email);
+	}
+
+	/**
+	 * Get student from storage by full name
+	 * @param fullName Given name and surname
+	 * @return Empty Optional or populated with existing Student 
+	 */
+	public Optional<Student> getUserByFullName(String fullName) {
+		return studentRepo.findAll().stream()
+				.filter(student -> student.getFullName().equalsIgnoreCase(fullName))
+				.findFirst();
 	}
 }

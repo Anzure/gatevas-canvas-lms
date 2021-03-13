@@ -37,6 +37,7 @@ public class StudentCommand implements CommandHandler {
 			System.out.println("Available commands:");
 			System.out.println("- student leave");
 			System.out.println("- student join");
+			System.out.println("- student status");
 			return;
 		}
 

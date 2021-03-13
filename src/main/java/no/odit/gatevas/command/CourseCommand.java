@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
+import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
@@ -20,6 +22,7 @@ import no.odit.gatevas.service.EmailService;
 import no.odit.gatevas.service.EnrollmentService;
 import no.odit.gatevas.service.PhoneService;
 import no.odit.gatevas.service.StudentService;
+import no.odit.gatevas.type.ApplicationStatus;
 
 @Component
 public class CourseCommand implements CommandHandler {
@@ -48,6 +51,9 @@ public class CourseCommand implements CommandHandler {
 	@Autowired
 	private PhoneService phoneService;
 
+	@Autowired
+	private CourseApplicationRepo courseApplicationRepo;
+
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
 
@@ -63,6 +69,7 @@ public class CourseCommand implements CommandHandler {
 			System.out.println("- course sync");
 			System.out.println("- course email");
 			System.out.println("- course sms");
+			System.out.println("- course exam");
 			return;
 		}
 
@@ -277,6 +284,34 @@ public class CourseCommand implements CommandHandler {
 			}, () -> {
 				System.out.println("Could not find course '" + courseName + "'!");
 			});
+		}
+
+		// Change student status in course
+		else if (args[0].equalsIgnoreCase("exam")) {
+
+			System.out.println("Change student status.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				System.out.print("Enter status (failed/finished): ");
+				ApplicationStatus status = ApplicationStatus.valueOf(commandScanner.nextLine());
+
+				System.out.println("Enter student list:");
+				String inputNameList = commandScanner.nextLine();
+				for (String fullName : inputNameList.split(",")) {
+					Student student = studentService.getUserByFullName(fullName).orElse(null);
+					CourseApplication application = courseApplicationRepo
+							.findByStudentAndCourse(student, course.getType()).orElse(null);
+					application.setStatus(status);
+					courseApplicationRepo.saveAndFlush(application);
+				}
+
+			}, () -> {
+				System.out.println("Could not find course '" + courseName + "'!");
+			});
+
 		}
 	}	
 }
