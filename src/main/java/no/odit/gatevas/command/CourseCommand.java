@@ -8,6 +8,8 @@ import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
@@ -25,6 +27,7 @@ import no.odit.gatevas.service.StudentService;
 import no.odit.gatevas.type.ApplicationStatus;
 
 @Component
+@Slf4j
 public class CourseCommand implements CommandHandler {
 
 	@Value("${gatevas.course.export_path}")
@@ -295,21 +298,29 @@ public class CourseCommand implements CommandHandler {
 
 			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
-				System.out.print("Enter status (failed/finished): ");
-				ApplicationStatus status = ApplicationStatus.valueOf(commandScanner.nextLine());
+				//				System.out.print("Enter status (failed/finished): ");
+				//				ApplicationStatus status = ApplicationStatus.valueOf(commandScanner.nextLine().toUpperCase());
+				ApplicationStatus status = ApplicationStatus.FINISHED;
 
 				System.out.println("Enter student list:");
-				String inputNameList = commandScanner.nextLine();
-				for (String fullName : inputNameList.split(",")) {
-					Student student = studentService.getUserByFullName(fullName).orElse(null);
-					CourseApplication application = courseApplicationRepo
-							.findByStudentAndCourse(student, course.getType()).orElse(null);
-					application.setStatus(status);
-					courseApplicationRepo.saveAndFlush(application);
+				while(true) {
+					String textInput = commandScanner.nextLine();
+					if (textInput == null || textInput.equalsIgnoreCase("STOP") || textInput.equalsIgnoreCase("EXIT")) {
+						break;
+					}
+					studentService.getUserByFullName(textInput).ifPresentOrElse(student -> {
+						CourseApplication application = courseApplicationRepo
+								.findByStudentAndCourse(student, course.getType()).orElse(null);
+						application.setStatus(status);
+						courseApplicationRepo.saveAndFlush(application);
+						log.info("Updated "+textInput+"' to "+status.toString() + " in '"+courseName+"'.");
+					}, () -> {
+						log.warn("Could not find '"+textInput+"'!");
+					});
 				}
 
 			}, () -> {
-				System.out.println("Could not find course '" + courseName + "'!");
+				log.error("Could not find course '" + courseName + "'!");
 			});
 
 		}

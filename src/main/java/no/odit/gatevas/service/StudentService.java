@@ -143,8 +143,6 @@ public class StudentService {
 	 * @return Empty Optional or populated with existing Student 
 	 */
 	public Optional<Student> getUserByFullName(String fullName) {
-		return studentRepo.findAll().stream()
-				.filter(student -> student.getFullName().equalsIgnoreCase(fullName))
-				.findFirst();
+		return studentRepo.findByFullname(fullName);
 	}
 }

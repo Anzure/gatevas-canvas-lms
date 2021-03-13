@@ -21,10 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
+import no.odit.gatevas.dao.HomeAddressRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.CourseType;
+import no.odit.gatevas.model.HomeAddress;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CourseService;
@@ -48,6 +50,9 @@ public class GlobalCommand implements CommandHandler {
 
 	@Autowired
 	private CourseApplicationRepo courseApplicationRepo;
+
+	@Autowired
+	private HomeAddressRepo homeAddressRepo;
 
 	public void handleCommand(Command cmd) {
 		String[] args = cmd.getArgs();
@@ -157,28 +162,32 @@ public class GlobalCommand implements CommandHandler {
 				try (FileWriter out = new FileWriter(file)){
 					out.write('\ufeff');
 
-					String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Fodselsdato", "Tlf nr", "Status"};
+					String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Fodselsdato", "Adresse", "Poststed", "Tlf nr", "Status"};
 					CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
 
 					for (Student student : course.getStudents()) {
 						CourseApplication apply = courseApplicationRepo.findByStudentAndCourse(student, course.getType()).orElse(null);
-						if (apply != null) {
-							Phone phone = student.getPhone();
-							LocalDate birthDate = student.getBirthDate();
-							String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "mangler data";
-							int formattedPhoneNum = phone != null ? phone.getPhoneNumber() : 0;
-							String applyStatus = apply.getStatus().toString()
-									.replace("ACCEPTED", "Deltaker")
-									.replace("WITHDRAWN", "Avmeldt")
-									.replace("FINISHED", "GODKJENT");
-							printer.printRecord(student.getEmail(),
-									apply.getCourse().getLongName(),
-									student.getFirstName(),
-									student.getLastName(),
-									formattedBirthDate,
-									formattedPhoneNum,
-									applyStatus);
-						}
+						Phone phone = student.getPhone();
+						LocalDate birthDate = student.getBirthDate();
+						String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "mangler data";
+						String formattedPhoneNum = phone != null && phone.getPhoneNumber() != 0 ? String.valueOf(phone.getPhoneNumber()) : "mangler data";
+						String applyStatus = apply != null ? apply.getStatus().toString()
+								.replace("ACCEPTED", "Ikke fullført")
+								.replace("WITHDRAWN", "Avmeldt")
+								.replace("FINISHED", "Fullført") : "mangler data";
+								HomeAddress homeAddress = homeAddressRepo.findByStudent(student).orElse(null);
+								String address = homeAddress != null ? homeAddress.getStreetAddress() : "mangler data";
+								if (homeAddress != null && address.length() <= 2) address = "mangler data";
+								String postal = homeAddress != null ? homeAddress.getZipCode() + " " + homeAddress.getCity() : "mangler data";
+								printer.printRecord(student.getEmail(),
+										course.getLongName(),
+										student.getFirstName(),
+										student.getLastName(),
+										formattedBirthDate,
+										address,
+										postal,
+										formattedPhoneNum,
+										applyStatus);
 					}
 
 					printer.close();
