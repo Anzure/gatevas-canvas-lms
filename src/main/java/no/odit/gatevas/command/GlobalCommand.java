@@ -59,14 +59,14 @@ public class GlobalCommand implements CommandHandler {
 
 		if (args.length != 1) {
 			System.out.println("Available commands:");
-			System.out.println("- global application-import");
-			System.out.println("- global application-export");
+			System.out.println("- global import");
+			System.out.println("- global export");
 			System.out.println("- global course-export");
 			return;
 		}
 
 		// Import student applications from Google Sheets
-		if (args[0].equalsIgnoreCase("application-import")) {
+		if (args[0].equalsIgnoreCase("import")) {
 
 			System.out.println("Import student applications to system.");
 
@@ -96,7 +96,7 @@ public class GlobalCommand implements CommandHandler {
 		}
 
 		// Export students applications to CSV file
-		else if (args[0].equalsIgnoreCase("application-export")) {
+		else if (args[0].equalsIgnoreCase("export")) {
 
 			System.out.println("Export student applications to file.");
 
