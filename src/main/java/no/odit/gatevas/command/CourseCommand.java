@@ -324,5 +324,29 @@ public class CourseCommand implements CommandHandler {
 			});
 
 		}
+
+		// Reset exam status for students in course
+		else if (args[0].equalsIgnoreCase("reset-exam")) {
+
+			System.out.println("Change student status.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+
+				course.getStudents().forEach(student -> {
+					CourseApplication application = courseApplicationRepo
+							.findByStudentAndCourse(student, course.getType()).orElse(null);
+					if (application.getStatus() == ApplicationStatus.FINISHED) {
+						application.setStatus(ApplicationStatus.ACCEPTED);
+						courseApplicationRepo.saveAndFlush(application);
+						log.info("Reset exam status for '" + student.getFullName() + "' in " + course.getShortName() + ".");
+					}
+				});
+
+			}, () -> {
+				log.error("Could not find course '" + courseName + "'!");
+			});
+		}
 	}	
 }
