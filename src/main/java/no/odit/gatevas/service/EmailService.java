@@ -70,14 +70,17 @@ public class EmailService {
 
 		StringBuilder sb = new StringBuilder("<p>Hei</p>");
 
-		sb.append("<b>Canvas</b><br/>"
-				+ "Innlogging: <a href=\"https://fagskolentelemark.instructure.com/login/canvas\">fagskolentelemark.instructure.com/login/canvas</a><br/>"
-				+ "Login: " + student.getEmail() + "<br/>");
+		sb.append("<b>Læringsplattform</b><br/>"
+				+ "Bruk følgende detaljer for å logge på Canvas.<br/>"
+				+ "Kobling: <a href=\"https://fagskolentelemark.instructure.com/login/canvas\">fagskolentelemark.instructure.com/login/canvas</a><br/>"
+				+ "Brukernavn: " + student.getEmail() + "<br/>");
 
 		if (student.getExportedToCSV() && !student.getLoginInfoSent()) {
 			sb.append("Passord: " + student.getTmpPassword() + "<br/>");
-			student.setLoginInfoSent(true);
-			studentSerivce.saveChanges(student);
+			if (!isTest) {
+				student.setLoginInfoSent(true);
+				studentSerivce.saveChanges(student);
+			}
 		}
 		else {
 			sb.append("Passord: " + student.getTmpPassword() + "<br/>");
@@ -91,13 +94,14 @@ public class EmailService {
 		}
 
 		if (classRoom.getCommunicationLink() != null && classRoom.getCommunicationLink().length() > 2) {
-			sb.append("<b>Web klasserommet</b><br/>"
-					+ "Kobling: <a href=\"" + classRoom.getCommunicationLink() + "\">" + classRoom.getCommunicationLink() + "</a><br/>"
-					+ "(logg inn som gjest med ditt navn)<br/>");
+			sb.append("<b>Nettklasserom</b><br/>"
+					+ "Bruk følgende kobling til å logge på live nettundervisning.<br/>"
+					+ "Du logger inn som gjest, med ditt fulle navn.<br/>"
+					+ "Kobling: <a href=\"" + classRoom.getCommunicationLink() + "\">" + classRoom.getCommunicationLink() + "</a><br/>");
 		}
 
-		sb.append("<p>Fagskolen i Vestfold og Telemark hjemmeside: <a href='http://f-vt.no'>se f-vt.no</a></p>");
-		sb.append("<p>Si ifra hvis du trenger hjelp til innlogging.</p>");
+		sb.append("<p>Si ifra hvis du trenger hjelp til innlogging.");
+		sb.append("<br>Fagskolen i Vestfold og Telemark hjemmeside: <a href='http://f-vt.no'>se f-vt.no</a></p>");
 
 		sb.append("Med vennlig hilsen<br/>"
 				+ "André Mathisen");

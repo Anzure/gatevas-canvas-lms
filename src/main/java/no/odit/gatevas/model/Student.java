@@ -97,6 +97,11 @@ public class Student {
 				+ ", createdAt=" + createdAt + "]";
 	}
 
+	public LocalDate getBirthDate() {
+		return birthDate.isAfter(LocalDate.now().minusYears(90)) && birthDate.isBefore(LocalDate.now().minusYears(15))
+				? birthDate : null;
+	}
+
 	public String getFullName() {
 		return firstName + " " + lastName;
 	}

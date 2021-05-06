@@ -119,8 +119,14 @@ public class GoogleSheetIntegration {
 							birthDay = split[0] + "." + split[1] + ".19" + split[2];
 						}
 						LocalDate birthDate = LocalDate.parse(birthDay, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-						student.setBirthDate(birthDate);
-						studentService.saveChanges(student);
+						if (birthDate.isBefore(LocalDate.now().minusYears(90)) || birthDate.isAfter(LocalDate.now().minusYears(15))) {
+							birthDate = null;
+							throw new Error("Failed to identity age.");
+						}
+						else {
+							student.setBirthDate(birthDate);
+							studentService.saveChanges(student);
+						}
 					} catch (Exception ex) {
 						log.warn("Invalid birth date '" + birthDay + "' for " + firstName + " " + lastName + ".");
 					}

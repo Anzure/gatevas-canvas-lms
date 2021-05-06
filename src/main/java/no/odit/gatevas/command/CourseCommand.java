@@ -1,21 +1,28 @@
 package no.odit.gatevas.command;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
+import no.odit.gatevas.dao.HomeAddressRepo;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.CourseType;
+import no.odit.gatevas.model.HomeAddress;
+import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CanvasService;
@@ -30,8 +37,14 @@ import no.odit.gatevas.type.ApplicationStatus;
 @Slf4j
 public class CourseCommand implements CommandHandler {
 
+	@Value("${gatevas.global.export_path}")
+	private String globalExportPath;
+
 	@Value("${gatevas.course.export_path}")
 	private String courseExportPath;
+
+	@Autowired
+	private HomeAddressRepo homeAddressRepo;
 
 	@Autowired
 	private CourseService courseService;
@@ -73,6 +86,7 @@ public class CourseCommand implements CommandHandler {
 			System.out.println("- course email");
 			System.out.println("- course sms");
 			System.out.println("- course exam");
+			System.out.println("- course overview");
 			return;
 		}
 
@@ -348,5 +362,68 @@ public class CourseCommand implements CommandHandler {
 				log.error("Could not find course '" + courseName + "'!");
 			});
 		}
+
+		// Export course student lists to CSV file
+		else if (args[0].equalsIgnoreCase("overview")) {
+
+			System.out.println("Export course student lists to file.");
+			System.out.print("Enter course name: ");
+			String courseName = commandScanner.nextLine();
+
+			courseService.getCourse(courseName).ifPresentOrElse((course) -> {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
+				String date = dateFormat.format(new Date());
+
+				if (course.getEnrollments().stream().count() <= 0
+						|| course.getType().getGoogleSheetId() == null
+						|| course.getType().getGoogleSheetId().equalsIgnoreCase("null")) {
+					log.error("Ignored course '" + course.getShortName() + "'.");
+					return;
+				}
+				log.info("Processing course '" + course.getShortName() + "'...");
+
+				File file = new File(globalExportPath + File.separator + course.getShortName() + "-" + date + ".csv");
+				try (FileWriter out = new FileWriter(file)){
+					out.write('\ufeff');
+
+					String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Fodselsdato", "Adresse", "Poststed", "Tlf nr", "Status"};
+					try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header))){
+						for (Student student : course.getStudents()) {
+							CourseApplication apply = courseApplicationRepo.findByStudentAndCourse(student, course.getType()).orElse(null);
+							Phone phone = student.getPhone();
+							LocalDate birthDate = student.getBirthDate();
+							String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "mangler data";
+							String formattedPhoneNum = phone != null && phone.getPhoneNumber() != 0 ? String.valueOf(phone.getPhoneNumber()) : "mangler data";
+							String applyStatus = apply != null ? apply.getStatus().toString()
+									.replace("ACCEPTED", "Ikke fullført")
+									.replace("WITHDRAWN", "Avmeldt")
+									.replace("WAITLIST", "Ukjent")
+									.replace("FINISHED", "Fullført") : "mangler data";
+									HomeAddress homeAddress = homeAddressRepo.findByStudent(student).orElse(null);
+									String address = homeAddress != null ? homeAddress.getStreetAddress() : "mangler data";
+									if (homeAddress != null && address.length() <= 2) address = "mangler data";
+									String postal = homeAddress != null ? homeAddress.getZipCode() + " " + homeAddress.getCity() : "mangler data";
+									printer.printRecord(student.getEmail(),
+											course.getLongName(),
+											student.getFirstName(),
+											student.getLastName(),
+											formattedBirthDate,
+											address,
+											postal,
+											formattedPhoneNum,
+											applyStatus);
+						}
+					}
+					log.info("Exported course '" + course.getShortName() + "'!");
+
+				} catch (Exception ex) {
+					log.error("Failed to export course list.", ex);
+				}
+
+			}, () -> {
+				log.error("Could not find course '" + courseName + "'!");
+			});
+		}
+
 	}	
 }
