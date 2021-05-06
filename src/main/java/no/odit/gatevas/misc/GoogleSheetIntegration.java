@@ -121,7 +121,6 @@ public class GoogleSheetIntegration {
 						LocalDate birthDate = LocalDate.parse(birthDay, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 						if (birthDate.isBefore(LocalDate.now().minusYears(90)) || birthDate.isAfter(LocalDate.now().minusYears(15))) {
 							birthDate = null;
-							throw new Error("Failed to identity age.");
 						}
 						else {
 							student.setBirthDate(birthDate);
