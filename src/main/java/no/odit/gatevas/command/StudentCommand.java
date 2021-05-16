@@ -85,5 +85,37 @@ public class StudentCommand implements CommandHandler {
 				System.out.println("Failed to find student!");
 			});
 		}
+
+		else if (args[0].equalsIgnoreCase("join")) {
+
+			System.out.println("Add student from course.");
+
+			System.out.print("Student email: ");
+			String identifier = commandScanner.nextLine();
+			studentService.getUserByEmail(identifier).ifPresentOrElse(student -> {
+
+				System.out.print("Enter course type: ");
+				String courseName = commandScanner.nextLine();
+				courseService.getCourseType(courseName).ifPresentOrElse((courseType) -> {
+
+					// Course application
+					courseApplicationRepo.findByStudentAndCourse(student, courseType).ifPresentOrElse(apply -> {
+						apply.setStatus(ApplicationStatus.ACCEPTED);
+						courseApplicationRepo.saveAndFlush(apply);
+						System.out.println("Updated course applicationn status for '" + student.getFirstName() + " " + student.getLastName()
+						+ "' in '" + courseType.getShortName() + "'.");
+
+					}, () -> {
+						System.out.println("Could not find course application for student!");
+					});
+
+				}, () -> {
+					System.out.println("Could not find course '" + courseName + "'!");
+				});
+
+			}, () -> {
+				System.out.println("Failed to find student!");
+			});
+		}
 	}
 }
