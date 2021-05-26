@@ -425,5 +425,5 @@ public class CourseCommand implements CommandHandler {
 			});
 		}
 
-	}	
+	}
 }

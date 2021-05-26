@@ -93,7 +93,8 @@ public class EmailService {
 					+ "Meld deg inn i Facebook gruppen her: <a href=\"" + classRoom.getSocialGroup() + "\">" + classRoom.getSocialGroup() + "</a><br/><br/>");
 		}
 
-		if (classRoom.getCommunicationLink() != null && classRoom.getCommunicationLink().length() > 2) {
+		if (classRoom.getCommunicationLink() != null && !classRoom.getCommunicationLink().equalsIgnoreCase("null")
+				&& classRoom.getCommunicationLink().length() > 2) {
 			sb.append("<b>Nettklasserom</b><br/>"
 					+ "Bruk følgende kobling til å logge på live nettundervisning.<br/>"
 					+ "Du logger inn som gjest, med ditt fulle navn.<br/>"

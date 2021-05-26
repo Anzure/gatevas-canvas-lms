@@ -200,6 +200,5 @@ public class GlobalCommand implements CommandHandler {
 				log.debug("Exported course '" + course.getShortName() + "'!");
 			}
 		}
-
 	}
 }
