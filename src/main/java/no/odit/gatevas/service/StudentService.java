@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
@@ -21,128 +22,134 @@ import no.odit.gatevas.type.StudentStatus;
 @Slf4j
 public class StudentService {
 
-	@Autowired
-	private StudentRepo studentRepo;
+    @Autowired
+    private StudentRepo studentRepo;
 
-	@Autowired
-	private PhoneService phoneService;
+    @Autowired
+    private PhoneService phoneService;
 
-	@Autowired
-	private SheetGeneratorCSV sheetGeneratorCSV;
+    @Autowired
+    private SheetGeneratorCSV sheetGeneratorCSV;
 
-	@Autowired
-	private CanvasService canvasService;
+    @Autowired
+    private CanvasService canvasService;
 
-	/**
-	 * Creates a new student or get existing
-	 * @param email Email address
-	 * @param firstName First name
-	 * @param lastName Last name
-	 * @param phoneNum Phone number
-	 * @return New or existing student
-	 */
-	public Student createStudent(String email, String firstName, String lastName, Integer phoneNum) {
+    /**
+     * Creates a new student or get existing
+     *
+     * @param email     Email address
+     * @param firstName First name
+     * @param lastName  Last name
+     * @param phoneNum  Phone number
+     * @return New or existing student
+     */
+    public Student createStudent(String email, String firstName, String lastName, Integer phoneNum) {
 
-		// Return existing student (email)
-		Optional<Student> existingEmail = getUserByEmail(email);
-		if (existingEmail.isPresent()) {
-			log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get().toString());
-			return existingEmail.get();
-		}
+        // Return existing student (email)
+        Optional<Student> existingEmail = getUserByEmail(email);
+        if (existingEmail.isPresent()) {
+            log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get().toString());
+            return existingEmail.get();
+        }
 
-		// Return existing student (name)
-		Optional<Student> existingName = getUserByName(firstName, lastName);
-		if (existingName.isPresent()) {
-			log.debug("NAME ALREADY EXIST -> " + existingName.get().toString());
-			return existingName.get();
-		}
+        // Return existing student (name)
+        Optional<Student> existingName = getUserByName(firstName, lastName);
+        if (existingName.isPresent()) {
+            log.debug("NAME ALREADY EXIST -> " + existingName.get().toString());
+            return existingName.get();
+        }
 
-		// Create new student
-		Phone phone = phoneService.createPhone(phoneNum);
-		Student student = new Student();
-		student.setEmail(email);
-		student.setFirstName(firstName);
-		student.setLastName(lastName);
-		student.setTmpPassword(GeneralUtil.generatePassword());		
-		student.setPhone(phone);
-		student.setLoginInfoSent(false);
-		student.setExportedToCSV(false);
-		student.setCanvasStatus(CanvasStatus.UNKNOWN);
-		student.setStudentStatus(StudentStatus.ALLOWED);
-		student = studentRepo.saveAndFlush(student);
-		log.debug("CREATED STUDENT -> " + student.toString());
-		return student;
-	}
+        // Create new student
+        Phone phone = phoneService.createPhone(phoneNum);
+        Student student = new Student();
+        student.setEmail(email.trim());
+        student.setFirstName(firstName.trim());
+        student.setLastName(lastName.trim());
+        student.setTmpPassword(GeneralUtil.generatePassword());
+        student.setPhone(phone);
+        student.setLoginInfoSent(false);
+        student.setExportedToCSV(false);
+        student.setCanvasStatus(CanvasStatus.UNKNOWN);
+        student.setStudentStatus(StudentStatus.ALLOWED);
+        student = studentRepo.saveAndFlush(student);
+        log.debug("CREATED STUDENT -> " + student.toString());
+        return student;
+    }
 
-	/**
-	 * Exports students in course to a CSV file
-	 * @param course Course to export students from
-	 * @param path File path in OS
-	 * @return Returns true if operation was successful
-	 */
-	public boolean exportStudentsToCSV(Classroom course, File file) {
+    /**
+     * Exports students in course to a CSV file
+     *
+     * @param course Course to export students from
+     * @param file   File path in OS
+     * @return Returns true if operation was successful
+     */
+    public boolean exportStudentsToCSV(Classroom course, File file) {
 
-		// Sync students
-		canvasService.syncUsersReadOnly(course);
+        // Sync students
+        canvasService.syncUsersReadOnly(course);
 
-		// Filter out existing students
-		List<Student> students = course.getStudents().stream()
-				.filter(student -> !student.getExportedToCSV() && student.getCanvasStatus() == CanvasStatus.MISSING)
-				.collect(Collectors.toList());
-		if (students.size() <= 0) {
-			log.debug("All students in '" + course.getShortName() + "' already exists in Canvas LMS.");
-			return true;
-		}
+        // Filter out existing students
+        List<Student> students = course.getStudents().stream()
+                .filter(student -> !student.getExportedToCSV() && student.getCanvasStatus() == CanvasStatus.MISSING)
+                .collect(Collectors.toList());
+        if (students.size() <= 0) {
+            log.debug("All students in '" + course.getShortName() + "' already exists in Canvas LMS.");
+            return true;
+        }
 
-		// Update status
-		students.forEach(student -> {
-			student.setExportedToCSV(true);
-			saveChanges(student);
-		});
+        // Update status
+        students.forEach(student -> {
+            student.setExportedToCSV(true);
+            saveChanges(student);
+        });
 
-		// Create CSV file
-		try {
-			sheetGeneratorCSV.createCSVFile(file, students);
-			return true;
-		} catch (IOException e) {
-			log.error("Failed to create CSV file.", e);
-			return false;
-		}
-	}
+        // Create CSV file
+        try {
+            sheetGeneratorCSV.createCSVFile(file, students);
+            return true;
+        } catch (IOException e) {
+            log.error("Failed to create CSV file.", e);
+            return false;
+        }
+    }
 
-	/**
-	 * Save student to storage
-	 * @param student Student to save
-	 */
-	public void saveChanges(Student student) {
-		studentRepo.saveAndFlush(student);
-	}
+    /**
+     * Save student to storage
+     *
+     * @param student Student to save
+     */
+    public void saveChanges(Student student) {
+        studentRepo.saveAndFlush(student);
+    }
 
-	/**
-	 * Get student from storage by names
-	 * @param firstName First name
-	 * @param lastName Last name
-	 * @return Empty Optional or populated with existing Student
-	 */
-	public Optional<Student> getUserByName(String firstName, String lastName) {
-		return studentRepo.findByFirstNameAndLastName(firstName, lastName);
-	}
+    /**
+     * Get student from storage by names
+     *
+     * @param firstName First name
+     * @param lastName  Last name
+     * @return Empty Optional or populated with existing Student
+     */
+    public Optional<Student> getUserByName(String firstName, String lastName) {
+        return studentRepo.findByFirstNameAndLastName(firstName.trim(), lastName.trim());
+    }
 
-	/**
-	 * Get student from storage by email
-	 * @param email Email address
-	 * @return Empty Optional or populated with existing Student
-	 */
-	public Optional<Student> getUserByEmail(String email) {
-		return studentRepo.findByEmail(email);
-	}
+    /**
+     * Get student from storage by email
+     *
+     * @param email Email address
+     * @return Empty Optional or populated with existing Student
+     */
+    public Optional<Student> getUserByEmail(String email) {
+        return studentRepo.findByEmail(email.trim());
+    }
 
-	/**
-	 * Get student from storage by full name
-	 * @param fullName Given name and surname
-	 * @return Empty Optional or populated with existing Student 
-	 */
-	public Optional<Student> getUserByFullName(String fullName) {
-		return studentRepo.findByFullname(fullName);
-	}
+    /**
+     * Get student from storage by full name
+     *
+     * @param fullName Given name and surname
+     * @return Empty Optional or populated with existing Student
+     */
+    public Optional<Student> getUserByFullName(String fullName) {
+        return studentRepo.findByFullname(fullName.trim());
+    }
 }
