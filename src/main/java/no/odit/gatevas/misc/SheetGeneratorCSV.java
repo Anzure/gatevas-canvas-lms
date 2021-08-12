@@ -1,13 +1,14 @@
 package no.odit.gatevas.misc;
 
+import no.odit.gatevas.model.Student;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.stereotype.Component;
-import no.odit.gatevas.model.Student;
 
 @Component
 public class SheetGeneratorCSV {

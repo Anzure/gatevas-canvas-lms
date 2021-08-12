@@ -1,38 +1,27 @@
 package no.odit.gatevas.command;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.HomeAddressRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
-import no.odit.gatevas.model.Classroom;
-import no.odit.gatevas.model.CourseApplication;
-import no.odit.gatevas.model.CourseType;
-import no.odit.gatevas.model.HomeAddress;
-import no.odit.gatevas.model.Phone;
-import no.odit.gatevas.model.Student;
+import no.odit.gatevas.model.*;
 import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.type.ApplicationStatus;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -205,6 +194,70 @@ public class GlobalCommand implements CommandHandler {
                 }
 
                 log.debug("Exported course '" + course.getShortName() + "'!");
+            }
+        }
+
+        // Export course student lists to CSV file
+        else if (args[0].equalsIgnoreCase("type-export")) {
+
+            System.out.println("Export course student lists to file.");
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.YY");
+            String date = dateFormat.format(new Date());
+
+            List<CourseType> courseTypes = courseService.getCourseTypes();
+            for (CourseType type : courseTypes) {
+
+                List<CourseApplication> applications = type.getApplications().stream()
+                        .sorted(Comparator.comparing(CourseApplication::getCreatedAt))
+                        .collect(Collectors.toList());
+                if (applications.size() <= 0) {
+                    log.debug("Ignored course type '" + type.getShortName() + "'.");
+                    continue;
+                }
+
+                log.debug("Processing course type '" + type.getShortName() + "'...");
+                File file = new File(globalExportPath + File.separator + type.getLongName() + " " + date + ".csv");
+
+                try (FileWriter out = new FileWriter(file)) {
+                    out.write('\ufeff');
+
+                    String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Fodselsdato", "Adresse", "Poststed", "Tlf nr", "Status"};
+                    CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
+
+                    for (CourseApplication apply : applications) {
+                        Student student = apply.getStudent();
+                        Phone phone = student.getPhone();
+                        LocalDate birthDate = student.getBirthDate();
+                        String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "mangler data";
+                        String formattedPhoneNum = phone != null && phone.getPhoneNumber() != 0 ? String.valueOf(phone.getPhoneNumber()) : "mangler data";
+                        String applyStatus = apply != null ? apply.getStatus().toString()
+                                .replace("ACCEPTED", "Tilbudt plass")
+                                .replace("WITHDRAWN", "Avmeldt")
+                                .replace("WAITLIST", "Venteliste")
+                                .replace("FINISHED", "Tilbudt plass") : "Venteliste";
+                        HomeAddress homeAddress = homeAddressRepo.findByStudent(student).orElse(null);
+                        String address = homeAddress != null ? homeAddress.getStreetAddress() : "mangler data";
+                        if (homeAddress != null && address.length() <= 2) address = "mangler data";
+                        String postal = homeAddress != null ? homeAddress.getZipCode() + " " + homeAddress.getCity() : "mangler data";
+                        printer.printRecord(student.getEmail(),
+                                type.getLongName(),
+                                student.getFirstName(),
+                                student.getLastName(),
+                                formattedBirthDate,
+                                address,
+                                postal,
+                                formattedPhoneNum,
+                                applyStatus);
+                    }
+                    printer.close();
+
+                    log.debug("Exported course '" + type.getShortName() + "'!");
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    System.out.println("Failed to export global list.");
+                }
             }
         }
     }

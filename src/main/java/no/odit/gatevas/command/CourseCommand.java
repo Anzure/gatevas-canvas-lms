@@ -1,5 +1,19 @@
 package no.odit.gatevas.command;
 
+import lombok.extern.slf4j.Slf4j;
+import no.odit.gatevas.cli.Command;
+import no.odit.gatevas.cli.CommandHandler;
+import no.odit.gatevas.dao.CourseApplicationRepo;
+import no.odit.gatevas.dao.HomeAddressRepo;
+import no.odit.gatevas.model.*;
+import no.odit.gatevas.service.*;
+import no.odit.gatevas.type.ApplicationStatus;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
@@ -8,30 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import lombok.extern.slf4j.Slf4j;
-import no.odit.gatevas.cli.Command;
-import no.odit.gatevas.cli.CommandHandler;
-import no.odit.gatevas.dao.CourseApplicationRepo;
-import no.odit.gatevas.dao.HomeAddressRepo;
-import no.odit.gatevas.model.Classroom;
-import no.odit.gatevas.model.CourseApplication;
-import no.odit.gatevas.model.CourseType;
-import no.odit.gatevas.model.HomeAddress;
-import no.odit.gatevas.model.Phone;
-import no.odit.gatevas.model.RoomLink;
-import no.odit.gatevas.model.Student;
-import no.odit.gatevas.service.CanvasService;
-import no.odit.gatevas.service.CourseService;
-import no.odit.gatevas.service.EmailService;
-import no.odit.gatevas.service.EnrollmentService;
-import no.odit.gatevas.service.PhoneService;
-import no.odit.gatevas.service.StudentService;
-import no.odit.gatevas.type.ApplicationStatus;
 
 @Component
 @Slf4j

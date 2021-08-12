@@ -1,18 +1,19 @@
 package no.odit.gatevas;
 
-import java.util.List;
-import java.util.Scanner;
+import no.odit.gatevas.cli.CommandHandler;
+import no.odit.gatevas.command.CourseCommand;
+import no.odit.gatevas.command.CustomCommand;
+import no.odit.gatevas.command.ExitCommand;
+import no.odit.gatevas.command.GlobalCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import no.odit.gatevas.cli.CommandHandler;
-import no.odit.gatevas.command.CourseCommand;
-import no.odit.gatevas.command.CustomCommand;
-import no.odit.gatevas.command.ExitCommand;
-import no.odit.gatevas.command.GlobalCommand;
+
+import java.util.List;
+import java.util.Scanner;
 
 @Configuration
 @EnableAsync

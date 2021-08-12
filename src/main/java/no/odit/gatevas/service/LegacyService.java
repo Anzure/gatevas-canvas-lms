@@ -1,15 +1,16 @@
 package no.odit.gatevas.service;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.model.Classroom;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Optional;
 
 @Service
 @Slf4j

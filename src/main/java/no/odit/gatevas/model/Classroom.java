@@ -1,27 +1,18 @@
 package no.odit.gatevas.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import no.odit.gatevas.type.CanvasStatus;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UpdateTimestamp;
-import lombok.Getter;
-import lombok.Setter;
-import no.odit.gatevas.type.CanvasStatus;
 
 @Entity(name = "Course")
 @Table(name = "course")
@@ -40,7 +31,7 @@ public class Classroom {
 	@Column(nullable = false)
 	private String period;
 
-	@Column(nullable = true)
+	@Column
 	private String socialGroup;
 
 	@Column(nullable = false)
@@ -53,7 +44,7 @@ public class Classroom {
 	@Column(nullable = false)
 	private CanvasStatus canvasStatus;
 
-	@Column(nullable = true)
+	@Column
 	private Integer canvasId;
 
 	@Column(nullable = false)

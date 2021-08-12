@@ -1,21 +1,22 @@
 package no.odit.gatevas.command;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.Set;
+import no.odit.gatevas.cli.Command;
+import no.odit.gatevas.cli.CommandHandler;
+import no.odit.gatevas.model.RoomLink;
+import no.odit.gatevas.model.Student;
+import no.odit.gatevas.service.StudentService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import no.odit.gatevas.cli.Command;
-import no.odit.gatevas.cli.CommandHandler;
-import no.odit.gatevas.model.RoomLink;
-import no.odit.gatevas.model.Student;
-import no.odit.gatevas.service.StudentService;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class CustomCommand implements CommandHandler {

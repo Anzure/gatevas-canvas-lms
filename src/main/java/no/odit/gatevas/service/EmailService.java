@@ -1,13 +1,13 @@
 package no.odit.gatevas.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import no.odit.gatevas.misc.EmailSender;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {

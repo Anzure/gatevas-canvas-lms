@@ -1,11 +1,10 @@
 package no.odit.gatevas.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import no.odit.gatevas.dao.HomeAddressRepo;
 import no.odit.gatevas.model.HomeAddress;
 import no.odit.gatevas.model.Student;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class HomeAddressService {

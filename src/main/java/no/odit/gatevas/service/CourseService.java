@@ -1,23 +1,19 @@
 package no.odit.gatevas.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.CourseTypeRepo;
 import no.odit.gatevas.misc.GoogleSheetIntegration;
-import no.odit.gatevas.model.Student;
+import no.odit.gatevas.model.*;
 import no.odit.gatevas.type.ApplicationStatus;
 import no.odit.gatevas.type.CanvasStatus;
-import no.odit.gatevas.model.Classroom;
-import no.odit.gatevas.model.CourseApplication;
-import no.odit.gatevas.model.CourseType;
-import no.odit.gatevas.model.RoomLink;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j

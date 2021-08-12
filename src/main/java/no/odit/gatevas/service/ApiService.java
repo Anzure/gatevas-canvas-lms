@@ -1,11 +1,11 @@
 package no.odit.gatevas.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
 import edu.ksu.canvas.oauth.OauthToken;
 import edu.ksu.canvas.oauth.OauthTokenRefresher;
 import edu.ksu.canvas.oauth.RefreshableOauthToken;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ApiService {

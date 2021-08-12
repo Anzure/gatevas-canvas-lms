@@ -1,13 +1,5 @@
 package no.odit.gatevas.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.StudentRepo;
 import no.odit.gatevas.misc.GeneralUtil;
@@ -17,6 +9,14 @@ import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.type.StudentStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j

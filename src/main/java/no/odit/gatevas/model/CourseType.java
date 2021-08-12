@@ -1,48 +1,49 @@
 package no.odit.gatevas.model;
 
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
-@Getter @Setter @EqualsAndHashCode(of = {"id", "shortName", "longName"})
+@Getter
+@Setter
+@EqualsAndHashCode(of = {"id", "shortName", "longName"})
 public class CourseType {
 
-	@Id
-	@GeneratedValue
-	@Type(type="uuid-char")
-	private UUID id;
+    @Id
+    @GeneratedValue
+    @Type(type = "uuid-char")
+    private UUID id;
 
-	@Column(nullable = false)
-	private String shortName;
+    @Column(nullable = false)
+    private String shortName;
 
-	@Column(nullable = false)
-	private String longName;
+    @Column(nullable = false)
+    private String longName;
 
-	@Column(nullable = true)
-	private String googleSheetId;
+    @Column
+    private String googleSheetId;
 
-	@Column(nullable = false)
-	@UpdateTimestamp
-	private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-	@Column(nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-	@OneToMany(mappedBy = "type")
-	private Set<Classroom> courses;
+    @OneToMany(mappedBy = "type")
+    private Set<Classroom> courses;
+
+    @OneToMany(mappedBy = "course")
+    private Set<CourseApplication> applications;
 
 }

@@ -1,17 +1,18 @@
 package no.odit.gatevas.service;
 
+import lombok.extern.slf4j.Slf4j;
+import no.odit.gatevas.dao.EnrollmentRepo;
+import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.RoomLink;
+import no.odit.gatevas.model.Student;
+import no.odit.gatevas.type.CanvasStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import lombok.extern.slf4j.Slf4j;
-import no.odit.gatevas.dao.EnrollmentRepo;
-import no.odit.gatevas.model.RoomLink;
-import no.odit.gatevas.model.Student;
-import no.odit.gatevas.type.CanvasStatus;
-import no.odit.gatevas.model.Classroom;
 
 @Service
 @Slf4j

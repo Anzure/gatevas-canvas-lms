@@ -1,12 +1,5 @@
 package no.odit.gatevas.service;
 
-import java.io.DataOutputStream;
-import java.net.URL;
-import java.net.URLEncoder;
-import javax.net.ssl.HttpsURLConnection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.PhoneRepo;
 import no.odit.gatevas.model.Classroom;
@@ -14,6 +7,14 @@ import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.net.ssl.HttpsURLConnection;
+import java.io.DataOutputStream;
+import java.net.URL;
+import java.net.URLEncoder;
 
 @Component
 @Slf4j

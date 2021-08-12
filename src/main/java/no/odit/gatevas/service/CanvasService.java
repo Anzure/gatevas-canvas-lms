@@ -1,17 +1,7 @@
 package no.odit.gatevas.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import edu.ksu.canvas.CanvasApiFactory;
-import edu.ksu.canvas.interfaces.AccountReader;
-import edu.ksu.canvas.interfaces.CourseReader;
-import edu.ksu.canvas.interfaces.EnrollmentWriter;
-import edu.ksu.canvas.interfaces.RoleReader;
-import edu.ksu.canvas.interfaces.UserReader;
+import edu.ksu.canvas.interfaces.*;
 import edu.ksu.canvas.model.Account;
 import edu.ksu.canvas.model.Enrollment;
 import edu.ksu.canvas.model.Role;
@@ -25,6 +15,13 @@ import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.type.CanvasStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j

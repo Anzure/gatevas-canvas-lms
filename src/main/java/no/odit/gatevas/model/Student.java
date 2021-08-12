@@ -1,28 +1,18 @@
 package no.odit.gatevas.model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import lombok.Getter;
 import lombok.Setter;
 import no.odit.gatevas.type.CanvasStatus;
 import no.odit.gatevas.type.StudentStatus;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter @Setter
@@ -43,10 +33,10 @@ public class Student {
 	private String email;
 
 	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name="phone_id", nullable=true)
+	@JoinColumn(name="phone_id")
 	private Phone phone;
 
-	@Column(nullable = true)
+	@Column
 	private LocalDate birthDate;
 
 	@Column(nullable = false)
@@ -63,10 +53,10 @@ public class Student {
 	private CanvasStatus canvasStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = true)
+	@Column
 	private StudentStatus studentStatus;
 
-	@Column(nullable = true)
+	@Column
 	private Integer canvasId;
 
 	@Column(nullable = false)
@@ -98,6 +88,7 @@ public class Student {
 	}
 
 	public LocalDate getBirthDate() {
+		if (birthDate == null) return null;
 		return birthDate.isAfter(LocalDate.now().minusYears(90)) && birthDate.isBefore(LocalDate.now().minusYears(15))
 				? birthDate : null;
 	}

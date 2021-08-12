@@ -1,15 +1,14 @@
 package no.odit.gatevas.dao;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.RoomLink;
+import no.odit.gatevas.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import no.odit.gatevas.model.RoomLink;
-import no.odit.gatevas.model.Student;
-import no.odit.gatevas.model.Classroom;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface EnrollmentRepo extends JpaRepository<RoomLink, UUID> {
