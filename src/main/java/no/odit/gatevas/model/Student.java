@@ -15,86 +15,87 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 public class Student {
 
-	@Id
-	@GeneratedValue
-	@Type(type="uuid-char")
-	private UUID id;
+    @Id
+    @GeneratedValue
+    @Type(type = "uuid-char")
+    private UUID id;
 
-	@Column(nullable = false)
-	private String firstName;
+    @Column(nullable = false)
+    private String firstName;
 
-	@Column(nullable = false)
-	private String lastName;
+    @Column(nullable = false)
+    private String lastName;
 
-	@Column(nullable = false, unique = true)
-	private String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name="phone_id")
-	private Phone phone;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "phone_id")
+    private Phone phone;
 
-	@Column
-	private LocalDate birthDate;
+    @Column
+    private LocalDate birthDate;
 
-	@Column(nullable = false)
-	private String tmpPassword;
+    @Column(nullable = false)
+    private String tmpPassword;
 
-	@Column(nullable = false)
-	private Boolean loginInfoSent;
+    @Column(nullable = false)
+    private Boolean loginInfoSent;
 
-	@Column(nullable = false, name = "exported_to_csv")
-	private Boolean exportedToCSV;
+    @Column(nullable = false, name = "exported_to_csv")
+    private Boolean exportedToCSV;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CanvasStatus canvasStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CanvasStatus canvasStatus;
 
-	@Enumerated(EnumType.STRING)
-	@Column
-	private StudentStatus studentStatus;
+    @Enumerated(EnumType.STRING)
+    @Column
+    private StudentStatus studentStatus;
 
-	@Column
-	private Integer canvasId;
+    @Column
+    private Integer canvasId;
 
-	@Column(nullable = false)
-	@UpdateTimestamp
-	private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-	@Column(nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-	@OneToOne(mappedBy = "student")
-	private HomeAddress homeAddress;
+    @OneToOne(mappedBy = "student")
+    private HomeAddress homeAddress;
 
-	@OneToMany(mappedBy = "student")
-	private Set<RoomLink> enrollments;
+    @OneToMany(mappedBy = "student")
+    private Set<RoomLink> enrollments;
 
-	public String getUserId() {
-		return firstName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
-				+ lastName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
-				+ "-" + id.toString().split("-")[3];
-	}
+    public String getUserId() {
+        return firstName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
+                + lastName.toLowerCase().replace("æ", "e").replace("ø", "o").replace("å", "a").substring(0, 2)
+                + "-" + id.toString().split("-")[3];
+    }
 
-	@Override
-	public String toString() {
-		return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-				+ ", phone=" + phone + ", tmpPassword=" + tmpPassword + ", loginInfoSent=" + loginInfoSent
-				+ ", exportedToCSV=" + exportedToCSV + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt
-				+ ", createdAt=" + createdAt + "]";
-	}
+    @Override
+    public String toString() {
+        return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+                + ", phone=" + phone + ", tmpPassword=" + tmpPassword + ", loginInfoSent=" + loginInfoSent
+                + ", exportedToCSV=" + exportedToCSV + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt
+                + ", createdAt=" + createdAt + "]";
+    }
 
-	public LocalDate getBirthDate() {
-		if (birthDate == null) return null;
-		return birthDate.isAfter(LocalDate.now().minusYears(90)) && birthDate.isBefore(LocalDate.now().minusYears(15))
-				? birthDate : null;
-	}
+    public LocalDate getBirthDate() {
+        if (birthDate == null) return null;
+        return birthDate.isAfter(LocalDate.now().minusYears(90)) && birthDate.isBefore(LocalDate.now().minusYears(15))
+                ? birthDate : null;
+    }
 
-	public String getFullName() {
-		return firstName + " " + lastName;
-	}
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 
 }

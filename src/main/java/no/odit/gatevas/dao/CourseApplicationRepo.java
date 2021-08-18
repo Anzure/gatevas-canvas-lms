@@ -14,12 +14,12 @@ import java.util.UUID;
 @Repository
 public interface CourseApplicationRepo extends JpaRepository<CourseApplication, UUID> {
 
-	Optional<CourseApplication> findByStudentAndCourse(Student student, CourseType course);
-	
-	List<CourseApplication> findByStatus(ApplicationStatus status);
-	
-	List<CourseApplication> findByStatusAndCourse(ApplicationStatus status, CourseType course);
-	
-	List<CourseApplication> findByCourse(CourseType course);
+    Optional<CourseApplication> findByStudentAndCourse(Student student, CourseType course);
+
+    List<CourseApplication> findByStatus(ApplicationStatus status);
+
+    List<CourseApplication> findByStatusAndCourse(ApplicationStatus status, CourseType course);
+
+    List<CourseApplication> findByCourse(CourseType course);
 
 }

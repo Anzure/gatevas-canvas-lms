@@ -10,33 +10,37 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Getter @Setter @Builder @AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class HomeAddress {
 
-	@Id
-	@GeneratedValue
-	@Type(type="uuid-char")
-	private UUID id;
+    @Id
+    @GeneratedValue
+    @Type(type = "uuid-char")
+    private UUID id;
 
-	@OneToOne
-	@JoinColumn(name="student_id", nullable=false)
-	private Student student;
+    @OneToOne
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
-	@Column(nullable = false)
-	private String streetAddress;
+    @Column(nullable = false)
+    private String streetAddress;
 
-	@Column(nullable = false)
-	private Integer zipCode;
+    @Column(nullable = false)
+    private Integer zipCode;
 
-	@Column(nullable = false)
-	private String city;
+    @Column(nullable = false)
+    private String city;
 
-	@Column(nullable = false)
-	@UpdateTimestamp
-	private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-	@Column(nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
 }

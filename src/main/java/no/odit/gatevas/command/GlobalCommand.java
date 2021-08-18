@@ -112,7 +112,7 @@ public class GlobalCommand implements CommandHandler {
             try (FileWriter out = new FileWriter(file)) {
                 out.write('\ufeff');
 
-                String[] header = {"E-postadresse", "Kurs", "Fornavn", "Etternavn", "Tlf nr", "Dato", "Status"};
+                String[] header = {"E-postadresse", "Kursnavn", "Kurskode", "Fornavn", "Etternavn", "Tlf nr", "Dato", "Status"};
                 CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
 
                 for (CourseApplication apply : applications) {
@@ -120,6 +120,7 @@ public class GlobalCommand implements CommandHandler {
                     Phone phone = student.getPhone();
                     printer.printRecord(student.getEmail(),
                             apply.getCourse().getLongName(),
+                            apply.getCourse().getShortName(),
                             student.getFirstName(),
                             student.getLastName(),
                             phone != null ? phone.getPhoneNumber() : 0,

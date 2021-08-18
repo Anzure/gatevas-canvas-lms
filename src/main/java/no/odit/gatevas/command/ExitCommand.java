@@ -10,11 +10,11 @@ import java.util.Scanner;
 @Component
 public class ExitCommand implements CommandHandler {
 
-	@Autowired
-	private Scanner commandScanner;
+    @Autowired
+    private Scanner commandScanner;
 
-	public void handleCommand(Command command) {
-		System.out.println("Shutting down from CLI.");
-		commandScanner.close();
-	}
+    public void handleCommand(Command command) {
+        System.out.println("Shutting down from CLI.");
+        commandScanner.close();
+    }
 }

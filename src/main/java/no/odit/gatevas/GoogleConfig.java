@@ -28,51 +28,51 @@ import java.util.List;
 @Configuration
 public class GoogleConfig {
 
-	@Value("${google.application_name}")
-	private String applicationName;
+    @Value("${google.application_name}")
+    private String applicationName;
 
-	@Bean
-	public NetHttpTransport netHttpTransport() throws GeneralSecurityException, IOException {
-		return GoogleNetHttpTransport.newTrustedTransport();
-	}
+    @Bean
+    public NetHttpTransport netHttpTransport() throws GeneralSecurityException, IOException {
+        return GoogleNetHttpTransport.newTrustedTransport();
+    }
 
-	@Bean
-	public JsonFactory jacksonFactory() {
-		return JacksonFactory.getDefaultInstance();
-	}
+    @Bean
+    public JsonFactory jacksonFactory() {
+        return JacksonFactory.getDefaultInstance();
+    }
 
-	@Bean
-	public Credential getCredentials() throws IOException, GeneralSecurityException {
+    @Bean
+    public Credential getCredentials() throws IOException, GeneralSecurityException {
 
-		String CREDENTIALS_FILE_PATH = "client_secret.json";
-		List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
-		String TOKENS_DIRECTORY_PATH = "tokens";
+        String CREDENTIALS_FILE_PATH = "client_secret.json";
+        List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+        String TOKENS_DIRECTORY_PATH = "tokens";
 
-		// Load client secrets.
-		InputStream in = new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream();
-		if (in == null) {
-			throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
-		}
-		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jacksonFactory(), new InputStreamReader(in));
+        // Load client secrets.
+        InputStream in = new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream();
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jacksonFactory(), new InputStreamReader(in));
 
-		// Build flow and trigger user authorization request.
-		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-				netHttpTransport(), jacksonFactory(), clientSecrets, SCOPES)
-				.setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-				.setAccessType("offline")
-				.build();
-		LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-		return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
-	}
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                netHttpTransport(), jacksonFactory(), clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    }
 
-	@Bean
-	public Sheets sheetService() throws IOException, GeneralSecurityException {
-		// Build a new authorized API client service.
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, jacksonFactory(), getCredentials())
-				.setApplicationName(applicationName)
-				.build();
-		return service;
-	}
+    @Bean
+    public Sheets sheetService() throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, jacksonFactory(), getCredentials())
+                .setApplicationName(applicationName)
+                .build();
+        return service;
+    }
 
 }

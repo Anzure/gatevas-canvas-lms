@@ -16,65 +16,67 @@ import java.util.stream.Collectors;
 
 @Entity(name = "Course")
 @Table(name = "course")
-@Getter @Setter
+@Getter
+@Setter
 public class Classroom {
 
-	@Id
-	@GeneratedValue
-	@Type(type="uuid-char")
-	private UUID id;
+    @Id
+    @GeneratedValue
+    @Type(type = "uuid-char")
+    private UUID id;
 
-	@ManyToOne
-	@JoinColumn(name="type_id", nullable=false)
-	private CourseType type;
+    @ManyToOne
+    @JoinColumn(name = "type_id", nullable = false)
+    private CourseType type;
 
-	@Column(nullable = false)
-	private String period;
+    @Column(nullable = false)
+    private String period;
 
-	@Column
-	private String socialGroup;
+    @Column
+    private String socialGroup;
 
-	@Column(nullable = false)
-	private String communicationLink;
+    @Deprecated
+    @Column(nullable = false)
+    private String communicationLink;
 
-	@Column(nullable = false)
-	private String googleSheetId;
+    @Column(nullable = false)
+    private String googleSheetId;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CanvasStatus canvasStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CanvasStatus canvasStatus;
 
-	@Column
-	private Integer canvasId;
+    @Column
+    private Integer canvasId;
 
-	@Column(nullable = false)
-	@UpdateTimestamp
-	private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-	@Column(nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-	@OneToMany(mappedBy = "course")
-	private Set<RoomLink> enrollments;
+    @OneToMany(mappedBy = "course")
+    private Set<RoomLink> enrollments;
 
-	public String getShortName() {
-		return type.getShortName() + "-" + period;
-	}
+    public String getShortName() {
+        return type.getShortName() + "-" + period;
+    }
 
-	public String getLongName() {
-		return type.getLongName() + " " + period;
-	}
+    public String getLongName() {
+        return type.getLongName() + " " + period;
+    }
 
-	public List<Student> getStudents() {
-		return enrollments.stream().map(RoomLink::getStudent).collect(Collectors.toList());
-	}
+    public List<Student> getStudents() {
+        return enrollments.stream().map(RoomLink::getStudent).collect(Collectors.toList());
+    }
 
-	@Override
-	public String toString() {
-		return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup + ", communicationLink="
-				+ communicationLink + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
-				+ ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
-	}
+    @Override
+    public String toString() {
+        return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup + ", communicationLink="
+                + communicationLink + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
+                + ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
+    }
 
 }

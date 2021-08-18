@@ -19,34 +19,34 @@ import java.util.Scanner;
 @EnableAsync
 public class GatevasConfig implements AsyncConfigurer {
 
-	@Bean
-	public ThreadPoolTaskExecutor taskExecutor() {
-		ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-		pool.setCorePoolSize(5);
-		pool.setMaxPoolSize(10);
-		pool.setWaitForTasksToCompleteOnShutdown(false);
-		return pool;
-	}
+    @Bean
+    public ThreadPoolTaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
+        pool.setCorePoolSize(5);
+        pool.setMaxPoolSize(10);
+        pool.setWaitForTasksToCompleteOnShutdown(false);
+        return pool;
+    }
 
-	@Autowired
-	private CourseCommand courseCommand;
+    @Autowired
+    private CourseCommand courseCommand;
 
-	@Autowired
-	private ExitCommand exitCommand;
+    @Autowired
+    private ExitCommand exitCommand;
 
-	@Autowired
-	private CustomCommand customCommand;
-	
-	@Autowired
-	private GlobalCommand globalCommand;
+    @Autowired
+    private CustomCommand customCommand;
 
-	@Bean
-	public List<CommandHandler> getCommands() {
-		return List.of(courseCommand, exitCommand, customCommand, globalCommand);
-	}
+    @Autowired
+    private GlobalCommand globalCommand;
 
-	@Bean
-	public Scanner getCommandScanner() {
-		return new Scanner(System.in);
-	}
+    @Bean
+    public List<CommandHandler> getCommands() {
+        return List.of(courseCommand, exitCommand, customCommand, globalCommand);
+    }
+
+    @Bean
+    public Scanner getCommandScanner() {
+        return new Scanner(System.in);
+    }
 }

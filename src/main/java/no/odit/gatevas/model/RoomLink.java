@@ -13,48 +13,49 @@ import java.util.UUID;
 
 @Entity(name = "Enrollment")
 @Table(name = "enrollment")
-@Getter @Setter
+@Getter
+@Setter
 public class RoomLink {
 
-	@Id
-	@GeneratedValue
-	@Type(type="uuid-char")
-	private UUID id;
+    @Id
+    @GeneratedValue
+    @Type(type = "uuid-char")
+    private UUID id;
 
-	@Column(nullable = false)
-	private Boolean emailSent;
+    @Column(nullable = false)
+    private Boolean emailSent;
 
-	@Column(nullable = false)
-	private Boolean textSent;
+    @Column(nullable = false)
+    private Boolean textSent;
 
-	@ManyToOne
-	@JoinColumn(name="student_id", nullable=false)
-	private Student student;
+    @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
-	@ManyToOne
-	@JoinColumn(name="course_id", nullable=false)
-	private Classroom course;
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Classroom course;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CanvasStatus canvasStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CanvasStatus canvasStatus;
 
-	@Column(nullable = true)
-	private Long canvasId;
+    @Column(nullable = true)
+    private Long canvasId;
 
-	@Column(nullable = false)
-	@UpdateTimestamp
-	private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-	@Column(nullable = false, updatable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-	@Override
-	public String toString() {
-		return "RoomLink [id=" + id + ", emailSent=" + emailSent + ", textSent=" + textSent + ", student=" + student
-				+ ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt="
-				+ createdAt + "]";
-	}
+    @Override
+    public String toString() {
+        return "RoomLink [id=" + id + ", emailSent=" + emailSent + ", textSent=" + textSent + ", student=" + student
+                + ", canvasStatus=" + canvasStatus + ", updatedAt=" + updatedAt + ", createdAt="
+                + createdAt + "]";
+    }
 
 }

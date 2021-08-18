@@ -11,6 +11,6 @@ import java.util.UUID;
 @Repository
 public interface HomeAddressRepo extends JpaRepository<HomeAddress, UUID> {
 
-	Optional<HomeAddress> findByStudent(Student student);
+    Optional<HomeAddress> findByStudent(Student student);
 
 }

@@ -13,44 +13,45 @@ import javax.mail.internet.MimeMessage;
 @Slf4j
 public class EmailSender {
 
-	@Autowired
-	private JavaMailSender emailSender;
+    @Autowired
+    private JavaMailSender emailSender;
 
-	@Value("${mail.smtp.email}")
-	private String email;
+    @Value("${mail.smtp.email}")
+    private String email;
 
-	@Value("${mail.smtp.name}")
-	private String name;
+    @Value("${mail.smtp.name}")
+    private String name;
 
-	@Value("${mail.smtp.contact.email}")
-	private String contactEmail;
+    @Value("${mail.smtp.contact.email}")
+    private String contactEmail;
 
-	@Value("${mail.smtp.contact.name}")
-	private String contactName;
+    @Value("${mail.smtp.contact.name}")
+    private String contactName;
 
-	/**
-	 * Send HTML formatted email.
-	 * @param to Receiving email address
-	 * @param subject Title of email
-	 * @param text HTML formatted message
-	 */
-	public void sendSimpleMessage(String to, String subject, String text) {
-		try {
+    /**
+     * Send HTML formatted email.
+     *
+     * @param to      Receiving email address
+     * @param subject Title of email
+     * @param text    HTML formatted message
+     */
+    public void sendSimpleMessage(String to, String subject, String text) {
+        try {
 
-			MimeMessage mimeMessage = emailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-			helper.setFrom(email, name);
-			helper.setTo(to);
-			helper.setBcc(contactEmail);
-			helper.setReplyTo(contactEmail, contactName);
-			helper.setSubject(subject);
-			helper.setText(text, true);
+            helper.setFrom(email, name);
+            helper.setTo(to);
+            helper.setBcc(contactEmail);
+            helper.setReplyTo(contactEmail, contactName);
+            helper.setSubject(subject);
+            helper.setText(text, true);
 
-			emailSender.send(mimeMessage);
+            emailSender.send(mimeMessage);
 
-		} catch (Exception ex) {
-			log.warn("Failed to send email to " + to + ".", ex);
-		}
-	}
+        } catch (Exception ex) {
+            log.warn("Failed to send email to " + to + ".", ex);
+        }
+    }
 }

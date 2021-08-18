@@ -11,6 +11,6 @@ import java.util.UUID;
 @Repository
 public interface CourseRepo extends JpaRepository<Classroom, UUID> {
 
-	List<Classroom> findByType(CourseType type);
-	
+    List<Classroom> findByType(CourseType type);
+
 }

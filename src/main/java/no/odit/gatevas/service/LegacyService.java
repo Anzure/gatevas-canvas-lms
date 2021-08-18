@@ -16,31 +16,31 @@ import java.util.Optional;
 @Slf4j
 public class LegacyService {
 
-	@Autowired
-	private CourseService courseService;
+    @Autowired
+    private CourseService courseService;
 
-	@Deprecated
-	public Optional<Classroom> importLegacyFile(String path) {
+    @Deprecated
+    public Optional<Classroom> importLegacyFile(String path) {
 
-		try (Reader fileReader = new FileReader(path)){
-			JsonObject json = JsonParser.parseReader(fileReader).getAsJsonObject();
+        try (Reader fileReader = new FileReader(path)) {
+            JsonObject json = JsonParser.parseReader(fileReader).getAsJsonObject();
 
-			if (!json.has("id")) {
-				return Optional.empty();
-			}
+            if (!json.has("id")) {
+                return Optional.empty();
+            }
 
-			Classroom course = new Classroom();
-			//			course.setShortName(json.get("id").getAsString());
-			//			course.setLongName(json.get("name").getAsString());
-			course.setCommunicationLink(json.get("roomLink").getAsString());
-			course.setGoogleSheetId(json.get("googleSheetId").getAsString());
-			course = courseService.addCourse(course);
-			log.debug("CREATE COURSE -> " + course.toString());
-			return Optional.of(course);
+            Classroom course = new Classroom();
+            //			course.setShortName(json.get("id").getAsString());
+            //			course.setLongName(json.get("name").getAsString());
+            course.setCommunicationLink(json.get("roomLink").getAsString());
+            course.setGoogleSheetId(json.get("googleSheetId").getAsString());
+            course = courseService.addCourse(course);
+            log.debug("CREATE COURSE -> " + course.toString());
+            return Optional.of(course);
 
-		} catch (IOException ex) {
-			log.error("Failed to import legacy file.", ex);
-			return Optional.empty();
-		}
-	}
+        } catch (IOException ex) {
+            log.error("Failed to import legacy file.", ex);
+            return Optional.empty();
+        }
+    }
 }

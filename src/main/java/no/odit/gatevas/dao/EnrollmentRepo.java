@@ -13,10 +13,10 @@ import java.util.UUID;
 @Repository
 public interface EnrollmentRepo extends JpaRepository<RoomLink, UUID> {
 
-	Optional<RoomLink> findByStudentAndCourse(Student student, Classroom course);
+    Optional<RoomLink> findByStudentAndCourse(Student student, Classroom course);
 
-	List<RoomLink> findByStudent(Student student);
+    List<RoomLink> findByStudent(Student student);
 
-	List<RoomLink> findByCourse(Classroom course);
+    List<RoomLink> findByCourse(Classroom course);
 
 }
