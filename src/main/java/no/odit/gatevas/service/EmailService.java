@@ -91,11 +91,14 @@ public class EmailService {
 
         if (classRoom.getSocialGroup() != null && classRoom.getSocialGroup().length() > 2) {
             sb.append("<b>Facebook</b><br/>"
-                    + "Meld deg inn i Facebook gruppen her: <a href=\"" + classRoom.getSocialGroup() + "\">" + classRoom.getSocialGroup() + "</a><br/><br/>");
+                    + "Meld deg inn i Facebook gruppen her:<br/>" +
+                    "<a href=\"" + classRoom.getSocialGroup() + "\">" + classRoom.getSocialGroup() + "</a><br/><br/>");
         }
 
         sb.append("<b>Nettklasserom</b><br/>"
-                + "Kobling til live nettundervisning via Zoom blir publisert i Canvas.");
+                + "Vi bruker Zoom til live nettundervisning.<br/>"
+                + "Lenke til Zoom møte blir publisert i Canvas.<br/>"
+                + "Vi anbefaler å bruke headset for best mulig lyd.");
 
         sb.append("<p>Si ifra hvis du trenger hjelp til innlogging.");
         sb.append("<br>Fagskolen i Vestfold og Telemark hjemmeside: <a href='http://f-vt.no'>se f-vt.no</a></p>");

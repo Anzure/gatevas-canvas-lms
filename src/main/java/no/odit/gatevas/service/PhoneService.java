@@ -122,7 +122,7 @@ public class PhoneService {
             wr.writeBytes(
                     "token=" + token
                             + "&sender=" + URLEncoder.encode(sender, "UTF-8")
-                            + "&message=" + URLEncoder.encode(txt, "UTF-8")
+                            + "&message=" + URLEncoder.encode(txt.replace("–", "-"), "UTF-8")
                             + "&class=premium&priority=VERY_URGENT&recipients.0.msisdn=" + phoneNumber
             );
             wr.close();
