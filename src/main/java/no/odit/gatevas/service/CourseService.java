@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.CourseTypeRepo;
+import no.odit.gatevas.dao.StudentRepo;
 import no.odit.gatevas.misc.GoogleSheetsAPI;
 import no.odit.gatevas.model.*;
 import no.odit.gatevas.type.ApplicationStatus;
@@ -18,6 +19,9 @@ import java.util.Set;
 @Service
 @Slf4j
 public class CourseService {
+
+    @Autowired
+    private StudentRepo studentRepo;
 
     @Autowired
     private CourseApplicationRepo courseApplicationRepo;
@@ -37,7 +41,7 @@ public class CourseService {
     // Imports students from online Google Sheets
     public Optional<Set<Student>> importStudents(Classroom course) {
         try {
-            Set<Student> students = googleSheetsAPI.processSheet(course.getGoogleSheetId(), course.getType());
+            Set<Student> students = googleSheetsAPI.processSheet(course.getGoogleSheetId(), course.getType(), true);
             return Optional.of(students);
         } catch (Exception ex) {
             log.error("Failed to import students.", ex);
@@ -98,6 +102,7 @@ public class CourseService {
             apply.setStatus(ApplicationStatus.WAITLIST);
         }
 
+        // Update status
         if (apply.getStatus() == ApplicationStatus.WAITLIST) {
             List<Classroom> courses = courseRepo.findByType(courseType);
             for (Classroom course : courses) {
@@ -107,7 +112,22 @@ public class CourseService {
                 }
             }
         }
-        return courseApplicationRepo.saveAndFlush(apply);
+
+//        // Fix status
+//        Set<RoomLink> enrollments = student.getEnrollments();
+//        if (apply.getStatus() == ApplicationStatus.WAITLIST && enrollments != null) {
+//            for (RoomLink enrollment : enrollments) {
+//                Classroom course = enrollment.getCourse();
+//                CourseType type = course.getType();
+//                if (type.getShortName().equals(courseType.getShortName())) {
+//                    apply.setStatus(ApplicationStatus.ACCEPTED);
+//                    apply = courseApplicationRepo.findById(courseApplicationRepo.saveAndFlush(apply).getId()).get();
+//                    log.warn("Fixed status for '" + student.getFullName() + "' in " + course.getShortName() + ".");
+//                }
+//            }
+//        }
+
+        return apply = courseApplicationRepo.findById(courseApplicationRepo.saveAndFlush(apply).getId()).get();
     }
 
 }

@@ -1,6 +1,5 @@
 package no.odit.gatevas.command;
 
-import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
@@ -24,7 +23,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class GlobalCommand implements CommandHandler {
 
     @Value("${gatevas.global.export_path}")
@@ -71,18 +69,25 @@ public class GlobalCommand implements CommandHandler {
             System.out.println("Found " + globalSheets.size() + " sheets to process.");
             System.out.print("Want to continue? (Y/N): ");
             if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
+                System.out.println("Importing global student list...");
                 globalSheets.entrySet().stream().forEach(entry -> {
                     CourseType courseType = entry.getValue();
                     String googleSpreadSheetId = entry.getKey();
                     try {
-                        Set<Student> students = googleSheetsAPI.processSheet(googleSpreadSheetId, courseType);
-                        System.out.println("Successfully processed " + students.size() + " students.");
+                        Set<Student> students = googleSheetsAPI.processSheet(googleSpreadSheetId, courseType, false);
+                        System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
+//                        if (courseType.getCourses() != null) courseType.getCourses().stream()
+//                                .forEach(course -> {
+//                                    Set<Student> list = googleSheetsAPI.processSheet(course.getGoogleSheetId(), courseType);
+//                                    System.out.println("Processed " + list.size() + " students in course " + course.getShortName() + ".");
+//                                });
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         System.out.println("Failed to process sheet!");
                     }
                 });
+                System.out.println("Successfully imported student list.");
             }
         }
 
@@ -109,6 +114,7 @@ public class GlobalCommand implements CommandHandler {
             String date = dateFormat.format(new Date());
             File file = new File(globalExportPath + File.separator + typeName + "-" + date + ".csv");
 
+            System.out.println("Exporting global student list...");
             try (FileWriter out = new FileWriter(file)) {
                 out.write('\ufeff');
 
@@ -118,6 +124,17 @@ public class GlobalCommand implements CommandHandler {
                 for (CourseApplication apply : applications) {
                     Student student = apply.getStudent();
                     Phone phone = student.getPhone();
+                    if (apply.getStatus() == ApplicationStatus.WAITLIST && student.getEnrollments() != null) {
+                        boolean alreadyEnrolled = student.getEnrollments().stream()
+                                .map(enroll -> enroll.getCourse().getType())
+                                .filter(type -> apply.getCourse().equals(type))
+                                .findAny().isPresent();
+                        if (alreadyEnrolled) {
+                            apply.setStatus(ApplicationStatus.ACCEPTED);
+                            courseApplicationRepo.saveAndFlush(apply);
+                            System.out.println("Fixed status for '" + student.getFullName() + "' in " + apply.getCourse().getShortName() + ".");
+                        }
+                    }
                     printer.printRecord(student.getEmail(),
                             apply.getCourse().getLongName(),
                             student.getFirstName(),
@@ -127,8 +144,8 @@ public class GlobalCommand implements CommandHandler {
                             apply.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                             apply.getStatus().toString());
                 }
-
                 printer.close();
+                System.out.println("Successfully exported student list.");
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -149,10 +166,10 @@ public class GlobalCommand implements CommandHandler {
                 if (course.getEnrollments().stream().count() <= 0
                         || course.getType().getGoogleSheetId() == null
                         || course.getType().getGoogleSheetId().equalsIgnoreCase("null")) {
-                    log.debug("Ignored course '" + course.getShortName() + "'.");
+                    System.out.println("Ignored course '" + course.getShortName() + "'.");
                     continue;
                 }
-                log.debug("Processing course '" + course.getShortName() + "'...");
+                System.out.println("Processing course '" + course.getShortName() + "'...");
 
                 File file = new File(globalExportPath + File.separator + course.getShortName() + "-" + date + ".csv");
 
@@ -194,7 +211,7 @@ public class GlobalCommand implements CommandHandler {
                     System.out.println("Failed to export global list.");
                 }
 
-                log.debug("Exported course '" + course.getShortName() + "'!");
+                System.out.println("Exported course '" + course.getShortName() + "'!");
             }
         }
 
@@ -213,11 +230,11 @@ public class GlobalCommand implements CommandHandler {
                         .sorted(Comparator.comparing(CourseApplication::getCreatedAt))
                         .collect(Collectors.toList());
                 if (applications.size() <= 0) {
-                    log.debug("Ignored course type '" + type.getShortName() + "'.");
+                    System.out.println("Ignored course type '" + type.getShortName() + "'.");
                     continue;
                 }
 
-                log.debug("Processing course type '" + type.getShortName() + "'...");
+                System.out.println("Processing course type '" + type.getShortName() + "'...");
                 File file = new File(globalExportPath + File.separator + type.getLongName() + " " + date + ".csv");
 
                 try (FileWriter out = new FileWriter(file)) {
@@ -253,7 +270,7 @@ public class GlobalCommand implements CommandHandler {
                     }
                     printer.close();
 
-                    log.debug("Exported course '" + type.getShortName() + "'!");
+                    System.out.println("Exported course '" + type.getShortName() + "'!");
 
                 } catch (Exception ex) {
                     ex.printStackTrace();

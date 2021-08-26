@@ -63,7 +63,7 @@ public class EmailService {
                 + "Kobling: <a href=\"https://f-vt.instructure.com/login/canvas\">f-vt.instructure.com/login/canvas</a><br/>"
                 + "Brukernavn: " + student.getEmail() + "<br/>"
                 + "Passord: " + student.getTmpPassword() + "<br/>"
-                + "Det er fint om du logger på og godtar invitasjonen.<br/>");
+                + "Det er fint om du logger på og godtar invitasjonen.<br/><br/>");
 
         if (classRoom.getSocialGroup() != null && classRoom.getSocialGroup().length() > 2) {
             sb.append("<b>Facebook</b><br/>"

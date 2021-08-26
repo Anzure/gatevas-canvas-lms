@@ -41,7 +41,7 @@ public class GoogleSheetsAPI {
     private CourseService courseService;
 
     @SneakyThrows
-    private Request updateRowColor(Integer rowIndex, int columns, int red, int green, int blue) {
+    private Request updateRowColor(int sheetId, int rowIndex, int columns, int red, int green, int blue) {
         CellFormat cellFormat = new CellFormat();
         Color color = new Color();
         color.setRed((float) red / 255f);
@@ -53,7 +53,7 @@ public class GoogleSheetsAPI {
         cellData.setUserEnteredFormat(cellFormat);
 
         GridRange gridRange = new GridRange();
-        gridRange.setSheetId(0);
+        gridRange.setSheetId(sheetId);
         gridRange.setStartRowIndex(rowIndex);
         gridRange.setEndRowIndex(rowIndex + 1);
         gridRange.setStartColumnIndex(0);
@@ -74,15 +74,27 @@ public class GoogleSheetsAPI {
     }
 
     @SneakyThrows
-    public Set<Student> processSheet(String spreadSheetId, CourseType courseType) {
+    public Set<Student> processSheet(String spreadSheetId, CourseType courseType, boolean verifyName) {
 
         long spreadSheetCount = courseService.getCourseTypes().stream()
                 .filter(type -> type.getGoogleSheetId() != null && type.getGoogleSheetId().equalsIgnoreCase(courseType.getGoogleSheetId()))
                 .count();
+        Spreadsheet spreadsheet = sheetService.spreadsheets()
+                .get(spreadSheetId)
+                .execute();
         ValueRange response = sheetService.spreadsheets().values()
                 .get(spreadSheetId, "A:Z")
                 .execute();
+        Sheet sheet = spreadsheet.getSheets().get(0);
+        SheetProperties props = sheet.getProperties();
         List<Request> colorUpdateRequests = new ArrayList<>();
+
+        // Safefy check
+        if (verifyName && !spreadsheet.getProperties().getTitle().toLowerCase().contains(courseType.getLongName().toLowerCase())) {
+            log.warn("Spreadsheet title: " + spreadsheet.getProperties().getTitle());
+            log.warn("Course type name: " + courseType.getLongName());
+            throw new Error("Safety check stopped processing spreadsheet!");
+        }
 
         // Output list
         Set<Student> students = new HashSet<Student>();
@@ -177,26 +189,22 @@ public class GoogleSheetsAPI {
                 }
 
                 // Update course applications
-                if (courseType != null) {
-                    if (spreadSheetCount == 1) {
-                        courseService.createCourseApplication(student, courseType);
-                    } else {
-                        log.warn("Duplicate check for spreadsheet in '" + courseType.getShortName() + "' failed.");
-                    }
+                if (spreadSheetCount == 1) {
+                    courseService.createCourseApplication(student, courseType);
+                } else {
+                    log.warn("Duplicate check for spreadsheet in '" + courseType.getShortName() + "' failed.");
                 }
 
                 // Update row color
-                if (courseType != null) {
-                    Optional<CourseApplication> apply = courseApplicationRepo.findByStudentAndCourse(student, courseType);
-                    if (apply.isPresent()) {
-                        ApplicationStatus status = apply.get().getStatus();
-                        if (status == ApplicationStatus.ACCEPTED || status == ApplicationStatus.FINISHED) {
-                            colorUpdateRequests.add(updateRowColor(rowIndex, header.size(), 147, 196, 125));
-                        } else if (status == ApplicationStatus.WITHDRAWN || status == ApplicationStatus.FAILED) {
-                            colorUpdateRequests.add(updateRowColor(rowIndex, header.size(), 224, 102, 102));
-                        } else {
-                            colorUpdateRequests.add(updateRowColor(rowIndex, header.size(), 255, 217, 102));
-                        }
+                Optional<CourseApplication> apply = courseApplicationRepo.findByStudentAndCourse(student, courseType);
+                if (apply.isPresent()) {
+                    ApplicationStatus status = apply.get().getStatus();
+                    if (status == ApplicationStatus.ACCEPTED || status == ApplicationStatus.FINISHED) {
+                        colorUpdateRequests.add(updateRowColor(props.getSheetId(), rowIndex, header.size(), 147, 196, 125));
+                    } else if (status == ApplicationStatus.WITHDRAWN || status == ApplicationStatus.FAILED) {
+                        colorUpdateRequests.add(updateRowColor(props.getSheetId(), rowIndex, header.size(), 224, 102, 102));
+                    } else {
+                        colorUpdateRequests.add(updateRowColor(props.getSheetId(), rowIndex, header.size(), 255, 217, 102));
                     }
                 }
 
