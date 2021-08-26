@@ -104,9 +104,6 @@ public class CourseCommand implements CommandHandler {
             System.out.print("Enter google sheet id: ");
             course.setGoogleSheetId(commandScanner.nextLine());
 
-            System.out.print("Enter communication link: ");
-            course.setCommunicationLink(commandScanner.nextLine());
-
             System.out.print("Shall social group be used? (Y/N): ");
             if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
                 System.out.print("Enter social group link: ");

@@ -20,6 +20,12 @@ import java.util.Set;
 public class CourseService {
 
     @Autowired
+    private CourseApplicationRepo courseApplicationRepo;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
+
+    @Autowired
     private CourseRepo courseRepo;
 
     @Autowired
@@ -28,12 +34,7 @@ public class CourseService {
     @Autowired
     private GoogleSheetIntegration googleSheetIntegration;
 
-    /**
-     * Imports students from online Google Sheets
-     *
-     * @param course Course to import for
-     * @return May be populated with a list of imported students
-     */
+    // Imports students from online Google Sheets
     public Optional<Set<Student>> importStudents(Classroom course) {
         try {
             Set<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId(), course.getType());
@@ -44,21 +45,12 @@ public class CourseService {
         }
     }
 
-    /**
-     * Saves changes for course to storage
-     *
-     * @param course Course to save
-     */
+    // Saves changes for course to storage
     public void saveChanges(Classroom course) {
         courseRepo.saveAndFlush(course);
     }
 
-    /**
-     * Creates a new course in storage
-     *
-     * @param course Course to create
-     * @return Newly created course
-     */
+    // Creates a new course in storage
     public Classroom addCourse(Classroom course) {
         course.setCanvasStatus(CanvasStatus.UNKNOWN);
         course = courseRepo.saveAndFlush(course);
@@ -66,53 +58,29 @@ public class CourseService {
         return course;
     }
 
-    /**
-     * Deletes a course from storage
-     *
-     * @param course Course to remove
-     */
+    // Deletes a course from storage
     public void removeCourse(Classroom course) {
         log.info("DELETE COURSE -> " + course.toString());
         courseRepo.delete(course);
     }
 
-    /**
-     * Find all courses
-     *
-     * @return A list of all courses
-     */
+    // Find all courses
     public List<Classroom> getAllCourses() {
         return courseRepo.findAll();
     }
 
-    /**
-     * Gets course from storage
-     *
-     * @param name Search by course name
-     * @return May be populated with an existing course
-     */
+    // Gets course from storage
     public Optional<Classroom> getCourse(String name) {
         return getAllCourses().stream()
                 .filter(course -> course.getShortName().equalsIgnoreCase(name) || course.getLongName().equalsIgnoreCase(name))
                 .findFirst();
     }
 
-    /**
-     * Gets course type from storage
-     *
-     * @param name Search by course type name
-     * @return Is null if no result was found
-     */
+    // Gets course type from storage
     public Optional<CourseType> getCourseType(String name) {
         return Optional.ofNullable(courseTypeRepo.findByShortName(name)
                 .orElse(courseTypeRepo.findByLongName(name).orElse(null)));
     }
-
-    @Autowired
-    private CourseApplicationRepo courseApplicationRepo;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
 
     public List<CourseType> getCourseTypes() {
         return courseTypeRepo.findAll();
@@ -138,9 +106,8 @@ public class CourseService {
                     apply.setStatus(ApplicationStatus.ACCEPTED);
                 }
             }
-
         }
-
         return courseApplicationRepo.saveAndFlush(apply);
     }
+
 }

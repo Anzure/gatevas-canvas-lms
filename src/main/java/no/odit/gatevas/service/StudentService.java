@@ -34,15 +34,7 @@ public class StudentService {
     @Autowired
     private CanvasService canvasService;
 
-    /**
-     * Creates a new student or get existing
-     *
-     * @param email     Email address
-     * @param firstName First name
-     * @param lastName  Last name
-     * @param phoneNum  Phone number
-     * @return New or existing student
-     */
+    // Creates a new student or get existing
     public Student createStudent(String email, String firstName, String lastName, Integer phoneNum) {
 
         // Return existing student (email)
@@ -76,13 +68,7 @@ public class StudentService {
         return student;
     }
 
-    /**
-     * Exports students in course to a CSV file
-     *
-     * @param course Course to export students from
-     * @param file   File path in OS
-     * @return Returns true if operation was successful
-     */
+    // Exports students in course to a CSV file
     public boolean exportStudentsToCSV(Classroom course, File file) {
 
         // Sync students
@@ -113,43 +99,24 @@ public class StudentService {
         }
     }
 
-    /**
-     * Save student to storage
-     *
-     * @param student Student to save
-     */
+    // Save student to storage
     public void saveChanges(Student student) {
         studentRepo.saveAndFlush(student);
     }
 
-    /**
-     * Get student from storage by names
-     *
-     * @param firstName First name
-     * @param lastName  Last name
-     * @return Empty Optional or populated with existing Student
-     */
+    // Get student from storage by names
     public Optional<Student> getUserByName(String firstName, String lastName) {
         return studentRepo.findByFirstNameAndLastName(firstName.trim(), lastName.trim());
     }
 
-    /**
-     * Get student from storage by email
-     *
-     * @param email Email address
-     * @return Empty Optional or populated with existing Student
-     */
+    // Get student from storage by email
     public Optional<Student> getUserByEmail(String email) {
         return studentRepo.findByEmail(email.trim());
     }
 
-    /**
-     * Get student from storage by full name
-     *
-     * @param fullName Given name and surname
-     * @return Empty Optional or populated with existing Student
-     */
+    //Get student from storage by full name
     public Optional<Student> getUserByFullName(String fullName) {
         return studentRepo.findByFullname(fullName.trim());
     }
+
 }

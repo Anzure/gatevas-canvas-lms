@@ -11,6 +11,7 @@ import edu.ksu.canvas.requestOptions.GetSingleCourseOptions;
 import edu.ksu.canvas.requestOptions.GetUsersInAccountOptions;
 import edu.ksu.canvas.requestOptions.ListRolesOptions;
 import lombok.extern.slf4j.Slf4j;
+import no.odit.gatevas.misc.CanvasAPI;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 public class CanvasService {
 
     @Autowired
-    private ApiService apiService;
+    private CanvasAPI canvasAPI;
 
     @Autowired
     private CourseService courseService;
@@ -39,18 +40,13 @@ public class CanvasService {
     @Autowired
     private EnrollmentService enrollmentService;
 
-    /**
-     * Add students to course in Canvas LMS.
-     *
-     * @param classRoom Course that students shall join
-     * @return Whenever the enrollment fails or not
-     */
+    // Add students to course in Canvas LMS.
     public boolean enrollStudents(Classroom classRoom) {
         try {
 
             // Authenticate with API
-            OauthToken oauthToken = apiService.getOauthToken();
-            CanvasApiFactory apiFactory = apiService.getApiFactory();
+            OauthToken oauthToken = canvasAPI.getOauthToken();
+            CanvasApiFactory apiFactory = canvasAPI.getApiFactory();
 
             // Test connection
             AccountReader acctReader = apiFactory.getReader(AccountReader.class, oauthToken);
@@ -84,7 +80,6 @@ public class CanvasService {
 
                 // Find user in Canvas LMS and continue if success
                 getUser(userReader, student).ifPresentOrElse(user -> {
-
                     try {
 
                         // Enroll user in Canvas LMS
@@ -95,20 +90,16 @@ public class CanvasService {
                         enroll.setCourseId(roomLink.getCourse().getCanvasId());
                         enroll.setRole("student");
                         enrollmentWriter.enrollUserInCourse(enroll).ifPresentOrElse(result -> {
-
                             // Successful enrollment
                             roomLink.setCanvasId(result.getId());
                             roomLink.setCanvasStatus(CanvasStatus.EXISTS);
                             enrollmentService.saveChanges(roomLink);
                             log.debug("Enrolled '" + name + "' to '" + classRoom.getShortName() + "'.");
-
                         }, () -> {
-
                             // Failed to enroll user to Canvas course
                             roomLink.setCanvasStatus(CanvasStatus.MISSING);
                             enrollmentService.saveChanges(roomLink);
                             log.warn("Failed to enroll '" + name + "'.");
-
                         });
 
                     } catch (Exception ex) {
@@ -124,7 +115,6 @@ public class CanvasService {
                     enrollmentService.saveChanges(roomLink);
                     log.warn("Could not find '" + name + "', and was thereby not enrolled to '" + classRoom.getShortName() + "'.");
                 });
-
             }
             return true;
 
@@ -135,12 +125,7 @@ public class CanvasService {
         }
     }
 
-    /**
-     * Synchronizes users in course with Canvas LMS.
-     *
-     * @param classRoom Course that shall be synchronized
-     * @return Whenever the synchronization fails or not
-     */
+    // Synchronizes users in course with Canvas LMS.
     public boolean syncUsersReadOnly(Classroom classRoom) {
 
         try {
@@ -150,8 +135,8 @@ public class CanvasService {
             if (students.isEmpty()) return true;
 
             // Authenticate with API
-            OauthToken oauthToken = apiService.getOauthToken();
-            CanvasApiFactory apiFactory = apiService.getApiFactory();
+            OauthToken oauthToken = canvasAPI.getOauthToken();
+            CanvasApiFactory apiFactory = canvasAPI.getApiFactory();
 
             // Test connection
             AccountReader acctReader = apiFactory.getReader(AccountReader.class, oauthToken);
@@ -169,12 +154,10 @@ public class CanvasService {
 
                 // Find user in Canvas LMS and continue if success
                 getUser(userReader, student).ifPresentOrElse(user -> {
-
                     // Update user status
                     student.setCanvasStatus(CanvasStatus.EXISTS);
                     student.setCanvasId(user.getId());
                     studentService.saveChanges(student);
-
                 }, () -> {
                     // Update user status
                     student.setCanvasStatus(CanvasStatus.MISSING);
@@ -183,27 +166,20 @@ public class CanvasService {
             }
             return true;
 
-
         } catch (IOException ex) {
             // Connection or authentication error
             log.error("Failed to connect to Canvas LMS API.", ex);
             return false;
         }
-
     }
 
-    /**
-     * Synchronizes local course data with Canvas LMS.
-     *
-     * @param classRoom Course that shall be synchronized
-     * @return Whenever the synchronization fails or not
-     */
+    // Synchronizes local course data with Canvas LMS.
     public boolean syncCourseReadOnly(Classroom classRoom) {
         try {
 
             // Authenticate with API
-            OauthToken oauthToken = apiService.getOauthToken();
-            CanvasApiFactory apiFactory = apiService.getApiFactory();
+            OauthToken oauthToken = canvasAPI.getOauthToken();
+            CanvasApiFactory apiFactory = canvasAPI.getApiFactory();
 
             // Test connection
             AccountReader acctReader = apiFactory.getReader(AccountReader.class, oauthToken);
@@ -219,23 +195,18 @@ public class CanvasService {
 
             // Search for course and continue if success
             courseReader.getSingleCourse(courseOptions).ifPresentOrElse(course -> {
-
                 // Update locally stored course data
                 classRoom.setCanvasStatus(CanvasStatus.EXISTS);
                 classRoom.setCanvasId(course.getId());
                 courseService.saveChanges(classRoom);
                 log.debug("Found '" + classRoom.getShortName() + "' in Canvas. Local status updated to EXISTS.");
-
             }, () -> {
-
                 // Fails to find course and mark it as missing
                 classRoom.setCanvasStatus(CanvasStatus.MISSING);
                 courseService.saveChanges(classRoom);
                 log.warn("Could not find '" + classRoom.getShortName() + "' in Canvas. Local status updated to MISSING.");
-
             });
             return true;
-
 
         } catch (IOException ex) {
             // Connection or authentication error
@@ -244,14 +215,7 @@ public class CanvasService {
         }
     }
 
-    /**
-     * Search for user in Canvas LMS.
-     *
-     * @param userReader Authenticated UserReader object
-     * @param student    Student that shall be search after
-     * @return Empty or populated with User object
-     * @throws IOException Fails to connect to Canvas LMS API
-     */
+    // Search for user in Canvas LMS.
     public Optional<User> getUser(UserReader userReader, Student student) throws IOException {
 
         // Search for user in Canvas LMS with name

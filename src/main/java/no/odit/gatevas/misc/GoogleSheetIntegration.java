@@ -1,9 +1,10 @@
 package no.odit.gatevas.misc;
 
 import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.api.services.sheets.v4.model.*;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.Student;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -37,13 +35,40 @@ public class GoogleSheetIntegration {
     @Autowired
     private CourseService courseService;
 
-    /**
-     * Import students from online Google Spreadsheet
-     *
-     * @param spreadSheetId Google Spreadsheets document identifier
-     * @return List of created and existing students
-     * @throws IOException Failed to connect to Google API
-     */
+    @SneakyThrows
+//    @PostConstruct
+    public void test() {
+        List<Request> requestList = new ArrayList<>();
+
+        CellFormat cellFormat = new CellFormat(); //setting cell color
+        Color color = new Color();
+        color.setRed(246f);
+        color.setGreen(178f);
+        color.setBlue(107f);
+
+        cellFormat.setBackgroundColor(color);
+
+        CellData cellData = new CellData();
+        cellData.setUserEnteredFormat(cellFormat);
+
+        GridRange gridRange = new GridRange(); //setting grid that we will paint
+        gridRange.setSheetId(0); //you can find it in your URL - param "gid"
+        gridRange.setStartRowIndex(0);
+        gridRange.setEndRowIndex(1);
+        gridRange.setStartColumnIndex(0);
+        gridRange.setEndColumnIndex(14);
+
+        requestList.add(new Request().setRepeatCell(new RepeatCellRequest().setCell(cellData).setRange(gridRange).setFields("userEnteredFormat.backgroundColor")));
+
+        BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
+        batchUpdateSpreadsheetRequest.setRequests(requestList);
+
+        final Sheets.Spreadsheets.BatchUpdate batchUpdate = sheetService.
+                spreadsheets().batchUpdate("1AA6jGM8nsXVDMEEsm7z-IOV51-QnHWBQtKjLXLw00VU", batchUpdateSpreadsheetRequest);
+
+        batchUpdate.execute();
+    }
+
     public Set<Student> processSheet(String spreadSheetId, CourseType courseType) throws IOException {
 
         long spreadSheetCount = courseService.getCourseTypes().stream()
@@ -121,9 +146,7 @@ public class GoogleSheetIntegration {
                             birthDay = split[0] + "." + split[1] + ".19" + split[2];
                         }
                         LocalDate birthDate = LocalDate.parse(birthDay, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                        if (birthDate.isBefore(LocalDate.now().minusYears(90)) || birthDate.isAfter(LocalDate.now().minusYears(15))) {
-                            birthDate = null;
-                        } else {
+                        if (!birthDate.isBefore(LocalDate.now().minusYears(90)) && !birthDate.isAfter(LocalDate.now().minusYears(15))) {
                             student.setBirthDate(birthDate);
                             studentService.saveChanges(student);
                         }
@@ -132,11 +155,9 @@ public class GoogleSheetIntegration {
                     }
 
                     // Update home address
-                    String streetAddress = null;
-                    String cityZipCode = null;
                     try {
-                        streetAddress = row.get(header.get("street_address"));
-                        cityZipCode = row.get(header.get("city_zipcode"));
+                        String streetAddress = row.get(header.get("street_address"));
+                        String cityZipCode = row.get(header.get("city_zipcode"));
                         String cityName = cityZipCode.replaceAll("[^A-Za-z]", "");
                         Integer zipCode = Integer.parseInt(cityZipCode.replaceAll("[^\\d.]", ""));
                         homeAddressService.updateHomeAddress(student, streetAddress, zipCode, cityName);

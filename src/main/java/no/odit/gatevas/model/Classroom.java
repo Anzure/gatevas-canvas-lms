@@ -35,10 +35,6 @@ public class Classroom {
     @Column
     private String socialGroup;
 
-    @Deprecated
-    @Column(nullable = false)
-    private String communicationLink;
-
     @Column(nullable = false)
     private String googleSheetId;
 
@@ -74,8 +70,8 @@ public class Classroom {
 
     @Override
     public String toString() {
-        return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup + ", communicationLink="
-                + communicationLink + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
+        return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup
+                + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
                 + ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
     }
 

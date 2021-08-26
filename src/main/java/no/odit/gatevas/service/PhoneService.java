@@ -38,12 +38,7 @@ public class PhoneService {
     @Autowired
     private CanvasService canvasService;
 
-    /**
-     * Creates a Phone and saves to storage
-     *
-     * @param phoneNumber Phone number
-     * @return Newly created Phone
-     */
+    // Creates a Phone and saves to storage
     public Phone createPhone(Integer phoneNumber) {
 
         if (phoneNumber == null || phoneNumber == 0) return null;
@@ -57,48 +52,31 @@ public class PhoneService {
         return phone;
     }
 
-    /**
-     * Sends SMS to students in course with enrollment details
-     *
-     * @param classRoom Course with students to send enrollment details to
-     * @return Returns true if operation was successful
-     */
+    // Sends SMS to students in course with enrollment details
     public boolean sendSMS(Classroom classRoom) {
 
         canvasService.syncUsersReadOnly(classRoom);
 
         for (RoomLink enrollment : classRoom.getEnrollments()) {
-
             if (enrollment.getTextSent()) {
                 continue;
             }
-
             Student student = enrollment.getStudent();
             if (student.getCanvasStatus() != CanvasStatus.EXISTS) {
                 continue;
             }
-
             if (enrollment.getCanvasStatus() != CanvasStatus.EXISTS) {
                 continue;
             }
 
             enrollment.setTextSent(true);
             enrollmentService.saveChanges(enrollment);
-
             sendSMS(classRoom, student, false);
-
         }
         return true;
     }
 
-    /**
-     * Sends SMS to student in course with enrollment details
-     *
-     * @param classRoom Course to send details about
-     * @param student   Student to send enrollment details to
-     * @param isTest    Whenever this was a test or not
-     * @return Returns true if operation was successful
-     */
+    // Sends SMS to student in course with enrollment details
     public boolean sendSMS(Classroom classRoom, Student student, boolean isTest) {
         try {
 

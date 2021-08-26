@@ -1,7 +1,5 @@
 package no.odit.gatevas.misc;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Random;
 
 public class GeneralUtil {
@@ -18,8 +16,4 @@ public class GeneralUtil {
         return password;
     }
 
-    public static String getDate() {
-        Calendar cal = Calendar.getInstance();
-        return new SimpleDateFormat("MMMM d (HH-mm-ss)").format(cal.getTime());
-    }
 }

@@ -13,17 +13,13 @@ public class HomeAddressService {
     private HomeAddressRepo homeAddressRepo;
 
     public void updateHomeAddress(Student student, String streetAddress, int zipCode, String city) {
-
         homeAddressRepo.findByStudent(student).ifPresentOrElse(address -> {
-
             // Update current home address
             address.setCity(city);
             address.setZipCode(zipCode);
             address.setStreetAddress(streetAddress);
             homeAddressRepo.saveAndFlush(address);
-
         }, () -> {
-
             // Create new home address
             HomeAddress address = HomeAddress.builder()
                     .student(student)
@@ -31,11 +27,8 @@ public class HomeAddressService {
                     .zipCode(zipCode)
                     .city(city)
                     .build();
-
             homeAddressRepo.saveAndFlush(address);
-
         });
-
     }
 
 }

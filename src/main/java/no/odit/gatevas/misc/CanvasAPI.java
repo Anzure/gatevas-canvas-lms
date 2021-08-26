@@ -1,14 +1,14 @@
-package no.odit.gatevas.service;
+package no.odit.gatevas.misc;
 
 import edu.ksu.canvas.CanvasApiFactory;
 import edu.ksu.canvas.oauth.OauthToken;
 import edu.ksu.canvas.oauth.OauthTokenRefresher;
 import edu.ksu.canvas.oauth.RefreshableOauthToken;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class ApiService {
+@Component
+public class CanvasAPI {
 
     @Value("${canvas_lms.client_id}")
     private String clientId;
@@ -25,22 +25,12 @@ public class ApiService {
     @Value("${canvas_lms.base_url}")
     private String canvasBaseUrl;
 
-    /**
-     * Gets active oauth token
-     *
-     * @return Refreshed oauth token
-     */
     public OauthToken getOauthToken() {
         OauthTokenRefresher tokenRefresher = new OauthTokenRefresher(clientId, clientSecret, canvasBaseUrl);
         OauthToken oauthToken = new RefreshableOauthToken(tokenRefresher, refreshToken);
         return oauthToken;
     }
 
-    /**
-     * Gets current Canvas API factory
-     *
-     * @return Connected Canvas API factory
-     */
     public CanvasApiFactory getApiFactory() {
         CanvasApiFactory apiFactory = new CanvasApiFactory(canvasBaseUrl);
         return apiFactory;

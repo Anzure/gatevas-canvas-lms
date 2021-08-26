@@ -28,13 +28,6 @@ public class EmailSender {
     @Value("${mail.smtp.contact.name}")
     private String contactName;
 
-    /**
-     * Send HTML formatted email.
-     *
-     * @param to      Receiving email address
-     * @param subject Title of email
-     * @param text    HTML formatted message
-     */
     public void sendSimpleMessage(String to, String subject, String text) {
         try {
 
@@ -54,4 +47,5 @@ public class EmailSender {
             log.warn("Failed to send email to " + to + ".", ex);
         }
     }
+
 }

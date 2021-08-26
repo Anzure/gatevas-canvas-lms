@@ -27,11 +27,7 @@ public class EmailService {
     @Autowired
     private CanvasService canvasService;
 
-    /**
-     * Sends email to students in course with login and information.
-     *
-     * @param classRoom Course that members shall be informed
-     */
+    // Sends email to students in course with login and information.
     public void sendEmail(Classroom classRoom) {
 
         canvasService.syncUsersReadOnly(classRoom);
@@ -41,31 +37,21 @@ public class EmailService {
             if (enrollment.getEmailSent()) {
                 continue;
             }
-
             Student student = enrollment.getStudent();
             if (student.getCanvasStatus() != CanvasStatus.EXISTS) {
                 continue;
             }
-
             if (enrollment.getCanvasStatus() != CanvasStatus.EXISTS) {
                 continue;
             }
 
             enrollment.setEmailSent(true);
             enrollmentService.saveChanges(enrollment);
-
             sendEmail(classRoom, student, false);
-
         }
     }
 
-    /**
-     * Send email with login and information to student.
-     *
-     * @param classRoom Course that is relevant for email
-     * @param student   Student that will receive email
-     * @param isTest    If it shall be a test.
-     */
+    // Send email with login and information to student.
     public void sendEmail(Classroom classRoom, Student student, boolean isTest) {
 
         String email = isTest ? contactEmail : student.getEmail();
@@ -75,19 +61,9 @@ public class EmailService {
         sb.append("<b>Læringsplattform</b><br/>"
                 + "Bruk følgende detaljer for å logge på Canvas.<br/>"
                 + "Kobling: <a href=\"https://f-vt.instructure.com/login/canvas\">f-vt.instructure.com/login/canvas</a><br/>"
-                + "Brukernavn: " + student.getEmail() + "<br/>");
-
-        if (student.getExportedToCSV() && !student.getLoginInfoSent()) {
-            sb.append("Passord: " + student.getTmpPassword() + "<br/>");
-            if (!isTest) {
-                student.setLoginInfoSent(true);
-                studentSerivce.saveChanges(student);
-            }
-        } else {
-            sb.append("Passord: " + student.getTmpPassword() + "<br/>");
-            sb.append("<i>Om du har bruker fra før, må du kanskje benytte det forrige passordet istedet.</i><br/>");
-        }
-        sb.append("<br/>");
+                + "Brukernavn: " + student.getEmail() + "<br/>"
+                + "Passord: " + student.getTmpPassword() + "<br/>"
+                + "Det er fint om du logger på og godtar invitasjonen.<br/>");
 
         if (classRoom.getSocialGroup() != null && classRoom.getSocialGroup().length() > 2) {
             sb.append("<b>Facebook</b><br/>"
@@ -108,4 +84,5 @@ public class EmailService {
 
         emailSender.sendSimpleMessage(email, "Fagskolen " + classRoom.getShortName(), sb.toString());
     }
+
 }

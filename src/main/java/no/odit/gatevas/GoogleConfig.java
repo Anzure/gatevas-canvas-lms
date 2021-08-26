@@ -45,7 +45,7 @@ public class GoogleConfig {
     public Credential getCredentials() throws IOException, GeneralSecurityException {
 
         String CREDENTIALS_FILE_PATH = "client_secret.json";
-        List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+        List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
         String TOKENS_DIRECTORY_PATH = "tokens";
 
         // Load client secrets.

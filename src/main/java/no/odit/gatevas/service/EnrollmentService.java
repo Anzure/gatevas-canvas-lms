@@ -21,13 +21,7 @@ public class EnrollmentService {
     @Autowired
     private EnrollmentRepo enrollmentRepo;
 
-    /**
-     * Enrolls students to a course (in storage)
-     *
-     * @param students Student to enroll
-     * @param course   Course to enroll students in
-     * @return A list of created enrollments
-     */
+    // Enrolls students to a course (in storage)
     public List<RoomLink> enrollStudent(Set<Student> students, Classroom course) {
 
         List<RoomLink> enrollments = new ArrayList<RoomLink>();
@@ -39,22 +33,12 @@ public class EnrollmentService {
         return enrollments;
     }
 
-    /**
-     * Saves changes in enrollment to storage
-     *
-     * @param roomLink Enrollment to save
-     */
+    // Saves changes in enrollment to storage
     public void saveChanges(RoomLink roomLink) {
         enrollmentRepo.saveAndFlush(roomLink);
     }
 
-    /**
-     * Crates a new enrollment for student
-     *
-     * @param student Student to enroll
-     * @param course  Course to enroll student in
-     * @return Newly created enrollment
-     */
+    // Crates a new enrollment for student
     public RoomLink createEnrollment(Student student, Classroom course) {
 
         // Existing enrollment
@@ -76,14 +60,9 @@ public class EnrollmentService {
         return enrollment;
     }
 
-    /**
-     * Gets enrollment from storage
-     *
-     * @param student Student to search by
-     * @param course  Course to search in
-     * @return Empty Optional or populated with existing enrollment
-     */
+    // Gets enrollment from storage
     public Optional<RoomLink> getEnrollment(Student student, Classroom course) {
         return enrollmentRepo.findByStudentAndCourse(student, course);
     }
+
 }
