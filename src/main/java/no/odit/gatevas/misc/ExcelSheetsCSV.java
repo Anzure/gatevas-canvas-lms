@@ -11,16 +11,9 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class SheetGeneratorCSV {
+public class ExcelSheetsCSV {
 
-    /**
-     * Creates user CSV file in Canvas SIS format.
-     * This file is used to import users to Canvas LMS.
-     *
-     * @param outputFile Output file for CSV
-     * @param students   Non-existing students to include
-     * @throws IOException Fails to write file
-     */
+    // Creates user import CSV file in Canvas SIS format
     public void createCSVFile(File outputFile, List<Student> students) throws IOException {
         String[] headers = {"user_id", "password", "first_name", "last_name", "email", "login_id", "status"};
         FileWriter out = new FileWriter(outputFile);

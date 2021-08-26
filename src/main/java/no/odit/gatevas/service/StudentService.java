@@ -2,8 +2,8 @@ package no.odit.gatevas.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.StudentRepo;
+import no.odit.gatevas.misc.ExcelSheetsCSV;
 import no.odit.gatevas.misc.GeneralUtil;
-import no.odit.gatevas.misc.SheetGeneratorCSV;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
@@ -29,7 +29,7 @@ public class StudentService {
     private PhoneService phoneService;
 
     @Autowired
-    private SheetGeneratorCSV sheetGeneratorCSV;
+    private ExcelSheetsCSV excelSheetsCSV;
 
     @Autowired
     private CanvasService canvasService;
@@ -91,7 +91,7 @@ public class StudentService {
 
         // Create CSV file
         try {
-            sheetGeneratorCSV.createCSVFile(file, students);
+            excelSheetsCSV.createCSVFile(file, students);
             return true;
         } catch (IOException e) {
             log.error("Failed to create CSV file.", e);

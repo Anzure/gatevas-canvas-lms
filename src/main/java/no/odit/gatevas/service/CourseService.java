@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.CourseTypeRepo;
-import no.odit.gatevas.misc.GoogleSheetIntegration;
+import no.odit.gatevas.misc.GoogleSheetsAPI;
 import no.odit.gatevas.model.*;
 import no.odit.gatevas.type.ApplicationStatus;
 import no.odit.gatevas.type.CanvasStatus;
@@ -32,12 +32,12 @@ public class CourseService {
     private CourseTypeRepo courseTypeRepo;
 
     @Autowired
-    private GoogleSheetIntegration googleSheetIntegration;
+    private GoogleSheetsAPI googleSheetsAPI;
 
     // Imports students from online Google Sheets
     public Optional<Set<Student>> importStudents(Classroom course) {
         try {
-            Set<Student> students = googleSheetIntegration.processSheet(course.getGoogleSheetId(), course.getType());
+            Set<Student> students = googleSheetsAPI.processSheet(course.getGoogleSheetId(), course.getType());
             return Optional.of(students);
         } catch (Exception ex) {
             log.error("Failed to import students.", ex);

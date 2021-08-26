@@ -5,7 +5,7 @@ import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.HomeAddressRepo;
-import no.odit.gatevas.misc.GoogleSheetIntegration;
+import no.odit.gatevas.misc.GoogleSheetsAPI;
 import no.odit.gatevas.model.*;
 import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.type.ApplicationStatus;
@@ -37,7 +37,7 @@ public class GlobalCommand implements CommandHandler {
     private Scanner commandScanner;
 
     @Autowired
-    private GoogleSheetIntegration googleSheetIntegration;
+    private GoogleSheetsAPI googleSheetsAPI;
 
     @Autowired
     private CourseApplicationRepo courseApplicationRepo;
@@ -75,7 +75,7 @@ public class GlobalCommand implements CommandHandler {
                     CourseType courseType = entry.getValue();
                     String googleSpreadSheetId = entry.getKey();
                     try {
-                        Set<Student> students = googleSheetIntegration.processSheet(googleSpreadSheetId, courseType);
+                        Set<Student> students = googleSheetsAPI.processSheet(googleSpreadSheetId, courseType);
                         System.out.println("Successfully processed " + students.size() + " students.");
 
                     } catch (Exception ex) {
@@ -100,8 +100,8 @@ public class GlobalCommand implements CommandHandler {
             if (status == null) applications = courseApplicationRepo.findAll();
             else applications = courseApplicationRepo.findByStatus(status);
             applications = applications.stream()
-                    .sorted((e1, e2) -> e1.getCreatedAt().compareTo(e2.getCreatedAt()))
-                    .sorted((e1, e2) -> e1.getCourse().getShortName().compareTo(e2.getCourse().getShortName()))
+                    .sorted(Comparator.comparing(CourseApplication::getCreatedAt))
+                    .sorted(Comparator.comparing(e -> e.getCourse().getShortName()))
                     .collect(Collectors.toList());
 
             String typeName = status != null ? status.toString().toLowerCase() : "all";
