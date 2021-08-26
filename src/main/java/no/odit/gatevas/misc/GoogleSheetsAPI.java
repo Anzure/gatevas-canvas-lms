@@ -40,12 +40,13 @@ public class GoogleSheetsAPI {
     @Autowired
     private CourseService courseService;
 
-    public Request updateRowColor(Integer rowIndex, float red, float green, float blue) {
+    @SneakyThrows
+    private Request updateRowColor(Integer rowIndex, int columns, int red, int green, int blue) {
         CellFormat cellFormat = new CellFormat();
         Color color = new Color();
-        color.setRed(red);
-        color.setGreen(green);
-        color.setBlue(blue);
+        color.setRed((float) red / 255f);
+        color.setGreen((float) green / 255f);
+        color.setBlue((float) blue / 255f);
         cellFormat.setBackgroundColor(color);
 
         CellData cellData = new CellData();
@@ -56,7 +57,7 @@ public class GoogleSheetsAPI {
         gridRange.setStartRowIndex(rowIndex);
         gridRange.setEndRowIndex(rowIndex + 1);
         gridRange.setStartColumnIndex(0);
-        gridRange.setEndColumnIndex(12);
+        gridRange.setEndColumnIndex(columns);
 
         return new Request().setRepeatCell(new RepeatCellRequest()
                 .setCell(cellData)
@@ -65,7 +66,7 @@ public class GoogleSheetsAPI {
     }
 
     @SneakyThrows
-    public void updateSheetColors(String spreadSheetId, List<Request> requests) {
+    private void updateSheetColors(String spreadSheetId, List<Request> requests) {
         BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
         batchUpdateSpreadsheetRequest.setRequests(requests);
         Sheets.Spreadsheets.BatchUpdate batchUpdate = sheetService.spreadsheets().batchUpdate(spreadSheetId, batchUpdateSpreadsheetRequest);
@@ -190,11 +191,11 @@ public class GoogleSheetsAPI {
                     if (apply.isPresent()) {
                         ApplicationStatus status = apply.get().getStatus();
                         if (status == ApplicationStatus.ACCEPTED || status == ApplicationStatus.FINISHED) {
-                            colorUpdateRequests.add(updateRowColor(rowIndex, 0.76f, 0.153f, 0.0f));
+                            colorUpdateRequests.add(updateRowColor(rowIndex, header.size(), 147, 196, 125));
                         } else if (status == ApplicationStatus.WITHDRAWN || status == ApplicationStatus.FAILED) {
-                            colorUpdateRequests.add(updateRowColor(rowIndex, 255, 51, 51));
+                            colorUpdateRequests.add(updateRowColor(rowIndex, header.size(), 224, 102, 102));
                         } else {
-                            colorUpdateRequests.add(updateRowColor(rowIndex, 255, 255, 102));
+                            colorUpdateRequests.add(updateRowColor(rowIndex, header.size(), 255, 217, 102));
                         }
                     }
                 }
