@@ -65,7 +65,8 @@ public class PhoneService {
             if (student.getCanvasStatus() != CanvasStatus.EXISTS) {
                 continue;
             }
-            if (enrollment.getCanvasStatus() != CanvasStatus.EXISTS) {
+            if (enrollment.getCanvasStatus() != CanvasStatus.EXISTS
+                    && enrollment.getCourse().getCanvasStatus() != CanvasStatus.IGNORE) {
                 continue;
             }
 

@@ -126,6 +126,8 @@ public class GoogleSheetsAPI {
                         raw = "first_name";
                     else if (raw.startsWith("etternavn"))
                         raw = "last_name";
+                    else if (raw.startsWith("navn"))
+                        raw = "full_name";
                     else if (raw.startsWith("jeg melder meg p"))
                         raw = "course_type";
                     else if (raw.startsWith("fødselsdato"))
@@ -142,8 +144,10 @@ public class GoogleSheetsAPI {
             else {
 
                 // Update student information
-                String firstName = row.get(header.get("first_name"));
-                String lastName = row.get(header.get("last_name"));
+                String firstName = header.containsKey("first_name") ? row.get(header.get("first_name"))
+                        : row.get(header.get("full_name")).split(" ")[0];
+                String lastName = header.containsKey("last_name") ? row.get(header.get("last_name"))
+                        : row.get(header.get("full_name")).replaceFirst(firstName, "");
                 String email = row.get(header.get("email"));
                 String phoneInput = row.get(header.get("phone"));
                 Integer phoneNum = null;

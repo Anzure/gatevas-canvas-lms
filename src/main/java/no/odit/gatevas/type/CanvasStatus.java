@@ -4,6 +4,7 @@ public enum CanvasStatus {
 
 	UNKNOWN,
 	MISSING,
+	IGNORE,
 	EXISTS;
 
 }
