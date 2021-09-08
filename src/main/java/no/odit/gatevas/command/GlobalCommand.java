@@ -101,10 +101,12 @@ public class GlobalCommand implements CommandHandler {
             ApplicationStatus status = null;
             if (!statusInput.equalsIgnoreCase("all")) status = ApplicationStatus.valueOf(statusInput);
 
-            List<CourseApplication> applications = null;
+            List<CourseApplication> applications;
             if (status == null) applications = courseApplicationRepo.findAll();
             else applications = courseApplicationRepo.findByStatus(status);
             applications = applications.stream()
+                    .filter(apply -> apply.getCourse().getGoogleSheetId() != null)
+                    .filter(apply -> !apply.getCourse().getGoogleSheetId().equalsIgnoreCase("null"))
                     .sorted(Comparator.comparing(CourseApplication::getCreatedAt))
                     .sorted(Comparator.comparing(e -> e.getCourse().getShortName()))
                     .collect(Collectors.toList());

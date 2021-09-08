@@ -46,7 +46,7 @@ public class GoogleConfig {
 
         String CREDENTIALS_FILE_PATH = "client_secret.json";
         List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-        String TOKENS_DIRECTORY_PATH = "tokens";
+        String TOKENS_DIRECTORY_PATH = "gatevas-canvas-lms/tokens";
 
         // Load client secrets.
         InputStream in = new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream();
