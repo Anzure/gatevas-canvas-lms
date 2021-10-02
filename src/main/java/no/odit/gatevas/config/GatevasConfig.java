@@ -1,4 +1,4 @@
-package no.odit.gatevas;
+package no.odit.gatevas.config;
 
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.command.CourseCommand;

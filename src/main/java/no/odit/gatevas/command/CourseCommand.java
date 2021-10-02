@@ -360,12 +360,6 @@ public class CourseCommand implements CommandHandler {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
                 String date = dateFormat.format(new Date());
 
-                if (course.getEnrollments().stream().count() <= 0
-                        || course.getType().getGoogleSheetId() == null
-                        || course.getType().getGoogleSheetId().equalsIgnoreCase("null")) {
-                    log.error("Ignored course '" + course.getShortName() + "'.");
-                    return;
-                }
                 log.info("Processing course '" + course.getShortName() + "'...");
 
                 File file = new File(globalExportPath + File.separator + course.getShortName() + "-" + date + ".csv");

@@ -1,4 +1,4 @@
-package no.odit.gatevas;
+package no.odit.gatevas.config;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -17,10 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +43,8 @@ public class GoogleConfig {
 
         String CREDENTIALS_FILE_PATH = "client_secret.json";
         List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-        String TOKENS_DIRECTORY_PATH = "gatevas-canvas-lms/tokens";
+        File TOKENS_DIRECTORY_PATH = new File(System.getProperty("java.io.tmpdir") + File.separator
+                + "gatevas-canvas-lms" + File.separator + "tokens");
 
         // Load client secrets.
         InputStream in = new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream();
@@ -58,7 +56,7 @@ public class GoogleConfig {
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 netHttpTransport(), jacksonFactory(), clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setDataStoreFactory(new FileDataStoreFactory(TOKENS_DIRECTORY_PATH))
                 .setAccessType("offline")
                 .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();

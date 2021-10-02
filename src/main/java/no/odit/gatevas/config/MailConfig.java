@@ -1,4 +1,4 @@
-package no.odit.gatevas;
+package no.odit.gatevas.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
