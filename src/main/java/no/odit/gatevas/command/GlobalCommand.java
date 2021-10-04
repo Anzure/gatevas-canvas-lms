@@ -3,6 +3,7 @@ package no.odit.gatevas.command;
 import no.odit.gatevas.cli.Command;
 import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
+import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.HomeAddressRepo;
 import no.odit.gatevas.misc.GoogleSheetsAPI;
 import no.odit.gatevas.model.*;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +40,9 @@ public class GlobalCommand implements CommandHandler {
     private GoogleSheetsAPI googleSheetsAPI;
 
     @Autowired
+    private CourseRepo courseRepo;
+
+    @Autowired
     private CourseApplicationRepo courseApplicationRepo;
 
     @Autowired
@@ -50,7 +55,9 @@ public class GlobalCommand implements CommandHandler {
             System.out.println("Available commands:");
             System.out.println("- global import");
             System.out.println("- global export");
+            System.out.println("- global custom-export");
             System.out.println("- global course-export");
+            System.out.println("- global type-export");
             return;
         }
 
@@ -155,6 +162,73 @@ public class GlobalCommand implements CommandHandler {
             }
         }
 
+        // Export students applications to CSV file
+        else if (args[0].equalsIgnoreCase("custom-export")) {
+
+            System.out.println("Export student applications to file.");
+
+            LocalDateTime afterTime = LocalDateTime.of(2021, 2, 1, 0, 0);
+            LocalDateTime beforeTime = LocalDateTime.now().minusWeeks(5);
+            List<Classroom> courses = courseRepo.findAll().stream()
+                    .filter(course -> course.getCreatedAt().isAfter(afterTime))
+                    .filter(course -> course.getCreatedAt().isBefore(beforeTime))
+                    .collect(Collectors.toList());
+
+            String typeName = "custom";
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
+            String date = dateFormat.format(new Date());
+            File file = new File(globalExportPath + File.separator + typeName + "-" + date + ".csv");
+
+            List<String> temp = new ArrayList<>();
+
+            System.out.println("Exporting global student list...");
+            try (FileWriter out = new FileWriter(file)) {
+                out.write('\ufeff');
+
+                String[] header = {"E-postadresse", "Kursnavn", "Fornavn", "Etternavn", "Tlf nr", "Kurskode", "Dato", "Status"};
+                CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
+
+                for (Classroom course : courses) {
+                    for (RoomLink enrollment : course.getEnrollments()) {
+                        Student student = enrollment.getStudent();
+
+                        if (enrollment.getCreatedAt().isAfter(beforeTime)) {
+                            continue;
+                        }
+
+                        CourseApplication apply = courseApplicationRepo.findByStudentAndCourse(student, course.getType())
+                                .orElse(null);
+                        if (apply == null || apply.getStatus() == ApplicationStatus.WAITLIST
+                                || apply.getStatus() == ApplicationStatus.WITHDRAWN) {
+                            continue;
+                        }
+
+                        if (temp.contains(student.getEmail().toLowerCase())) {
+                            continue;
+                        } else {
+                            temp.add(student.getEmail().toLowerCase());
+                        }
+
+                        Phone phone = student.getPhone();
+                        printer.printRecord(student.getEmail(),
+                                course.getLongName(),
+                                student.getFirstName(),
+                                student.getLastName(),
+                                phone != null ? phone.getPhoneNumber() : 0,
+                                course.getShortName(),
+                                enrollment.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                                apply != null ? apply.getStatus().toString() : "UNKNOWN");
+                    }
+                }
+                printer.close();
+                System.out.println("Successfully exported student list.");
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.out.println("Failed to export global list.");
+            }
+        }
+
         // Export course student lists to CSV file
         else if (args[0].equalsIgnoreCase("course-export")) {
 
@@ -163,7 +237,10 @@ public class GlobalCommand implements CommandHandler {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
             String date = dateFormat.format(new Date());
 
-            List<Classroom> courses = courseService.getAllCourses();
+            LocalDateTime afterTime = LocalDateTime.now().minusMonths(6);
+            List<Classroom> courses = courseService.getAllCourses().stream()
+                    .filter(course -> course.getCreatedAt().isAfter(afterTime))
+                    .collect(Collectors.toList());
             for (Classroom course : courses) {
                 if (course.getEnrollments().stream().count() <= 0
                         || course.getType().getGoogleSheetId() == null
@@ -205,15 +282,13 @@ public class GlobalCommand implements CommandHandler {
                                 formattedPhoneNum,
                                 applyStatus);
                     }
-
                     printer.close();
+                    System.out.println("Exported course '" + course.getShortName() + "'!");
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     System.out.println("Failed to export global list.");
                 }
-
-                System.out.println("Exported course '" + course.getShortName() + "'!");
             }
         }
 
@@ -271,7 +346,6 @@ public class GlobalCommand implements CommandHandler {
                                 applyStatus);
                     }
                     printer.close();
-
                     System.out.println("Exported course '" + type.getShortName() + "'!");
 
                 } catch (Exception ex) {
