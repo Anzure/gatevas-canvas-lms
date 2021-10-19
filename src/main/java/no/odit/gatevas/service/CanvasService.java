@@ -215,31 +215,13 @@ public class CanvasService {
         }
     }
 
-    // Search for user in Canvas LMS.
+    // Search for user by email address in Canvas LMS.
     public Optional<User> getUser(UserReader userReader, Student student) throws IOException {
-
-        // Search for user in Canvas LMS with name
-        String name = student.getFirstName() + " " + student.getLastName();
         GetUsersInAccountOptions options = new GetUsersInAccountOptions("1");
-        options.searchTerm(name);
-        List<User> nameSearchResult = userReader.getUsersInAccount(options);
-
-        // Name search result
-        Optional<User> opt = nameSearchResult.stream().filter(user -> user.getName().equalsIgnoreCase(name)).findFirst();
-
-        // If name search success
-        if (opt.isPresent()) {
-            return opt;
-        }
-        // Alternatively search by email
-        else {
-            // Search by email and return result
-            options.searchTerm(student.getEmail());
-            List<User> mailSearchResult = userReader.getUsersInAccount(options);
-            opt = mailSearchResult.stream().filter(user -> (user.getLoginId() != null && user.getLoginId().equalsIgnoreCase(student.getEmail())
-                    || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail())))).findFirst();
-            return opt;
-        }
+        options.searchTerm(student.getEmail());
+        List<User> mailSearchResult = userReader.getUsersInAccount(options);
+        return mailSearchResult.stream().filter(user -> (user.getLoginId() != null && user.getLoginId().equalsIgnoreCase(student.getEmail())
+                || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail())))).findFirst();
     }
 
 }

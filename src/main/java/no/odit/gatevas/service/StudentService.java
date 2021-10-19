@@ -40,15 +40,8 @@ public class StudentService {
         // Return existing student (email)
         Optional<Student> existingEmail = getUserByEmail(email);
         if (existingEmail.isPresent()) {
-            log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get().toString());
+            log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get());
             return existingEmail.get();
-        }
-
-        // Return existing student (name)
-        Optional<Student> existingName = getUserByName(firstName, lastName);
-        if (existingName.isPresent()) {
-            log.debug("NAME ALREADY EXIST -> " + existingName.get().toString());
-            return existingName.get();
         }
 
         // Create new student
@@ -114,7 +107,8 @@ public class StudentService {
         return studentRepo.findByEmail(email.trim());
     }
 
-    //Get student from storage by full name
+    // Get student from storage by full name
+    @Deprecated
     public Optional<Student> getUserByFullName(String fullName) {
         return studentRepo.findByFullname(fullName.trim());
     }
