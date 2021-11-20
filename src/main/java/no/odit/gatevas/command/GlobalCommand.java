@@ -5,7 +5,7 @@ import no.odit.gatevas.cli.CommandHandler;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.HomeAddressRepo;
-import no.odit.gatevas.misc.GoogleSheetsAPI;
+import no.odit.gatevas.misc.SheetImportCSV;
 import no.odit.gatevas.model.*;
 import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.type.ApplicationStatus;
@@ -37,7 +37,7 @@ public class GlobalCommand implements CommandHandler {
     private Scanner commandScanner;
 
     @Autowired
-    private GoogleSheetsAPI googleSheetsAPI;
+    private SheetImportCSV sheetImportCSV;
 
     @Autowired
     private CourseRepo courseRepo;
@@ -66,36 +66,23 @@ public class GlobalCommand implements CommandHandler {
 
             System.out.println("Import student applications to system.");
 
-            Map<String, CourseType> globalSheets = new HashMap<>();
-            for (CourseType type : courseService.getCourseTypes()) {
-                if (type.getGoogleSheetId() != null && !type.getGoogleSheetId().equalsIgnoreCase("null")) {
-                    globalSheets.put(type.getGoogleSheetId(), type);
+            System.out.print("Enter path to CSV file: ");
+            String csvFilePath = commandScanner.nextLine();
+            File csvFile = new File(csvFilePath);
+
+            System.out.println("Importing global student list...");
+            courseService.getAllCourses().stream().forEach(course -> {
+                CourseType courseType = course.getType();
+                try {
+                    Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType);
+                    System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    System.out.println("Failed to process sheet!");
                 }
-            }
-
-            System.out.println("Found " + globalSheets.size() + " sheets to process.");
-            System.out.print("Want to continue? (Y/N): ");
-            if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
-                System.out.println("Importing global student list...");
-                globalSheets.entrySet().stream().forEach(entry -> {
-                    CourseType courseType = entry.getValue();
-                    String googleSpreadSheetId = entry.getKey();
-                    try {
-                        Set<Student> students = googleSheetsAPI.processSheet(googleSpreadSheetId, courseType, false);
-                        System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
-//                        if (courseType.getCourses() != null) courseType.getCourses().stream()
-//                                .forEach(course -> {
-//                                    Set<Student> list = googleSheetsAPI.processSheet(course.getGoogleSheetId(), courseType);
-//                                    System.out.println("Processed " + list.size() + " students in course " + course.getShortName() + ".");
-//                                });
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        System.out.println("Failed to process sheet!");
-                    }
-                });
-                System.out.println("Successfully imported student list.");
-            }
+            });
+            System.out.println("Successfully imported student list.");
         }
 
         // Export students applications to CSV file
@@ -112,8 +99,6 @@ public class GlobalCommand implements CommandHandler {
             if (status == null) applications = courseApplicationRepo.findAll();
             else applications = courseApplicationRepo.findByStatus(status);
             applications = applications.stream()
-                    .filter(apply -> apply.getCourse().getGoogleSheetId() != null)
-                    .filter(apply -> !apply.getCourse().getGoogleSheetId().equalsIgnoreCase("null"))
                     .sorted(Comparator.comparing(CourseApplication::getCreatedAt))
                     .sorted(Comparator.comparing(e -> e.getCourse().getShortName()))
                     .collect(Collectors.toList());
@@ -242,9 +227,7 @@ public class GlobalCommand implements CommandHandler {
                     .filter(course -> course.getCreatedAt().isAfter(afterTime))
                     .collect(Collectors.toList());
             for (Classroom course : courses) {
-                if (course.getEnrollments().stream().count() <= 0
-                        || course.getType().getGoogleSheetId() == null
-                        || course.getType().getGoogleSheetId().equalsIgnoreCase("null")) {
+                if (course.getEnrollments().stream().count() <= 0) {
                     System.out.println("Ignored course '" + course.getShortName() + "'.");
                     continue;
                 }

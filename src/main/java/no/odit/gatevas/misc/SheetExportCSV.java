@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class ExcelSheetsCSV {
+public class SheetExportCSV {
 
     // Creates user import CSV file in Canvas SIS format
     public void createCSVFile(File outputFile, List<Student> students) throws IOException {

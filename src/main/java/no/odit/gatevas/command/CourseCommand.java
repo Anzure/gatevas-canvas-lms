@@ -101,9 +101,6 @@ public class CourseCommand implements CommandHandler {
             System.out.print("Enter course period: ");
             course.setPeriod(commandScanner.nextLine());
 
-            System.out.print("Enter google sheet id: ");
-            course.setGoogleSheetId(commandScanner.nextLine());
-
             System.out.print("Shall social group be used? (Y/N): ");
             if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
                 System.out.print("Enter social group link: ");
@@ -153,10 +150,14 @@ public class CourseCommand implements CommandHandler {
             System.out.print("Enter course name: ");
             String courseName = commandScanner.nextLine();
 
+            System.out.print("Enter path to CSV file: ");
+            String csvFilePath = commandScanner.nextLine();
+            File csvFile = new File(csvFilePath);
+
             courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
                 System.out.println("Importing students from Google Spreadsheets...");
-                courseService.importStudents(course).ifPresentOrElse(students -> {
+                courseService.importStudents(csvFile, course).ifPresentOrElse(students -> {
 
                     System.out.println("Imported " + students.size() + " students to '" + course.getShortName() + "'.");
                     System.out.println("Enrolling " + students.size() + " students to " + course.getShortName() + "...");

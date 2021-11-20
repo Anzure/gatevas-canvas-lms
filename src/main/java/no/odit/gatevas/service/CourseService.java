@@ -5,13 +5,14 @@ import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.CourseTypeRepo;
 import no.odit.gatevas.dao.StudentRepo;
-import no.odit.gatevas.misc.GoogleSheetsAPI;
+import no.odit.gatevas.misc.SheetImportCSV;
 import no.odit.gatevas.model.*;
 import no.odit.gatevas.type.ApplicationStatus;
 import no.odit.gatevas.type.CanvasStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,12 +37,12 @@ public class CourseService {
     private CourseTypeRepo courseTypeRepo;
 
     @Autowired
-    private GoogleSheetsAPI googleSheetsAPI;
+    private SheetImportCSV sheetImportCSV;
 
     // Imports students from online Google Sheets
-    public Optional<Set<Student>> importStudents(Classroom course) {
+    public Optional<Set<Student>> importStudents(File csvFile, Classroom course) {
         try {
-            Set<Student> students = googleSheetsAPI.processSheet(course.getGoogleSheetId(), course.getType(), true);
+            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType());
             return Optional.of(students);
         } catch (Exception ex) {
             log.error("Failed to import students.", ex);
@@ -83,7 +84,8 @@ public class CourseService {
     // Gets course type from storage
     public Optional<CourseType> getCourseType(String name) {
         return Optional.ofNullable(courseTypeRepo.findByShortName(name)
-                .orElse(courseTypeRepo.findByLongName(name).orElse(null)));
+                .orElse(courseTypeRepo.findByLongName(name)
+                        .orElse(courseTypeRepo.findByAliasName(name).orElse(null))));
     }
 
     public List<CourseType> getCourseTypes() {

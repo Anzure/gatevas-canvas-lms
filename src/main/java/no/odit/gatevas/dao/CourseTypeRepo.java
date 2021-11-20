@@ -10,8 +10,10 @@ import java.util.UUID;
 @Repository
 public interface CourseTypeRepo extends JpaRepository<CourseType, UUID> {
 
-    Optional<CourseType> findByShortName(String name);
+    Optional<CourseType> findByShortName(String shortName);
 
-    Optional<CourseType> findByLongName(String name);
+    Optional<CourseType> findByLongName(String longName);
+
+    Optional<CourseType> findByAliasName(String aliasName);
 
 }

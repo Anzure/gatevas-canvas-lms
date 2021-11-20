@@ -30,7 +30,7 @@ public class CourseType {
     private String longName;
 
     @Column
-    private String googleSheetId;
+    private String aliasName;
 
     @Column(nullable = false)
     @UpdateTimestamp

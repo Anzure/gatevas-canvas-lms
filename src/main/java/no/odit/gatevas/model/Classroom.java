@@ -35,9 +35,6 @@ public class Classroom {
     @Column
     private String socialGroup;
 
-    @Column(nullable = false)
-    private String googleSheetId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CanvasStatus canvasStatus;
@@ -71,7 +68,7 @@ public class Classroom {
     @Override
     public String toString() {
         return "Classroom [id=" + id + ", period=" + period + ", socialGroup=" + socialGroup
-                + ", googleSheetId=" + googleSheetId + ", canvasStatus=" + canvasStatus
+                + ", canvasStatus=" + canvasStatus
                 + ", canvasId=" + canvasId + ", updatedAt=" + updatedAt + ", createdAt=" + createdAt + "]";
     }
 

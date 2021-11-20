@@ -2,7 +2,7 @@ package no.odit.gatevas.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.StudentRepo;
-import no.odit.gatevas.misc.ExcelSheetsCSV;
+import no.odit.gatevas.misc.SheetExportCSV;
 import no.odit.gatevas.misc.GeneralUtil;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.Phone;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,13 +30,13 @@ public class StudentService {
     private PhoneService phoneService;
 
     @Autowired
-    private ExcelSheetsCSV excelSheetsCSV;
+    private SheetExportCSV sheetExportCSV;
 
     @Autowired
     private CanvasService canvasService;
 
     // Creates a new student or get existing
-    public Student createStudent(String email, String firstName, String lastName, Integer phoneNum) {
+    public Student createStudent(String email, String firstName, String lastName, Integer phoneNumber, LocalDate birthDate) {
 
         // Return existing student (email)
         Optional<Student> existingEmail = getUserByEmail(email);
@@ -52,7 +53,7 @@ public class StudentService {
         }
 
         // Create new student
-        Phone phone = phoneService.createPhone(phoneNum);
+        Phone phone = phoneService.createPhone(phoneNumber);
         Student student = new Student();
         student.setEmail(email.trim());
         student.setFirstName(firstName.trim());
@@ -60,6 +61,7 @@ public class StudentService {
         student.setTmpPassword(GeneralUtil.generatePassword());
         student.setPhone(phone);
         student.setLoginInfoSent(false);
+        student.setBirthDate(birthDate);
         student.setExportedToCSV(false);
         student.setCanvasStatus(CanvasStatus.UNKNOWN);
         student.setStudentStatus(StudentStatus.ALLOWED);
@@ -91,7 +93,7 @@ public class StudentService {
 
         // Create CSV file
         try {
-            excelSheetsCSV.createCSVFile(file, students);
+            sheetExportCSV.createCSVFile(file, students);
             return true;
         } catch (IOException e) {
             log.error("Failed to create CSV file.", e);
