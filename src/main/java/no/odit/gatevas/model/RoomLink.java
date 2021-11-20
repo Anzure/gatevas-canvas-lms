@@ -40,7 +40,7 @@ public class RoomLink {
     @Column(nullable = false)
     private CanvasStatus canvasStatus;
 
-    @Column(nullable = true)
+    @Column
     private Long canvasId;
 
     @Column(nullable = false)

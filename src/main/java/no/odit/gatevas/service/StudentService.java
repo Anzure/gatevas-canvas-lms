@@ -44,6 +44,13 @@ public class StudentService {
             return existingEmail.get();
         }
 
+        // Return existing student (name)
+        Optional<Student> existingName = getUserByName(firstName, lastName);
+        if (existingName.isPresent()) {
+            log.debug("NAME ALREADY EXIST -> " + existingName.get());
+            return existingName.get();
+        }
+
         // Create new student
         Phone phone = phoneService.createPhone(phoneNum);
         Student student = new Student();
@@ -108,7 +115,6 @@ public class StudentService {
     }
 
     // Get student from storage by full name
-    @Deprecated
     public Optional<Student> getUserByFullName(String fullName) {
         return studentRepo.findByFullname(fullName.trim());
     }
