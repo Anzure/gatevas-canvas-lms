@@ -32,6 +32,9 @@ public class CourseType {
     @Column
     private String aliasName;
 
+    @Column
+    private String csvFile;
+
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;

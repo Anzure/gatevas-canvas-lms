@@ -9,11 +9,13 @@ import no.odit.gatevas.service.StudentService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -32,14 +34,14 @@ public class SheetImportCSV {
     private CourseService courseService;
 
     @SneakyThrows
-    public Set<Student> processSheet(File csvFile, CourseType courseType) {
+    public Set<Student> processSheet(File csvFile, CourseType courseType, boolean useComma) {
 
         List<Student> students = new ArrayList<>();
 
         log.info("Proccessing " + csvFile.getName() + " spreadsheet...");
 
-        FileReader reader = new FileReader(csvFile);
-        try (CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(','))) {
+        FileReader reader = new FileReader(csvFile, StandardCharsets.UTF_8); // must be UTF-8 without BOM
+        try (CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(useComma ? ',' : ';'))) {
 
             List<CSVRecord> records = parser.getRecords();
             log.debug("Found " + records.size() + " records.");
@@ -60,10 +62,15 @@ public class SheetImportCSV {
                 phoneInput = phoneInput.length() > 8 ? phoneInput.substring(phoneInput.length() - 8) : phoneInput;
                 Integer phoneNumber = phoneInput.length() > 0 ? Integer.parseInt(phoneInput) : null;
 
-                String birthInput = record.get("Fødselsdato");
-                LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
+                Student student = studentService.createStudent(emailAddress, firstName, lastName, phoneNumber);
 
-                Student student = studentService.createStudent(emailAddress, firstName, lastName, phoneNumber, birthDate);
+                if (student.getBirthDate() == null) {
+                    String birthInput = record.get("Fødselsdato");
+                    LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
+                    if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
+                    student.setBirthDate(birthDate);
+                    studentService.saveChanges(student);
+                }
 
                 courseService.createCourseApplication(student, courseType);
                 students.add(student);

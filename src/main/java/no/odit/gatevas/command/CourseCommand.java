@@ -33,6 +33,9 @@ public class CourseCommand implements CommandHandler {
     @Value("${gatevas.course.export_path}")
     private String courseExportPath;
 
+    @Value("${gatevas.course.import_path}")
+    private String courseImportPath;
+
     @Autowired
     private HomeAddressRepo homeAddressRepo;
 
@@ -101,6 +104,9 @@ public class CourseCommand implements CommandHandler {
             System.out.print("Enter course period: ");
             course.setPeriod(commandScanner.nextLine());
 
+            System.out.print("Enter CSV file name: ");
+            course.setCsvFile(commandScanner.nextLine());
+
             System.out.print("Shall social group be used? (Y/N): ");
             if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
                 System.out.print("Enter social group link: ");
@@ -150,14 +156,12 @@ public class CourseCommand implements CommandHandler {
             System.out.print("Enter course name: ");
             String courseName = commandScanner.nextLine();
 
-            System.out.print("Enter path to CSV file: ");
-            String csvFilePath = commandScanner.nextLine();
-            File csvFile = new File(csvFilePath);
-
             courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
+                File csvFile = new File(courseImportPath, course.getCsvFile());
+
                 System.out.println("Importing students from Google Spreadsheets...");
-                courseService.importStudents(csvFile, course).ifPresentOrElse(students -> {
+                courseService.importStudents(csvFile, course, false).ifPresentOrElse(students -> {
 
                     System.out.println("Imported " + students.size() + " students to '" + course.getShortName() + "'.");
                     System.out.println("Enrolling " + students.size() + " students to " + course.getShortName() + "...");

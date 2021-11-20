@@ -30,6 +30,9 @@ public class GlobalCommand implements CommandHandler {
     @Value("${gatevas.global.export_path}")
     private String globalExportPath;
 
+    @Value("${gatevas.global.import_path}")
+    private String globalImportPath;
+
     @Autowired
     private CourseService courseService;
 
@@ -66,23 +69,31 @@ public class GlobalCommand implements CommandHandler {
 
             System.out.println("Import student applications to system.");
 
-            System.out.print("Enter path to CSV file: ");
-            String csvFilePath = commandScanner.nextLine();
-            File csvFile = new File(csvFilePath);
-
-            System.out.println("Importing global student list...");
-            courseService.getAllCourses().stream().forEach(course -> {
-                CourseType courseType = course.getType();
-                try {
-                    Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType);
-                    System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    System.out.println("Failed to process sheet!");
+            Map<String, CourseType> csvFiles = new HashMap<>();
+            for (CourseType type : courseService.getCourseTypes()) {
+                if (type.getCsvFile() != null && !type.getCsvFile().equalsIgnoreCase("null")) {
+                    csvFiles.put(type.getCsvFile(), type);
                 }
-            });
-            System.out.println("Successfully imported student list.");
+            }
+
+            System.out.println("Found " + csvFiles.size() + " sheets to process.");
+            System.out.print("Want to continue? (Y/N): ");
+            if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
+                System.out.println("Importing global student list...");
+                csvFiles.entrySet().stream().forEach(entry -> {
+                    CourseType courseType = entry.getValue();
+                    File csvFile = new File(globalImportPath, entry.getKey());
+                    try {
+                        Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType, true);
+                        System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        System.out.println("Failed to process sheet!");
+                    }
+                });
+                System.out.println("Successfully imported student list.");
+            }
         }
 
         // Export students applications to CSV file
@@ -99,6 +110,8 @@ public class GlobalCommand implements CommandHandler {
             if (status == null) applications = courseApplicationRepo.findAll();
             else applications = courseApplicationRepo.findByStatus(status);
             applications = applications.stream()
+                    .filter(apply -> apply.getCourse().getCsvFile() != null)
+                    .filter(apply -> !apply.getCourse().getCsvFile().equalsIgnoreCase("null"))
                     .sorted(Comparator.comparing(CourseApplication::getCreatedAt))
                     .sorted(Comparator.comparing(e -> e.getCourse().getShortName()))
                     .collect(Collectors.toList());
@@ -112,12 +125,14 @@ public class GlobalCommand implements CommandHandler {
             try (FileWriter out = new FileWriter(file)) {
                 out.write('\ufeff');
 
-                String[] header = {"E-postadresse", "Kursnavn", "Fornavn", "Etternavn", "Tlf nr", "Kurskode", "Dato", "Status"};
+                String[] header = {"Utdanning", "Fornavn", "Etternavn", "Fødselsdato", "E-postadresse", "Mobilnummer", "Kurskode", "Dato", "Status"};
                 CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
 
                 for (CourseApplication apply : applications) {
                     Student student = apply.getStudent();
                     Phone phone = student.getPhone();
+                    LocalDate birthDate = student.getBirthDate();
+                    String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("ddMMyy")) : "mangler data";
                     if (apply.getStatus() == ApplicationStatus.WAITLIST && student.getEnrollments() != null) {
                         boolean alreadyEnrolled = student.getEnrollments().stream()
                                 .map(enroll -> enroll.getCourse().getType())
@@ -129,10 +144,11 @@ public class GlobalCommand implements CommandHandler {
                             System.out.println("Fixed status for '" + student.getFullName() + "' in " + apply.getCourse().getShortName() + ".");
                         }
                     }
-                    printer.printRecord(student.getEmail(),
-                            apply.getCourse().getLongName(),
+                    printer.printRecord(apply.getCourse().getLongName(),
                             student.getFirstName(),
                             student.getLastName(),
+                            formattedBirthDate,
+                            student.getEmail(),
                             phone != null ? phone.getPhoneNumber() : 0,
                             apply.getCourse().getShortName(),
                             apply.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
@@ -227,7 +243,9 @@ public class GlobalCommand implements CommandHandler {
                     .filter(course -> course.getCreatedAt().isAfter(afterTime))
                     .collect(Collectors.toList());
             for (Classroom course : courses) {
-                if (course.getEnrollments().stream().count() <= 0) {
+                if (course.getEnrollments().stream().count() <= 0
+                        || course.getType().getCsvFile() == null
+                        || course.getType().getCsvFile().equalsIgnoreCase("null")) {
                     System.out.println("Ignored course '" + course.getShortName() + "'.");
                     continue;
                 }
@@ -245,7 +263,7 @@ public class GlobalCommand implements CommandHandler {
                         CourseApplication apply = courseApplicationRepo.findByStudentAndCourse(student, course.getType()).orElse(null);
                         Phone phone = student.getPhone();
                         LocalDate birthDate = student.getBirthDate();
-                        String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "mangler data";
+                        String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("ddMMyy")) : "mangler data";
                         String formattedPhoneNum = phone != null && phone.getPhoneNumber() != 0 ? String.valueOf(phone.getPhoneNumber()) : "mangler data";
                         String applyStatus = apply != null ? apply.getStatus().toString()
                                 .replace("ACCEPTED", "Ikke fullført")
@@ -307,7 +325,7 @@ public class GlobalCommand implements CommandHandler {
                         Student student = apply.getStudent();
                         Phone phone = student.getPhone();
                         LocalDate birthDate = student.getBirthDate();
-                        String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "mangler data";
+                        String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("ddMMyy")) : "mangler data";
                         String formattedPhoneNum = phone != null && phone.getPhoneNumber() != 0 ? String.valueOf(phone.getPhoneNumber()) : "mangler data";
                         String applyStatus = apply != null ? apply.getStatus().toString()
                                 .replace("ACCEPTED", "Tilbudt plass")

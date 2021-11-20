@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.CourseApplicationRepo;
 import no.odit.gatevas.dao.CourseRepo;
 import no.odit.gatevas.dao.CourseTypeRepo;
-import no.odit.gatevas.dao.StudentRepo;
 import no.odit.gatevas.misc.SheetImportCSV;
 import no.odit.gatevas.model.*;
 import no.odit.gatevas.type.ApplicationStatus;
@@ -22,9 +21,6 @@ import java.util.Set;
 public class CourseService {
 
     @Autowired
-    private StudentRepo studentRepo;
-
-    @Autowired
     private CourseApplicationRepo courseApplicationRepo;
 
     @Autowired
@@ -40,9 +36,9 @@ public class CourseService {
     private SheetImportCSV sheetImportCSV;
 
     // Imports students from online Google Sheets
-    public Optional<Set<Student>> importStudents(File csvFile, Classroom course) {
+    public Optional<Set<Student>> importStudents(File csvFile, Classroom course, boolean useComma) {
         try {
-            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType());
+            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType(), useComma);
             return Optional.of(students);
         } catch (Exception ex) {
             log.error("Failed to import students.", ex);
@@ -59,7 +55,7 @@ public class CourseService {
     public Classroom addCourse(Classroom course) {
         course.setCanvasStatus(CanvasStatus.UNKNOWN);
         course = courseRepo.saveAndFlush(course);
-        log.info("CREATE COURSE -> " + course.toString());
+        log.info("CREATE COURSE -> " + course);
         return course;
     }
 
@@ -115,21 +111,7 @@ public class CourseService {
             }
         }
 
-//        // Fix status
-//        Set<RoomLink> enrollments = student.getEnrollments();
-//        if (apply.getStatus() == ApplicationStatus.WAITLIST && enrollments != null) {
-//            for (RoomLink enrollment : enrollments) {
-//                Classroom course = enrollment.getCourse();
-//                CourseType type = course.getType();
-//                if (type.getShortName().equals(courseType.getShortName())) {
-//                    apply.setStatus(ApplicationStatus.ACCEPTED);
-//                    apply = courseApplicationRepo.findById(courseApplicationRepo.saveAndFlush(apply).getId()).get();
-//                    log.warn("Fixed status for '" + student.getFullName() + "' in " + course.getShortName() + ".");
-//                }
-//            }
-//        }
-
-        return apply = courseApplicationRepo.findById(courseApplicationRepo.saveAndFlush(apply).getId()).get();
+        return courseApplicationRepo.findById(courseApplicationRepo.saveAndFlush(apply).getId()).get();
     }
 
 }

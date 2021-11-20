@@ -35,6 +35,9 @@ public class Classroom {
     @Column
     private String socialGroup;
 
+    @Column
+    private String csvFile;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CanvasStatus canvasStatus;

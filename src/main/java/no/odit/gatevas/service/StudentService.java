@@ -2,8 +2,8 @@ package no.odit.gatevas.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.dao.StudentRepo;
-import no.odit.gatevas.misc.SheetExportCSV;
 import no.odit.gatevas.misc.GeneralUtil;
+import no.odit.gatevas.misc.SheetExportCSV;
 import no.odit.gatevas.model.Classroom;
 import no.odit.gatevas.model.Phone;
 import no.odit.gatevas.model.Student;
@@ -36,7 +36,7 @@ public class StudentService {
     private CanvasService canvasService;
 
     // Creates a new student or get existing
-    public Student createStudent(String email, String firstName, String lastName, Integer phoneNumber, LocalDate birthDate) {
+    public Student createStudent(String email, String firstName, String lastName, Integer phoneNumber) {
 
         // Return existing student (email)
         Optional<Student> existingEmail = getUserByEmail(email);
@@ -61,7 +61,6 @@ public class StudentService {
         student.setTmpPassword(GeneralUtil.generatePassword());
         student.setPhone(phone);
         student.setLoginInfoSent(false);
-        student.setBirthDate(birthDate);
         student.setExportedToCSV(false);
         student.setCanvasStatus(CanvasStatus.UNKNOWN);
         student.setStudentStatus(StudentStatus.ALLOWED);
