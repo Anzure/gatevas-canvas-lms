@@ -69,20 +69,21 @@ public class GlobalCommand implements CommandHandler {
 
             System.out.println("Import student applications to system.");
 
-            Map<String, CourseType> csvFiles = new HashMap<>();
+            Map<CourseType, String> csvFiles = new HashMap<>();
             for (CourseType type : courseService.getCourseTypes()) {
                 if (type.getCsvFile() != null && !type.getCsvFile().equalsIgnoreCase("null")) {
-                    csvFiles.put(type.getCsvFile(), type);
+                    csvFiles.put(type, type.getCsvFile());
                 }
             }
 
-            System.out.println("Found " + csvFiles.size() + " sheets to process.");
+            System.out.println("Found " + csvFiles.values().stream().collect(Collectors.toSet()).size()
+                    + " sheets to process.");
             System.out.print("Want to continue? (Y/N): ");
             if (commandScanner.nextLine().equalsIgnoreCase("Y")) {
                 System.out.println("Importing global student list...");
                 csvFiles.entrySet().stream().forEach(entry -> {
-                    CourseType courseType = entry.getValue();
-                    File csvFile = new File(globalImportPath, entry.getKey());
+                    CourseType courseType = entry.getKey();
+                    File csvFile = new File(globalImportPath, entry.getValue());
                     try {
                         Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType, true);
                         System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
