@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.model.CourseType;
 import no.odit.gatevas.model.Student;
 import no.odit.gatevas.service.CourseService;
+import no.odit.gatevas.service.PhoneService;
 import no.odit.gatevas.service.StudentService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -26,6 +27,9 @@ import java.util.Set;
 @Component
 @Slf4j
 public class SheetImportCSV {
+
+    @Autowired
+    private PhoneService phoneService;
 
     @Autowired
     private StudentService studentService;
@@ -64,12 +68,21 @@ public class SheetImportCSV {
 
                 Student student = studentService.createStudent(emailAddress, firstName, lastName, phoneNumber);
 
+                if (student.getPhone() == null || student.getPhone().getPhoneNumber() == null
+                        || student.getPhone().getPhoneNumber() == 0) {
+                    phoneService.createPhone(phoneNumber);
+                }
+
                 if (student.getBirthDate() == null) {
                     String birthInput = record.get("Fødselsdato");
                     LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
                     if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
                     student.setBirthDate(birthDate);
                     studentService.saveChanges(student);
+                    if (student.getBirthDate() == null) {
+                        throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
+                                + " Birth date input: '" + birthInput + "'");
+                    }
                 }
 
                 courseService.createCourseApplication(student, courseType);
