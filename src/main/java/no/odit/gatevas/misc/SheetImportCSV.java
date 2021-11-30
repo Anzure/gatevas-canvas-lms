@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -38,13 +39,13 @@ public class SheetImportCSV {
     private CourseService courseService;
 
     @SneakyThrows
-    public Set<Student> processSheet(File csvFile, CourseType courseType, boolean useComma) {
+    public Set<Student> processSheet(File csvFile, CourseType courseType, Charset charset, boolean useComma) {
 
         List<Student> students = new ArrayList<>();
 
         log.info("Proccessing " + csvFile.getName() + " spreadsheet...");
 
-        FileReader reader = new FileReader(csvFile, StandardCharsets.UTF_8); // must be UTF-8 without BOM
+        FileReader reader = new FileReader(csvFile, charset);
         try (CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(useComma ? ',' : ';'))) {
 
             List<CSVRecord> records = parser.getRecords();
@@ -75,6 +76,7 @@ public class SheetImportCSV {
 
                 if (student.getBirthDate() == null) {
                     String birthInput = record.get("Fødselsdato");
+                    if (birthInput.length() == 5) birthInput = "0" + birthInput;
                     LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
                     if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
                     student.setBirthDate(birthDate);

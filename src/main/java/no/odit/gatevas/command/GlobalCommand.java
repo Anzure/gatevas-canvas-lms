@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -85,7 +86,7 @@ public class GlobalCommand implements CommandHandler {
                     CourseType courseType = entry.getKey();
                     File csvFile = new File(globalImportPath, entry.getValue());
                     try {
-                        Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType, true);
+                        Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType, StandardCharsets.UTF_8, true);
                         System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
 
                     } catch (Exception ex) {

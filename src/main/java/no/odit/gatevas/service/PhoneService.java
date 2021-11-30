@@ -80,7 +80,6 @@ public class PhoneService {
     // Sends SMS to student in course with enrollment details
     public boolean sendSMS(Classroom classRoom, Student student, boolean isTest) {
         try {
-
             StringBuilder msg = new StringBuilder();
             msg.append(classRoom.getLongName() + "\nBrukernavn: " + student.getEmail());
             if (student.getExportedToCSV()) msg.append("\nPassord: " + student.getTmpPassword());
@@ -89,7 +88,11 @@ public class PhoneService {
             String txt = msg.toString();
 
             Phone phone = student.getPhone();
-            int phoneNumber = isTest ? 45660785 : phone.getPhoneNumber();
+            if (!isTest && (phone == null || phone.getPhoneNumber() == null || phone.getPhoneNumber() == 0)) {
+                log.warn("No phone number found for '" + student.getFullName() + "'.");
+                return false;
+            }
+            Integer phoneNumber = isTest ? 45660785 : phone.getPhoneNumber();
 
             URL url = new URL("https://gatewayapi.com/rest/mtsms");
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
@@ -111,7 +114,7 @@ public class PhoneService {
             return responseCode == 200 ? true : false;
 
         } catch (Exception ex) {
-            log.warn("Failed to send SMS.", ex);
+            log.warn("Failed to send SMS", ex);
         }
         return false;
     }

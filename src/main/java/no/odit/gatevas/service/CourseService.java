@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,10 +36,10 @@ public class CourseService {
     @Autowired
     private SheetImportCSV sheetImportCSV;
 
-    // Imports students from online Google Sheets
+    // Imports students from single course list
     public Optional<Set<Student>> importStudents(File csvFile, Classroom course, boolean useComma) {
         try {
-            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType(), useComma);
+            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType(), StandardCharsets.US_ASCII, useComma);
             return Optional.of(students);
         } catch (Exception ex) {
             log.error("Failed to import students.", ex);

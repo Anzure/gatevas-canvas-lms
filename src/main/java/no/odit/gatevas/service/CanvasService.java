@@ -221,7 +221,8 @@ public class CanvasService {
         options.searchTerm(student.getEmail());
         List<User> mailSearchResult = userReader.getUsersInAccount(options);
         return mailSearchResult.stream().filter(user -> (user.getLoginId() != null && user.getLoginId().equalsIgnoreCase(student.getEmail())
-                || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail())))).findFirst();
+                || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail()))
+                || (user.getName() != null && user.getName().equalsIgnoreCase(student.getFullName())))).findFirst();
     }
 
 }
