@@ -79,7 +79,7 @@ public class CanvasService {
                 }
 
                 // Find user in Canvas LMS and continue if success
-                getUser(userReader, student).ifPresentOrElse(user -> {
+                getUser(userReader, student, true).ifPresentOrElse(user -> {
                     try {
 
                         // Enroll user in Canvas LMS
@@ -153,7 +153,7 @@ public class CanvasService {
             for (Student student : students) {
 
                 // Find user in Canvas LMS and continue if success
-                getUser(userReader, student).ifPresentOrElse(user -> {
+                getUser(userReader, student, false).ifPresentOrElse(user -> {
                     // Update user status
                     student.setCanvasStatus(CanvasStatus.EXISTS);
                     student.setCanvasId(user.getId());
@@ -215,14 +215,31 @@ public class CanvasService {
         }
     }
 
-    // Search for user by email address in Canvas LMS.
-    public Optional<User> getUser(UserReader userReader, Student student) throws IOException {
+    // Search for user in Canvas LMS.
+    public Optional<User> getUser(UserReader userReader, Student student, boolean allowNameSearch) throws IOException {
+
+        // Search for user in Canvas LMS with name
+        String name = student.getFirstName() + " " + student.getLastName();
         GetUsersInAccountOptions options = new GetUsersInAccountOptions("1");
+
+        // Email search result
         options.searchTerm(student.getEmail());
         List<User> mailSearchResult = userReader.getUsersInAccount(options);
-        return mailSearchResult.stream().filter(user -> (user.getLoginId() != null && user.getLoginId().equalsIgnoreCase(student.getEmail())
-                || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail()))
-                || (user.getName() != null && user.getName().equalsIgnoreCase(student.getFullName())))).findFirst();
+        Optional<User> opt = mailSearchResult.stream().filter(user -> (user.getLoginId() != null && user.getLoginId().equalsIgnoreCase(student.getEmail())
+                || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail())))).findFirst();
+
+        // If email search success
+        if (opt.isPresent()) {
+            return opt;
+        }
+        // Alternatively search by name
+        else {
+            // Search by name and return result
+            options.searchTerm(name);
+            List<User> nameSearchResult = userReader.getUsersInAccount(options);
+            opt = nameSearchResult.stream().filter(user -> user.getName().equalsIgnoreCase(name)).findFirst();
+            return opt;
+        }
     }
 
 }
