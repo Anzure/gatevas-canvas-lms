@@ -11,14 +11,12 @@ import no.odit.gatevas.service.StudentService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.QuoteMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -98,16 +96,20 @@ public class SheetImportCSV {
                         String streetAddress = record.get("Adresse");
                         if (streetAddress != null && streetAddress.length() > 0) {
                             if (record.isMapped("Postnummer") && record.isMapped("Sted")) {
-                                String zipInput = record.get("Postnummber");
-                                String cityName = record.get("Sted").replaceAll("[^A-Za-z]", "");
-                                Integer zipCode = Integer.parseInt(zipInput.replaceAll("[^\\d.]", ""));
-                                homeAddressService.updateHomeAddress(student, streetAddress, zipCode, cityName);
+                                String zipInput = record.get("Postnummer");
+                                if (zipInput != null && zipInput.length() > 0) {
+                                    String cityName = record.get("Sted").replaceAll("[^A-Za-z]", "");
+                                    Integer zipCode = Integer.parseInt(zipInput.replaceAll("[^0-9]", ""));
+                                    homeAddressService.updateHomeAddress(student, streetAddress, zipCode, cityName);
+                                }
 
                             } else if (record.isMapped("Poststed")) {
                                 String zipInput = record.get("Poststed");
-                                String cityName = zipInput.replaceAll("[^A-Za-z]", "");
-                                Integer zipCode = Integer.parseInt(zipInput.replaceAll("[^\\d.]", ""));
-                                homeAddressService.updateHomeAddress(student, streetAddress, zipCode, cityName);
+                                if (zipInput != null && zipInput.length() > 0) {
+                                    String cityName = zipInput.replaceAll("[^A-Za-z]", "");
+                                    Integer zipCode = Integer.parseInt(zipInput.replaceAll("[^0-9]", ""));
+                                    homeAddressService.updateHomeAddress(student, streetAddress, zipCode, cityName);
+                                }
                             }
                         }
 
