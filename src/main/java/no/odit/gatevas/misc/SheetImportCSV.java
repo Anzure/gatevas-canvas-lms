@@ -78,16 +78,19 @@ public class SheetImportCSV {
 
                 if (student.getBirthDate() == null) {
                     String birthInput = record.isMapped("Fodselsdato") ? record.get("Fodselsdato") : record.get("Fødselsdato");
-                    birthInput = birthInput.replaceAll("[^\\d]", "");
-                    if (birthInput.length() == 8) birthInput = birthInput.substring(0, 4) + birthInput.substring(6, 8);
-                    if (birthInput.length() == 5) birthInput = "0" + birthInput;
-                    LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
-                    if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
-                    student.setBirthDate(birthDate);
-                    studentService.saveChanges(student);
-                    if (student.getBirthDate() == null) {
-                        throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
-                                + " Birth date input: '" + birthInput + "'");
+                    if (birthInput != null && birthInput.length() > 5) {
+                        birthInput = birthInput.replaceAll("[^\\d]", "");
+                        if (birthInput.length() == 8)
+                            birthInput = birthInput.substring(0, 4) + birthInput.substring(6, 8);
+                        if (birthInput.length() == 5) birthInput = "0" + birthInput;
+                        LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
+                        if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
+                        student.setBirthDate(birthDate);
+                        studentService.saveChanges(student);
+                        if (student.getBirthDate() == null) {
+                            throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
+                                    + " Birth date input: '" + birthInput + "'");
+                        }
                     }
                 }
 
@@ -120,7 +123,12 @@ public class SheetImportCSV {
                     }
                 }
 
-                courseService.createCourseApplication(student, courseType);
+                Boolean uptake = null;
+                if (record.isMapped("Opptak") && courseType.getUseUptake() != null && courseType.getUseUptake()) {
+                    uptake = record.get("Opptak").equalsIgnoreCase("True");
+                }
+
+                courseService.createCourseApplication(student, courseType, uptake);
                 students.add(student);
             }
         }

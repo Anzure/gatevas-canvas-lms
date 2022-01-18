@@ -33,6 +33,9 @@ public class CourseApplication {
     @Column(nullable = false)
     private ApplicationStatus status;
 
+    @Column
+    private Boolean uptake;
+
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;

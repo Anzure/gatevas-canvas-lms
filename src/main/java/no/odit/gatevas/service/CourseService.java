@@ -80,6 +80,15 @@ public class CourseService {
 
     // Gets course type from storage
     public Optional<CourseType> getCourseType(String name) {
+//        return courseTypeRepo.findAll().stream().findFirst()
+//                .filter(courseType -> courseType.getShortName().contains("*") && name.startsWith(courseType.getShortName().replaceAll("\\*", ""))
+//                        || courseType.getLongName().contains("*") && name.startsWith(courseType.getLongName().replaceAll("\\*", ""))
+//                        || courseType.getAliasName().contains("*") && name.startsWith(courseType.getAliasName().replaceAll("\\*", "")))
+//                .or(() ->
+//                        Optional.ofNullable(courseTypeRepo.findByShortName(name)
+//                                .orElse(courseTypeRepo.findByLongName(name)
+//                                        .orElse(courseTypeRepo.findByAliasName(name).orElse(null)))
+//                        ));
         return Optional.ofNullable(courseTypeRepo.findByShortName(name)
                 .orElse(courseTypeRepo.findByLongName(name)
                         .orElse(courseTypeRepo.findByAliasName(name).orElse(null))));
@@ -89,7 +98,7 @@ public class CourseService {
         return courseTypeRepo.findAll();
     }
 
-    public CourseApplication createCourseApplication(Student student, CourseType courseType) {
+    public CourseApplication createCourseApplication(Student student, CourseType courseType, Boolean uptake) {
 
         CourseApplication apply = new CourseApplication();
         Optional<CourseApplication> optCourseApply = courseApplicationRepo.findByStudentAndCourse(student, courseType);
@@ -98,6 +107,7 @@ public class CourseService {
         } else {
             apply.setCourse(courseType);
             apply.setStudent(student);
+            apply.setUptake(true);
             apply.setStatus(ApplicationStatus.WAITLIST);
         }
 
@@ -107,6 +117,7 @@ public class CourseService {
             for (Classroom course : courses) {
                 Optional<RoomLink> optEnroll = enrollmentService.getEnrollment(student, course);
                 if (optEnroll.isPresent()) {
+                    apply.setUptake(uptake);
                     apply.setStatus(ApplicationStatus.ACCEPTED);
                 }
             }

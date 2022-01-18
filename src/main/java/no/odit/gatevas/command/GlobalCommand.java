@@ -127,7 +127,7 @@ public class GlobalCommand implements CommandHandler {
             try (FileWriter out = new FileWriter(file)) {
                 out.write('\ufeff');
 
-                String[] header = {"Utdanning", "Fornavn", "Etternavn", "Fødselsdato", "E-postadresse", "Mobilnummer", "Kurskode", "Dato", "Status"};
+                String[] header = {"Utdanning", "Fornavn", "Etternavn", "Fødselsdato", "E-postadresse", "Mobilnummer", "Kurskode", "Dato", "Status", "Opptak"};
                 CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
 
                 for (CourseApplication apply : applications) {
@@ -154,7 +154,8 @@ public class GlobalCommand implements CommandHandler {
                             phone != null ? phone.getPhoneNumber() : 0,
                             apply.getCourse().getShortName(),
                             apply.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                            apply.getStatus().toString());
+                            apply.getStatus().toString(),
+                            apply.getUptake() == null ? "Ukjent" : apply.getUptake() ? "Ja" : "Nei");
                 }
                 printer.close();
                 System.out.println("Successfully exported student list.");

@@ -35,6 +35,9 @@ public class CourseType {
     @Column
     private String csvFile;
 
+    @Column
+    private Boolean useUptake;
+
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
