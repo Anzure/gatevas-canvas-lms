@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,18 +38,24 @@ public class StudentService {
     // Creates a new student or get existing
     public Student createStudent(String email, String firstName, String lastName, Integer phoneNumber) {
 
+        // Detect and throw decoding error
+        if (firstName.matches("[^a-zA-Z0-9 ÆØÅæøå]") || lastName.matches("[^a-zA-Z0-9 ÆØÅæøå]")
+                || firstName.contains("�") || lastName.contains("�")) {
+            throw new Error("Error in charset decoding for " + firstName + " " + lastName + ".");
+        }
+
         // Return existing student (email)
         Optional<Student> existingEmail = getUserByEmail(email);
         if (existingEmail.isPresent()) {
             log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get());
-            return existingEmail.get();
+            return fixStudentName(existingEmail.get(), firstName, lastName);
         }
 
         // Return existing student (name)
         Optional<Student> existingName = getUserByName(firstName, lastName);
         if (existingName.isPresent()) {
             log.debug("NAME ALREADY EXIST -> " + existingName.get());
-            return existingName.get();
+            return fixStudentName(existingName.get(), firstName, lastName);
         }
 
         // Create new student
@@ -64,7 +71,19 @@ public class StudentService {
         student.setCanvasStatus(CanvasStatus.UNKNOWN);
         student.setStudentStatus(StudentStatus.ALLOWED);
         student = studentRepo.saveAndFlush(student);
-        log.debug("CREATED STUDENT -> " + student.toString());
+        log.debug("CREATED STUDENT -> " + student);
+        return student;
+    }
+
+    // Fix encoding in student name
+    public Student fixStudentName(Student student, String firstName, String lastName) {
+        if (student.getFullName().matches("[^a-zA-Z0-9 ÆØÅæøå]") || student.getFullName().contains("�")) {
+            log.warn("Detected encoding error in student details for " + student.getFullName() + ".");
+            student.setFirstName(firstName);
+            student.setLastName(lastName);
+            student = studentRepo.saveAndFlush(student);
+            log.info("Fixed encoding in student details for " + firstName + " " + lastName + ".");
+        }
         return student;
     }
 

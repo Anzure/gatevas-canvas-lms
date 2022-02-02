@@ -14,8 +14,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -41,13 +40,13 @@ public class SheetImportCSV {
     private HomeAddressService homeAddressService;
 
     @SneakyThrows
-    public Set<Student> processSheet(File csvFile, CourseType courseType, Charset charset, boolean useComma) {
+    public Set<Student> processSheet(File csvFile, CourseType courseType, String charset, boolean useComma) {
 
         List<Student> students = new ArrayList<>();
 
         log.info("Proccessing " + csvFile.getName() + " spreadsheet...");
 
-        FileReader reader = new FileReader(csvFile, charset);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), charset));
         try (CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(useComma ? ',' : ';'))) {
 
             List<CSVRecord> records = parser.getRecords();

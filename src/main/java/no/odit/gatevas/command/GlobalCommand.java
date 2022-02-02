@@ -86,7 +86,7 @@ public class GlobalCommand implements CommandHandler {
                     CourseType courseType = entry.getKey();
                     File csvFile = new File(globalImportPath, entry.getValue());
                     try {
-                        Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType, StandardCharsets.UTF_8, true);
+                        Set<Student> students = sheetImportCSV.processSheet(csvFile, courseType, "UTF-8", true);
                         System.out.println("Processed " + students.size() + " students in type " + courseType.getShortName() + ".");
 
                     } catch (Exception ex) {

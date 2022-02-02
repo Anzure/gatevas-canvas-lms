@@ -39,7 +39,7 @@ public class CourseService {
     // Imports students from single course list
     public Optional<Set<Student>> importStudents(File csvFile, Classroom course, boolean useComma) {
         try {
-            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType(), StandardCharsets.US_ASCII, useComma);
+            Set<Student> students = sheetImportCSV.processSheet(csvFile, course.getType(), "Cp1252", useComma);
             return Optional.of(students);
         } catch (Exception ex) {
             log.error("Failed to import students.", ex);
