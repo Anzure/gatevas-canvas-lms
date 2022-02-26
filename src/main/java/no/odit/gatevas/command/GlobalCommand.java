@@ -11,6 +11,7 @@ import no.odit.gatevas.service.CourseService;
 import no.odit.gatevas.type.ApplicationStatus;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.jasypt.util.text.StrongTextEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,9 @@ public class GlobalCommand implements CommandHandler {
 
     @Autowired
     private HomeAddressRepo homeAddressRepo;
+
+    @Autowired
+    private StrongTextEncryptor textEncryptor;
 
     public void handleCommand(Command cmd) {
         String[] args = cmd.getArgs();
@@ -231,6 +235,76 @@ public class GlobalCommand implements CommandHandler {
                 ex.printStackTrace();
                 System.out.println("Failed to export global list.");
             }
+        }
+
+        // Export course student lists to CSV file
+        else if (args[0].equalsIgnoreCase("semester-export")) {
+
+            System.out.println("Export course student lists to file.");
+
+            LocalDateTime afterTime = LocalDateTime.of(2021, 10, 1, 0, 0);
+            LocalDateTime beforeTime = LocalDateTime.of(2022, 2, 28, 0, 0);
+            List<Classroom> courses = courseRepo.findAll().stream()
+                    .filter(course -> course.getCreatedAt().isAfter(afterTime))
+                    .filter(course -> course.getCreatedAt().isBefore(beforeTime))
+                    .collect(Collectors.toList());
+
+            String typeName = "semester";
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HHmmss");
+            String date = dateFormat.format(new Date());
+            File file = new File(globalExportPath + File.separator + typeName + "-" + date + ".csv");
+
+            try (FileWriter out = new FileWriter(file)) {
+                out.write('\ufeff');
+
+                String[] header = {"Kurs", "Fornavn", "Etternavn", "Fødselsnummer", "E-postadresse", "Mobilnummer",
+                        "Adresse", "Poststed", "Status"};
+                CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withAllowMissingColumnNames().withDelimiter(';').withHeader(header));
+
+                for (Classroom course : courses) {
+                    if (course.getEnrollments().stream().count() <= 0
+                            || course.getType().getCsvFile() == null
+                            || course.getType().getCsvFile().equalsIgnoreCase("null")) {
+                        System.out.println("Ignored course '" + course.getShortName() + "'.");
+                        continue;
+                    }
+                    System.out.println("Processing course '" + course.getShortName() + "'...");
+
+                    for (Student student : course.getStudents()) {
+                        CourseApplication apply = courseApplicationRepo.findByStudentAndCourse(student, course.getType()).orElse(null);
+                        Phone phone = student.getPhone();
+                        LocalDate birthDate = student.getBirthDate();
+                        String formattedBirthDate = birthDate != null ? birthDate.format(DateTimeFormatter.ofPattern("ddMMyy")) : "";
+                        String formattedPhoneNum = phone != null && phone.getPhoneNumber() != 0 ? String.valueOf(phone.getPhoneNumber()) : "";
+                        String applyStatus = apply != null ? apply.getStatus().toString()
+                                .replace("ACCEPTED", "Ikke fullført")
+                                .replace("WITHDRAWN", "Avmeldt")
+                                .replace("FINISHED", "Fullført") : "";
+                        HomeAddress homeAddress = homeAddressRepo.findByStudent(student).orElse(null);
+                        String address = homeAddress != null ? homeAddress.getStreetAddress() : "";
+                        if (homeAddress != null && address.length() <= 2) address = "";
+                        String postal = homeAddress != null ? homeAddress.getZipCode() + " " + homeAddress.getCity() : "";
+                        String socialSecurityNumber = student.getSocialSecurityNumber() != null ? textEncryptor.decrypt(student.getSocialSecurityNumber()) : formattedBirthDate;
+
+                        printer.printRecord(course.getLongName(),
+                                student.getFirstName(),
+                                student.getLastName(),
+                                socialSecurityNumber,
+                                student.getEmail(),
+                                formattedPhoneNum,
+                                address,
+                                postal,
+                                applyStatus);
+                    }
+                    System.out.println("Exported course '" + course.getShortName() + "'!");
+                }
+                printer.close();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.out.println("Failed to export global list.");
+            }
+
         }
 
         // Export course student lists to CSV file

@@ -11,11 +11,14 @@ import no.odit.gatevas.service.StudentService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.jasypt.util.text.StrongTextEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -38,6 +41,9 @@ public class SheetImportCSV {
 
     @Autowired
     private HomeAddressService homeAddressService;
+
+    @Autowired
+    private StrongTextEncryptor textEncryptor;
 
     @SneakyThrows
     public Set<Student> processSheet(File csvFile, CourseType courseType, String charset, boolean useComma) {
@@ -76,7 +82,7 @@ public class SheetImportCSV {
                 }
 
                 if (student.getBirthDate() == null) {
-                    String birthInput = record.isMapped("Fodselsdato") ? record.get("Fodselsdato") : record.get("Fødselsdato");
+                    String birthInput = record.isMapped("Fodselsdato") ? record.get("Fodselsdato") : record.get("Personnummer").substring(0, 6);
                     if (birthInput != null && birthInput.length() > 5) {
                         birthInput = birthInput.replaceAll("[^\\d]", "");
                         if (birthInput.length() == 8)
@@ -90,6 +96,19 @@ public class SheetImportCSV {
                             throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
                                     + " Birth date input: '" + birthInput + "'");
                         }
+                    }
+                }
+
+                if (student.getSocialSecurityNumber() == null && record.isMapped("Personnummer")) {
+                    String socialSecurityNumber = record.get("Personnummer");
+                    if (socialSecurityNumber != null && socialSecurityNumber.length() == 11){
+                        socialSecurityNumber = textEncryptor.encrypt(socialSecurityNumber);
+                        student.setSocialSecurityNumber(socialSecurityNumber);
+                        studentService.saveChanges(student);
+                        log.debug("Updated social security number for " + student.getFullName() +  " to: " + socialSecurityNumber);
+
+                    } else {
+                        log.warn("Invalid social security number for " + student.getFullName() + ".");
                     }
                 }
 

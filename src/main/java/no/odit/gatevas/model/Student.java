@@ -40,6 +40,9 @@ public class Student {
     @Column
     private LocalDate birthDate;
 
+    @Column
+    private String socialSecurityNumber;
+
     @Column(nullable = false)
     private String tmpPassword;
 

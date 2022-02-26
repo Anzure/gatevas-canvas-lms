@@ -25,7 +25,7 @@ public class CommandListener {
     public Future<Void> start() {
 
         log.info("Starting console application...");
-        this.scanner = new Scanner(System.in);
+//        this.scanner = new Scanner(System.in);
 
         do {
             System.out.print("=> ");
