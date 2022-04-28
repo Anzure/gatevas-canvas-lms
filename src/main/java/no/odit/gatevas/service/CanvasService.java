@@ -6,20 +6,24 @@ import edu.ksu.canvas.model.Account;
 import edu.ksu.canvas.model.Enrollment;
 import edu.ksu.canvas.model.Role;
 import edu.ksu.canvas.model.User;
+import edu.ksu.canvas.model.assignment.Assignment;
+import edu.ksu.canvas.model.assignment.Submission;
 import edu.ksu.canvas.oauth.OauthToken;
-import edu.ksu.canvas.requestOptions.GetSingleCourseOptions;
-import edu.ksu.canvas.requestOptions.GetUsersInAccountOptions;
-import edu.ksu.canvas.requestOptions.ListRolesOptions;
+import edu.ksu.canvas.requestOptions.*;
 import lombok.extern.slf4j.Slf4j;
 import no.odit.gatevas.misc.CanvasAPI;
 import no.odit.gatevas.model.Classroom;
+import no.odit.gatevas.model.CourseApplication;
 import no.odit.gatevas.model.RoomLink;
 import no.odit.gatevas.model.Student;
+import no.odit.gatevas.type.ApplicationStatus;
 import no.odit.gatevas.type.CanvasStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -125,10 +129,60 @@ public class CanvasService {
         }
     }
 
+    public void test(Classroom classRoom) throws IOException {
+
+        log.info("Testing...");
+
+        OauthToken oauthToken = canvasAPI.getOauthToken();
+        CanvasApiFactory apiFactory = canvasAPI.getApiFactory();
+
+        String canvasCourseId = String.valueOf(classRoom.getCanvasId());
+//        List<Student> students = classRoom.getStudents();
+        List<CourseApplication> courseApplications = courseService.getCourseApplications(classRoom);
+
+        SubmissionReader submissionReader = apiFactory.getReader(SubmissionReader.class, oauthToken);
+        AssignmentReader assignmentReader = apiFactory.getReader(AssignmentReader.class, oauthToken);
+
+
+        ListCourseAssignmentsOptions assignmentsOptions = new ListCourseAssignmentsOptions(canvasCourseId);
+        List<Assignment> assignments = assignmentReader.listCourseAssignments(assignmentsOptions);
+        List<Submission> submissions = new ArrayList<>();
+        for (Assignment assignment : assignments) {
+            GetSubmissionsOptions submissionsOptions = new GetSubmissionsOptions(canvasCourseId, assignment.getId());
+            submissions.addAll(submissionReader.getCourseSubmissions(submissionsOptions));
+        }
+        for (Submission submission : submissions) {
+            int canvasUserId = submission.getUserId();
+            String submissionType = submission.getSubmissionType();
+            Date submissionDate = submission.getSubmittedAt();
+            if (submissionDate == null || submission.getLate() == null ||
+                    submission.getLate() || submissionType == null) {
+                log.warn("Student with user id '" + canvasUserId + "' have not delivered assignment for '" + classRoom.getLongName() + "' course.");
+                continue;
+            }
+            courseApplications.stream()
+                    .filter(courseApplication -> courseApplication.getStudent().getCanvasId() == canvasUserId)
+                    .findAny().ifPresentOrElse((courseApplication) -> {
+                Student student = courseApplication.getStudent();
+                courseApplication.setStatus(ApplicationStatus.FINISHED);
+                courseService.updateCourseApplication(courseApplication);
+                log.info("Student '" + student.getFullName() + "' have delivered assignment for '" + classRoom.getLongName() + "' course.");
+            }, () -> {
+                log.warn("Unable to find student by user id '" + canvasUserId + "' for submission in '" + classRoom.getLongName() + "' course.");
+            });
+        }
+
+        log.info("Passed test!");
+
+
+    }
+
     // Synchronizes users in course with Canvas LMS.
     public boolean syncUsersReadOnly(Classroom classRoom) {
 
         try {
+
+            test(classRoom);
 
             List<Student> students = classRoom.getStudents().stream().filter(student -> student.getCanvasStatus() != CanvasStatus.EXISTS)
                     .collect(Collectors.toList());
@@ -176,6 +230,8 @@ public class CanvasService {
     // Synchronizes local course data with Canvas LMS.
     public boolean syncCourseReadOnly(Classroom classRoom) {
         try {
+
+            test(classRoom);
 
             // Authenticate with API
             OauthToken oauthToken = canvasAPI.getOauthToken();

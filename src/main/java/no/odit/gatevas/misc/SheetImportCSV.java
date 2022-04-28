@@ -59,10 +59,11 @@ public class SheetImportCSV {
             log.debug("Found " + records.size() + " records.");
             for (CSVRecord record : records) {
                 String education = record.get("Utdanning");
+                String alternative = education.length() > 8 && education.contains(" - ") ? education.split(" - ")[0] : education;
                 if (courseType == null) courseType = courseService.getCourseType(education).orElseThrow();
-                else if (!education.equalsIgnoreCase(courseType.getLongName())
-                        && !education.equalsIgnoreCase(courseType.getShortName())
-                        && !education.equalsIgnoreCase(courseType.getAliasName())) continue;
+                else if (!education.equalsIgnoreCase(courseType.getLongName()) && !education.equalsIgnoreCase(courseType.getShortName())
+                        && !education.equalsIgnoreCase(courseType.getAliasName()) && !alternative.equalsIgnoreCase(courseType.getLongName())
+                        && !alternative.equalsIgnoreCase(courseType.getAliasName())) continue;
 
                 String firstName = record.get("Fornavn");
                 String lastName = record.get("Etternavn");
@@ -101,11 +102,11 @@ public class SheetImportCSV {
 
                 if (student.getSocialSecurityNumber() == null && record.isMapped("Personnummer")) {
                     String socialSecurityNumber = record.get("Personnummer");
-                    if (socialSecurityNumber != null && socialSecurityNumber.length() == 11){
+                    if (socialSecurityNumber != null && socialSecurityNumber.length() == 11) {
                         socialSecurityNumber = textEncryptor.encrypt(socialSecurityNumber);
                         student.setSocialSecurityNumber(socialSecurityNumber);
                         studentService.saveChanges(student);
-                        log.debug("Updated social security number for " + student.getFullName() +  " to: " + socialSecurityNumber);
+                        log.debug("Updated social security number for " + student.getFullName() + " to: " + socialSecurityNumber);
 
                     } else {
                         log.warn("Invalid social security number for " + student.getFullName() + ".");

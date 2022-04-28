@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -34,6 +35,26 @@ public class CourseService {
 
     @Autowired
     private SheetImportCSV sheetImportCSV;
+
+    // Save changes for course application
+    public void updateCourseApplication(CourseApplication courseApplication) {
+        courseApplicationRepo.saveAndFlush(courseApplication);
+    }
+
+    // Get course applications by course
+    public List<CourseApplication> getCourseApplications(Classroom course) {
+        Set<RoomLink> enrollments = course.getEnrollments();
+        List<CourseApplication> applications = getCourseTypeApplications(course.getType());
+        List<Student> students = enrollments.stream().map(enrollment -> enrollment.getStudent()).collect(Collectors.toList());
+        return applications.stream().filter(application ->
+                        students.stream().anyMatch(student -> student.getId().equals(application.getStudent().getId())))
+                .collect(Collectors.toList());
+    }
+
+    // Get course applications by type
+    public List<CourseApplication> getCourseTypeApplications(CourseType courseType) {
+        return courseApplicationRepo.findByCourse(courseType);
+    }
 
     // Imports students from single course list
     public Optional<Set<Student>> importStudents(File csvFile, Classroom course, boolean useComma) {
@@ -88,8 +109,9 @@ public class CourseService {
 //                                .orElse(courseTypeRepo.findByLongName(name)
 //                                        .orElse(courseTypeRepo.findByAliasName(name).orElse(null)))
 //                        ));
+        String alternative = name.contains(" - ") ? name.split(" - ")[0] : name;
         return Optional.ofNullable(courseTypeRepo.findByShortName(name)
-                .orElse(courseTypeRepo.findByLongName(name)
+                .orElse(courseTypeRepo.findByLongName(alternative)
                         .orElse(courseTypeRepo.findByAliasName(name).orElse(null))));
     }
 
