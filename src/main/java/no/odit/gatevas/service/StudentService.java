@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class StudentService {
     private CanvasService canvasService;
 
     // Creates a new student or get existing
-    public Student createStudent(String email, String firstName, String lastName, Integer phoneNumber) {
+    public Student createStudent(String email, String firstName, String lastName, LocalDate birth, Integer phoneNumber) {
 
         // Detect and throw decoding error
         if (firstName.matches("[^a-zA-Z0-9 ÆØÅæøå]") || lastName.matches("[^a-zA-Z0-9 ÆØÅæøå]")
@@ -47,14 +48,14 @@ public class StudentService {
         Optional<Student> existingEmail = getUserByEmail(email);
         if (existingEmail.isPresent()) {
             log.debug("EMAIL ALREADY EXIST -> " + existingEmail.get());
-            return fixStudentName(existingEmail.get(), firstName, lastName);
+            return fixStudentDetails(existingEmail.get(), firstName, lastName, email);
         }
 
-        // Return existing student (name)
-        Optional<Student> existingName = getUserByName(firstName, lastName);
+        // Return existing student (name & birth)
+        Optional<Student> existingName = getUserByNameAndBirth(firstName, lastName, birth);
         if (existingName.isPresent()) {
             log.debug("NAME ALREADY EXIST -> " + existingName.get());
-            return fixStudentName(existingName.get(), firstName, lastName);
+            return fixStudentDetails(existingName.get(), firstName, lastName, email);
         }
 
         // Create new student
@@ -63,6 +64,7 @@ public class StudentService {
         student.setEmail(email.trim());
         student.setFirstName(firstName.trim());
         student.setLastName(lastName.trim());
+        student.setBirthDate(birth);
         student.setTmpPassword(GeneralUtil.generatePassword());
         student.setPhone(phone);
         student.setLoginInfoSent(false);
@@ -74,14 +76,20 @@ public class StudentService {
         return student;
     }
 
-    // Fix encoding in student name
-    public Student fixStudentName(Student student, String firstName, String lastName) {
+    // Fix student name and email address
+    public Student fixStudentDetails(Student student, String firstName, String lastName, String emailAddress) {
         if (student.getFullName().matches("[^a-zA-Z0-9 ÆØÅæøå]") || student.getFullName().contains("�")) {
             log.warn("Detected encoding error in student details for " + student.getFullName() + ".");
             student.setFirstName(firstName);
             student.setLastName(lastName);
             student = studentRepo.saveAndFlush(student);
             log.info("Fixed encoding in student details for " + firstName + " " + lastName + ".");
+        }
+        if (!student.getEmail().equalsIgnoreCase(emailAddress)) {
+            student.setLogin(student.getEmail());
+            student.setEmail(emailAddress);
+            student = studentRepo.saveAndFlush(student);
+            log.info("Updated email address for " + firstName + " " + lastName + " to " + emailAddress + ".");
         }
         return student;
     }
@@ -122,9 +130,15 @@ public class StudentService {
         studentRepo.saveAndFlush(student);
     }
 
-    // Get student from storage by names
+    // Get student from storage by name
+    @Deprecated
     public Optional<Student> getUserByName(String firstName, String lastName) {
         return studentRepo.findByFirstNameAndLastName(firstName.trim(), lastName.trim());
+    }
+
+    // Get student from storage by name and birth
+    public Optional<Student> getUserByNameAndBirth(String firstName, String lastName, LocalDate birthDate) {
+        return studentRepo.findByFirstNameAndLastNameAndBirthDate(firstName.trim(), lastName.trim(), birthDate);
     }
 
     // Get student from storage by email
@@ -133,8 +147,14 @@ public class StudentService {
     }
 
     // Get student from storage by full name
+    @Deprecated
     public Optional<Student> getUserByFullName(String fullName) {
-        return studentRepo.findByFullname(fullName.trim());
+        return studentRepo.findByFullName(fullName.trim());
+    }
+
+    // Get student from storage by full name and birth
+    public Optional<Student> getUserByFullNameAndBirth(String fullName, LocalDate birthDate) {
+        return studentRepo.findByFullNameAndBirthDate(fullName.trim(), birthDate);
     }
 
 }

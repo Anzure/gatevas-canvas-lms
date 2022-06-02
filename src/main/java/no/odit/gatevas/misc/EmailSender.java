@@ -28,7 +28,7 @@ public class EmailSender {
     @Value("${mail.smtp.contact.name}")
     private String contactName;
 
-    public void sendSimpleMessage(String to, String subject, String text) {
+    public void sendSimpleMessage(String to, String cc, String subject, String text) {
         try {
 
             MimeMessage mimeMessage = emailSender.createMimeMessage();
@@ -36,6 +36,7 @@ public class EmailSender {
 
             helper.setFrom(email, name);
             helper.setTo(to);
+            if (cc != null) helper.setCc(cc);
             helper.setBcc(contactEmail);
             helper.setReplyTo(contactEmail, contactName);
             helper.setSubject(subject);

@@ -30,6 +30,9 @@ public class Student {
     @Column(nullable = false)
     private String lastName;
 
+    @Column
+    private String login;
+
     @Column(nullable = false, unique = true)
     private String email;
 

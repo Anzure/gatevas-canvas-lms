@@ -303,8 +303,6 @@ public class CourseCommand implements CommandHandler {
 
             courseService.getCourse(courseName).ifPresentOrElse((course) -> {
 
-                //				System.out.print("Enter status (failed/finished): ");
-                //				ApplicationStatus status = ApplicationStatus.valueOf(commandScanner.nextLine().toUpperCase());
                 ApplicationStatus status = ApplicationStatus.FINISHED;
 
                 System.out.println("Enter student list:");

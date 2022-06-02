@@ -75,28 +75,30 @@ public class SheetImportCSV {
                 phoneInput = phoneInput.length() > 8 ? phoneInput.substring(phoneInput.length() - 8) : phoneInput;
                 Integer phoneNumber = phoneInput.length() > 0 ? Integer.parseInt(phoneInput) : null;
 
-                Student student = studentService.createStudent(emailAddress, firstName, lastName, phoneNumber);
+                LocalDate birthDate = null;
+                String birthInput = record.isMapped("Fodselsdato") ? record.get("Fodselsdato") : record.get("Personnummer").substring(0, 6);
+                if (birthInput != null && birthInput.length() > 5) {
+                    birthInput = birthInput.replaceAll("[^\\d]", "");
+                    if (birthInput.length() == 8)
+                        birthInput = birthInput.substring(0, 4) + birthInput.substring(6, 8);
+                    if (birthInput.length() == 5) birthInput = "0" + birthInput;
+                    birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
+                    if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
+                }
+
+                Student student = studentService.createStudent(emailAddress, firstName, lastName, birthDate, phoneNumber);
 
                 if (student.getPhone() == null || student.getPhone().getPhoneNumber() == null
                         || student.getPhone().getPhoneNumber() == 0) {
                     phoneService.createPhone(phoneNumber);
                 }
 
-                if (student.getBirthDate() == null) {
-                    String birthInput = record.isMapped("Fodselsdato") ? record.get("Fodselsdato") : record.get("Personnummer").substring(0, 6);
-                    if (birthInput != null && birthInput.length() > 5) {
-                        birthInput = birthInput.replaceAll("[^\\d]", "");
-                        if (birthInput.length() == 8)
-                            birthInput = birthInput.substring(0, 4) + birthInput.substring(6, 8);
-                        if (birthInput.length() == 5) birthInput = "0" + birthInput;
-                        LocalDate birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
-                        if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
-                        student.setBirthDate(birthDate);
-                        studentService.saveChanges(student);
-                        if (student.getBirthDate() == null) {
-                            throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
-                                    + " Birth date input: '" + birthInput + "'");
-                        }
+                if (student.getBirthDate() == null && birthDate != null) {
+                    student.setBirthDate(birthDate);
+                    studentService.saveChanges(student);
+                    if (student.getBirthDate() == null) {
+                        throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
+                                + " Birth date input: '" + birthInput + "'");
                     }
                 }
 

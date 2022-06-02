@@ -56,14 +56,22 @@ public class EmailService {
     public void sendEmail(Classroom classRoom, Student student, boolean isTest) {
 
         String email = isTest ? contactEmail : student.getEmail();
+        String login = student.getLogin() != null && student.getLogin().equalsIgnoreCase(student.getEmail()) ? null : student.getLogin();
+        login = isTest ? null : login;
 
         StringBuilder sb = new StringBuilder("<p>Hei</p>");
 
         sb.append("<b>Læringsplattform</b><br/>"
                 + "Bruk følgende detaljer for å logge på Canvas.<br/>"
                 + "Kobling: <a href=\"https://f-vt.instructure.com/login/canvas\">f-vt.instructure.com/login/canvas</a><br/>"
-                + "Brukernavn: " + student.getEmail() + "<br/>"
-                + "Passord: " + student.getTmpPassword() + "<br/>"
+        );
+        if (login != null) {
+            sb.append("Brukernavn: " + student.getLogin() + "<br/>");
+            sb.append("E-post: " + student.getEmail() + "<br/>");
+        } else {
+            sb.append("Brukernavn: " + student.getEmail() + "<br/>");
+        }
+        sb.append("Passord: " + student.getTmpPassword() + "<br/>"
                 + "Det er fint om du logger på og godtar invitasjonen.<br/><br/>");
 
         if (classRoom.getSocialGroup() != null && classRoom.getSocialGroup().length() > 2) {
@@ -83,7 +91,8 @@ public class EmailService {
         sb.append("Med vennlig hilsen<br/>"
                 + "André Mathisen");
 
-        emailSender.sendSimpleMessage(email, "Fagskolen " + classRoom.getShortName(), sb.toString());
+
+        emailSender.sendSimpleMessage(email, login, "Fagskolen " + classRoom.getShortName(), sb.toString());
     }
 
 }

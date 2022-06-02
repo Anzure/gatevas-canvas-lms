@@ -182,7 +182,7 @@ public class CanvasService {
 
         try {
 
-            test(classRoom);
+//            test(classRoom);
 
             List<Student> students = classRoom.getStudents().stream().filter(student -> student.getCanvasStatus() != CanvasStatus.EXISTS)
                     .collect(Collectors.toList());
@@ -231,7 +231,7 @@ public class CanvasService {
     public boolean syncCourseReadOnly(Classroom classRoom) {
         try {
 
-            test(classRoom);
+//            test(classRoom);
 
             // Authenticate with API
             OauthToken oauthToken = canvasAPI.getOauthToken();
@@ -288,14 +288,18 @@ public class CanvasService {
         if (opt.isPresent()) {
             return opt;
         }
-        // Alternatively search by name
-        else {
-            // Search by name and return result
-            options.searchTerm(name);
-            List<User> nameSearchResult = userReader.getUsersInAccount(options);
-            opt = nameSearchResult.stream().filter(user -> user.getName().equalsIgnoreCase(name)).findFirst();
-            return opt;
+        // Alternative email address
+        else if (student.getLogin() != null) {
+            mailSearchResult = userReader.getUsersInAccount(options);
+            opt = mailSearchResult.stream().filter(user -> (user.getLoginId() != null && user.getLoginId().equalsIgnoreCase(student.getEmail())
+                    || (user.getEmail() != null && user.getEmail().equalsIgnoreCase(student.getEmail())))).findFirst();
+            if (opt.isPresent()) return opt;
         }
+        // Search by name and return result
+        options.searchTerm(name);
+        List<User> nameSearchResult = userReader.getUsersInAccount(options);
+        opt = nameSearchResult.stream().filter(user -> user.getName().equalsIgnoreCase(name)).findFirst();
+        return opt;
     }
 
 }
