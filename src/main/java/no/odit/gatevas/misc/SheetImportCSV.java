@@ -58,6 +58,7 @@ public class SheetImportCSV {
             List<CSVRecord> records = parser.getRecords();
             log.debug("Found " + records.size() + " records.");
             for (CSVRecord record : records) {
+                // Parse education
                 String education = record.get("Utdanning");
                 String alternative = education.length() > 8 && education.contains(" - ") ? education.split(" - ")[0] : education;
                 if (courseType == null) courseType = courseService.getCourseType(education).orElseThrow();
@@ -65,43 +66,66 @@ public class SheetImportCSV {
                         && !education.equalsIgnoreCase(courseType.getAliasName()) && !alternative.equalsIgnoreCase(courseType.getLongName())
                         && !alternative.equalsIgnoreCase(courseType.getAliasName())) continue;
 
+                // Parse student data
                 String firstName = record.get("Fornavn");
                 String lastName = record.get("Etternavn");
-
                 String emailAddress = record.get("E-postadresse");
 
+                // Parse phone number
                 String phoneInput = record.get("Mobilnummer");
                 phoneInput = phoneInput.replaceAll("[^0-9]", "");
                 phoneInput = phoneInput.length() > 8 ? phoneInput.substring(phoneInput.length() - 8) : phoneInput;
                 Integer phoneNumber = phoneInput.length() > 0 ? Integer.parseInt(phoneInput) : null;
 
+                // Parse birth date
                 LocalDate birthDate = null;
                 String birthInput = record.isMapped("Fodselsdato") ? record.get("Fodselsdato") : record.get("Personnummer").substring(0, 6);
                 if (birthInput != null && birthInput.length() > 5) {
-                    birthInput = birthInput.replaceAll("[^\\d]", "");
-                    if (birthInput.length() == 8)
-                        birthInput = birthInput.substring(0, 4) + birthInput.substring(6, 8);
-                    if (birthInput.length() == 5) birthInput = "0" + birthInput;
-                    birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
-                    if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
+                    try {
+                        birthInput = birthInput.replaceAll("[^\\d]", "");
+                        if (birthInput.length() == 8)
+                            birthInput = birthInput.substring(0, 4) + birthInput.substring(6, 8);
+                        if (birthInput.length() == 5) birthInput = "0" + birthInput;
+                        birthDate = LocalDate.parse(birthInput, DateTimeFormatter.ofPattern("ddMMyy"));
+                        if (birthDate.isAfter(LocalDate.now().minusYears(15))) birthDate = birthDate.minusYears(100);
+                    } catch (Exception exception) {
+                        log.warn("Failed to parsing birth date for " + firstName + " " + lastName + "."
+                                + " Birth date input: '" + birthInput + "'");
+                    }
+                } else {
+                    log.warn("Failed to parsing birth date for " + firstName + " " + lastName + "."
+                            + " Birth date input: '" + birthInput + "'");
                 }
 
+                // Create new student
                 Student student = studentService.createStudent(emailAddress, firstName, lastName, birthDate, phoneNumber);
 
+                // Update phone number
                 if (student.getPhone() == null || student.getPhone().getPhoneNumber() == null
                         || student.getPhone().getPhoneNumber() == 0) {
                     phoneService.createPhone(phoneNumber);
                 }
 
-                if (student.getBirthDate() == null && birthDate != null) {
+                // Update birth date
+                LocalDate oldBirthDate = null;
+                try {
+                    oldBirthDate = student.getBirthDate();
+                } catch (Exception exception) {
+                    student.setBirthDate(null);
+                    studentService.saveChanges(student);
+                    log.error("Failed to retrieve stored birth date", exception);
+                    System.exit(1);
+                }
+                if (oldBirthDate == null && birthDate != null) {
                     student.setBirthDate(birthDate);
                     studentService.saveChanges(student);
-                    if (student.getBirthDate() == null) {
-                        throw new Error("Failed to parsing birth date for " + student.getFullName() + "."
-                                + " Birth date input: '" + birthInput + "'");
-                    }
+                }
+                if (student.getBirthDate() == null && oldBirthDate == null) {
+                    log.error("Failed to parsing birth date for " + student.getFullName() + "."
+                            + " Birth date input: '" + birthInput + "'");
                 }
 
+                // Social security number
                 if (student.getSocialSecurityNumber() == null && record.isMapped("Personnummer")) {
                     String socialSecurityNumber = record.get("Personnummer");
                     if (socialSecurityNumber != null && socialSecurityNumber.length() == 11) {
@@ -115,6 +139,7 @@ public class SheetImportCSV {
                     }
                 }
 
+                // Update address
                 if (record.isMapped("Adresse")) {
                     try {
                         String streetAddress = record.get("Adresse");
@@ -144,11 +169,13 @@ public class SheetImportCSV {
                     }
                 }
 
+                // Other status
                 Boolean uptake = null;
                 if (record.isMapped("Opptak") && courseType.getUseUptake() != null && courseType.getUseUptake()) {
                     uptake = record.get("Opptak").equalsIgnoreCase("True");
                 }
 
+                // Create course application
                 courseService.createCourseApplication(student, courseType, uptake);
                 students.add(student);
             }

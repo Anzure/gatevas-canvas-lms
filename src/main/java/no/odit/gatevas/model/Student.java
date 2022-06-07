@@ -96,8 +96,12 @@ public class Student {
 
     public LocalDate getBirthDate() {
         if (birthDate == null) return null;
-        return birthDate.isAfter(LocalDate.now().minusYears(90)) && birthDate.isBefore(LocalDate.now().minusYears(15))
-                ? birthDate : null;
+        if (birthDate.isAfter(LocalDate.now())) birthDate = birthDate.minusYears(100);
+        if (birthDate.isBefore(LocalDate.now().minusYears(90)))
+            throw new Error("Birth date " + birthDate.toString() + " for student is too old!");
+        if (birthDate.isAfter(LocalDate.now().minusYears(15)))
+            throw new Error("Birth date " + birthDate.toString() + " for student is too young!");
+        return birthDate;
     }
 
     public String getFullName() {

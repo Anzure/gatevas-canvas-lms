@@ -15,6 +15,8 @@ public interface StudentRepo extends JpaRepository<Student, UUID> {
     @Deprecated
     Optional<Student> findByFirstNameAndLastName(String firstName, String lastName);
 
+    Optional<Student> findByFirstNameAndLastNameAndBirthDateIsNull(String firstName, String lastName);
+
     Optional<Student> findByFirstNameAndLastNameAndBirthDate(String firstName, String lastName, LocalDate birthDate);
 
     @Query(value = "SELECT * FROM student WHERE CONCAT(first_name, ' ', last_name) = :fullName AND birth_date = :birthDate", nativeQuery = true)
@@ -25,5 +27,7 @@ public interface StudentRepo extends JpaRepository<Student, UUID> {
     Optional<Student> findByFullName(String fullName);
 
     Optional<Student> findByEmail(String email);
+
+    Optional<Student> findByLoginIsNotNullAndLogin(String login);
 
 }

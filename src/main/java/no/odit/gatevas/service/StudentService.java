@@ -58,6 +58,32 @@ public class StudentService {
             return fixStudentDetails(existingName.get(), firstName, lastName, email);
         }
 
+        // Return existing student (login)
+        Optional<Student> existingLogin = getUserByLogin(email);
+        if (existingLogin.isPresent()) {
+            log.debug("LOGIN ALREADY EXIST -> " + existingLogin.get());
+            return fixStudentDetails(existingLogin.get(), firstName, lastName, email);
+        }
+
+        // Return existing student (name & null-birth)
+        if (birth != null) {
+            try {
+                Optional<Student> existingNonBirth = getUserByNameAndBirth(firstName, lastName, null);
+                if (existingNonBirth.isPresent()) {
+                    log.debug("NAME WITH NON-BIRTH ALREADY EXIST -> " + existingNonBirth.get());
+                    return fixStudentDetails(existingNonBirth.get(), firstName, lastName, email);
+                }
+
+                Optional<Student> existingNullBirth = getUserByNameAndNullBirth(firstName, lastName);
+                if (existingNullBirth.isPresent()) {
+                    log.debug("NAME WITH NULL-BIRTH ALREADY EXIST -> " + existingNullBirth.get());
+                    return fixStudentDetails(existingNullBirth.get(), firstName, lastName, email);
+                }
+            } catch (Exception exception) {
+                log.warn("Failed to retrieve existing student by name without birth date", exception);
+            }
+        }
+
         // Create new student
         Phone phone = phoneService.createPhone(phoneNumber);
         Student student = new Student();
@@ -136,6 +162,11 @@ public class StudentService {
         return studentRepo.findByFirstNameAndLastName(firstName.trim(), lastName.trim());
     }
 
+    // Get student from storage by name and null-birth
+    public Optional<Student> getUserByNameAndNullBirth(String firstName, String lastName) {
+        return studentRepo.findByFirstNameAndLastNameAndBirthDateIsNull(firstName.trim(), lastName.trim());
+    }
+
     // Get student from storage by name and birth
     public Optional<Student> getUserByNameAndBirth(String firstName, String lastName, LocalDate birthDate) {
         return studentRepo.findByFirstNameAndLastNameAndBirthDate(firstName.trim(), lastName.trim(), birthDate);
@@ -144,6 +175,11 @@ public class StudentService {
     // Get student from storage by email
     public Optional<Student> getUserByEmail(String email) {
         return studentRepo.findByEmail(email.trim());
+    }
+
+    // Get student from storage by login
+    public Optional<Student> getUserByLogin(String login) {
+        return studentRepo.findByLoginIsNotNullAndLogin(login.trim());
     }
 
     // Get student from storage by full name
